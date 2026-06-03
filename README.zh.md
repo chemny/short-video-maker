@@ -186,30 +186,6 @@ npm exec -- tsc --noEmit
 请使用 remotion-short-video skill，基于 examples/input.md 生成一个 60 秒中文竖屏解说视频方案。请生成脚本、分镜、video-plan、字幕和首帧预览。在我确认之前不要渲染完整视频。
 ```
 
-## 更新方式
-
-把最新仓库拉取或复制到同一个 skill 文件夹。如果 `package.json` 或 `remotion/package.json` 发生变化，重新安装依赖：
-
-```bash
-npm install
-cd remotion
-npm install
-```
-
-更新后建议开启新的 agent 会话，让运行环境重新读取 `SKILL.md`。
-
-## 发布
-
-这个 skill 只保留视频生成主流程。GitHub 发布检查、安全检查、平台兼容性和发布流程统一交给 `GitHub-skill-publisher`。
-
-发布前需要确认：
-
-- 没有真实 `.env` 或 API key
-- 生成媒体和 `jobs/` 输出已被忽略或清理
-- `npm run check` 通过
-- `cd remotion && npm exec -- tsc --noEmit` 通过
-- `SKILL.md`、`README.md`、`README.zh.md`、`LICENSE`、`.gitignore` 和被引用文件都存在
-
 ## 许可证
 
 MIT

@@ -186,30 +186,6 @@ Fresh-session verification prompt:
 Use the remotion-short-video skill to create a 60-second Chinese vertical explainer from examples/input.md. Generate the script, storyboard, video plan, captions, and first-frame preview. Do not render the full video until I confirm.
 ```
 
-## Updating
-
-Pull or copy the latest repository into the same skill folder, then reinstall dependencies if `package.json` or `remotion/package.json` changed:
-
-```bash
-npm install
-cd remotion
-npm install
-```
-
-Start a fresh agent session after updating so the runtime can reload `SKILL.md`.
-
-## Publishing
-
-This skill keeps video-generation logic only. For GitHub publishing checks, security review, platform compatibility, and release workflow, use `GitHub-skill-publisher`.
-
-Before publishing this repository, verify:
-
-- no real `.env` or API keys are included
-- generated media and `jobs/` outputs are ignored or removed
-- `npm run check` passes
-- `cd remotion && npm exec -- tsc --noEmit` passes
-- `SKILL.md`, `README.md`, `README.zh.md`, `LICENSE`, `.gitignore`, and all referenced files are present
-
 ## License
 
 MIT
