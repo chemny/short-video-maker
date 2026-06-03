@@ -1,0 +1,22 @@
+{
+  "name": "remotion-short-video-template",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "preview": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts ShortVideo out/video.mp4 --codec=h264 --audio-codec=aac",
+    "cover": "remotion still src/index.ts CoverStill out/cover.png --frame=0"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.367",
+    "@remotion/media": "^4.0.367",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.367"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "typescript": "^5.4.5"
+  }
+}

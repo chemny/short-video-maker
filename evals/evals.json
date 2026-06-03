@@ -1,0 +1,23 @@
+{
+  "skill_name": "remotion-short-video",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我有个想法：很多人做 AI 产品，一上来就想做很大的 Agent，但真正有价值的是窄场景、快反馈。帮我做成一个 2 分钟左右的小红书/抖音短视频。",
+      "expected_output": "Produces an analysis, a 90-130 second Chinese short-video script, scene storyboard, voiceover/caption plan, visual plan, cover idea, and publish copy. Should mention Remotion video-plan JSON as the rendering contract.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "把这篇文章改成一个竖屏短视频：文章核心是创业公司不要一开始追求全自动 AI Agent，而应该先做半自动流程，因为这样更容易交付、验证和获得用户信任。",
+      "expected_output": "Converts article content into a social-video structure with hook, conflict, 2-4 main points, ending, scene-by-scene visuals, narration, captions, and platform-ready title/tag suggestions.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "帮我做一个关于最新 AI 视频生成工具趋势的 2 分钟短视频，适合发抖音和小红书，要先调研再写脚本。",
+      "expected_output": "Recognizes the topic requires current research, gathers and cites reliable current sources before scripting, then produces a structured script/storyboard/video-plan outline with risk notes.",
+      "files": []
+    }
+  ]
+}
