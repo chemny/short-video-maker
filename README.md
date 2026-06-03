@@ -6,6 +6,23 @@ Turn an article, topic, or rough idea into a narrated vertical short-video packa
 
 This skill is designed to be portable across Codex, Claude Code, and OpenClaw. The active agent handles research, analysis, script writing, and storyboarding; the bundled Node and Remotion workflow handles validation, TTS synchronization, captions, first-frame preview, rendering, cover export, and packaging.
 
+## How It Works
+
+```mermaid
+flowchart TD
+    A["Article / topic / idea"] --> B["Extract angle and audience"]
+    B --> C["Create script and storyboard"]
+    C --> D["Build video-plan.json"]
+    D --> E["Generate voiceover and captions"]
+    E --> F["Create first-frame preview"]
+    F --> G{"User approves?"}
+    G -- "Revise" --> C
+    G -- "Approve" --> H["Render with Remotion"]
+    H --> I["Package video, cover, script, and publish copy"]
+```
+
+The agent handles creative judgment: research, angle selection, scripting, and storyboard planning. The local scripts handle repeatable execution: validation, TTS sync, captions, preview, rendering, quality checks, and packaging.
+
 ## Who Should Use It
 
 Use this skill when you want an agent to produce a complete short-video workflow from a source article, topic, or idea:
