@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "defaults": {
+    "platforms": ["xiaohongshu", "douyin"],
+    "language": "zh-CN",
+    "durationSeconds": {
+      "min": 90,
+      "max": 130
+    },
+    "tts": {
+      "provider": "edge",
+      "voice": "zh-CN-XiaoxiaoNeural",
+      "rate": "default"
+    },
+    "captions": {
+      "position": "bottom",
+      "mode": "sentence",
+      "maxChars": 34
+    },
+    "cover": {
+      "titleMinChars": 8,
+      "titleMaxChars": 14,
+      "layout": "bold-title"
+    },
+    "audio": {
+      "bgmVolume": 0.12,
+      "duckBgm": true
+    }
+  },
+  "styleProfiles": []
+}

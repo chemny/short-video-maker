@@ -1,0 +1,19 @@
+{
+  "terms": [
+    {
+      "text": "OpenAI",
+      "pronunciation": "Open A I",
+      "note": "Keep English letter pronunciation when the TTS voice handles it well."
+    },
+    {
+      "text": "Claude",
+      "pronunciation": "克劳德",
+      "note": "Chinese narration fallback."
+    },
+    {
+      "text": "Remotion",
+      "pronunciation": "Re-motion",
+      "note": "Avoid being read as an unknown word."
+    }
+  ]
+}
