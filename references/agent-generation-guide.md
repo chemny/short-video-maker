@@ -24,6 +24,10 @@ Research before scripting when the topic is:
 
 If the topic is a timeless opinion, tutorial, or article transformation, research is optional unless the user asks for it.
 
+## Long Input Rule
+
+If the input is a long article, long narration, video podcast script, or `podcast.txt`, read `long-to-short-rules.md` before writing `analysis.json`. Extract one strong short-video angle instead of compressing the whole source.
+
 ## `analysis.json`
 
 Produce this shape:
@@ -131,9 +135,23 @@ Supported MVP motions:
 - `pan-right`
 - `fade-up`
 
+Recommended template and preset pairs:
+
+- 通用方法论：`style.template = "clean-explainer"`, `style.preset = "warm-note"` or `"soft-product"`.
+- AI 工具 / 工作流：`style.template = "app-workflow"`, `style.preset = "soft-product"` or `"mono-tech"`.
+- 小红书收藏笔记：`style.template = "sketch-notes"`, `style.preset = "warm-note"`.
+- 数据结论：`style.template = "data-punch"`, `style.preset = "dark-cinematic"`.
+- 案例叙事带图：`style.template = "image-overlay"`, `style.preset = "dark-cinematic"`.
+
 ## `video-plan.json`
 
 Generate the exact schema described in `video-plan-schema.md`.
+
+Before filling `publish`, read `platform-rules.md`.
+
+Before final TTS, read `pronunciation-rules.md` and create job-local pronunciation overrides when needed.
+
+If `data/user_prefs.json` or a job-specific preference file exists, read `preference-rules.md` before applying it.
 
 Before TTS, the scene timings can be estimates. After TTS, `sync-edge-tts.mjs`, `sync-local-audio.mjs`, or `sync-volcengine-tts.mjs` will retime scenes and captions from real audio duration.
 
@@ -162,7 +180,10 @@ Before TTS, use this convention:
 5. Create or update `storyboard.json`.
 6. Create or update `video-plan.json`.
 7. Run `scripts/validate-plan.mjs <job>/video-plan.json`.
-8. Install the plan into Remotion with `scripts/install-job-plan.mjs <job>`.
-9. Run TTS.
-10. Render cover and video.
-11. Package outputs.
+8. Run `scripts/audit-timing.mjs <job>/video-plan.json`.
+9. Install the plan into Remotion with `scripts/install-job-plan.mjs <job>`.
+10. Run TTS.
+11. Run validation and timing audit again.
+12. Generate first-frame preview.
+13. Render cover and video only after user confirmation.
+14. Package outputs and run `scripts/quality-check.mjs`.

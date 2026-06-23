@@ -34,6 +34,24 @@ const remotionDir = path.join(skillRoot, 'remotion');
 const remotionPublic = path.join(remotionDir, 'public');
 const planPath = path.join(remotionPublic, 'video-plan.json');
 const outputDir = path.join(remotionPublic, 'output');
+const syncJobArtifacts = () => {
+  fs.copyFileSync(planPath, path.join(jobDir, 'video-plan.json'));
+
+  for (const dirName of ['audio', 'captions']) {
+    const sourceDir = path.join(remotionPublic, dirName);
+    const targetDir = path.join(jobDir, dirName);
+    if (fs.existsSync(sourceDir)) {
+      fs.rmSync(targetDir, {recursive: true, force: true});
+      fs.cpSync(sourceDir, targetDir, {recursive: true});
+    }
+  }
+
+  if (fs.existsSync(outputDir)) {
+    const targetOutput = path.join(jobDir, 'output');
+    fs.rmSync(targetOutput, {recursive: true, force: true});
+    fs.cpSync(outputDir, targetOutput, {recursive: true});
+  }
+};
 
 const run = (command, args, cwd = skillRoot) => {
   console.log(`$ ${command} ${args.join(' ')}`);
@@ -42,6 +60,7 @@ const run = (command, args, cwd = skillRoot) => {
 
 run('node', [path.join(skillRoot, 'scripts/install-job-plan.mjs'), jobDir]);
 run('node', [path.join(skillRoot, 'scripts/validate-plan.mjs'), planPath]);
+run('node', [path.join(skillRoot, 'scripts/audit-timing.mjs'), planPath]);
 
 if (ttsArg === 'edge') {
   run('node', [path.join(skillRoot, 'scripts/sync-edge-tts.mjs'), planPath]);
@@ -55,6 +74,8 @@ if (ttsArg === 'edge') {
 }
 
 run('node', [path.join(skillRoot, 'scripts/validate-plan.mjs'), planPath]);
+run('node', [path.join(skillRoot, 'scripts/audit-timing.mjs'), planPath]);
+syncJobArtifacts();
 run('node', [path.join(skillRoot, 'scripts/package-output.mjs'), planPath, 'output']);
 
 if (previewFrame !== undefined || shouldRender) {
@@ -92,5 +113,7 @@ if (shouldRender) {
 }
 
 run('node', [path.join(skillRoot, 'scripts/quality-check.mjs'), planPath, 'output']);
+syncJobArtifacts();
 
 console.log(`Done: ${outputDir}`);
+console.log(`Synced job output: ${path.join(jobDir, 'output')}`);

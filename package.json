@@ -1,10 +1,13 @@
 {
-  "name": "remotion-short-video-skill",
-  "version": "0.1.0",
+  "name": "short-video-maker-skill",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "scripts": {
     "check": "find scripts -name '*.mjs' -maxdepth 3 -print0 | xargs -0 -n1 node --check",
+    "audit:timing": "node scripts/audit-timing.mjs",
+    "plan:validate": "node scripts/validate-plan.mjs",
+    "quality:check": "node scripts/quality-check.mjs",
     "tts:voices": "node scripts/tts.mjs voices",
     "tts:preview": "node scripts/tts.mjs preview"
   },

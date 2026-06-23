@@ -34,6 +34,7 @@ Voiceover audio is the master timeline for this skill.
 ## Diagnostics
 
 - Use FFmpeg or media tooling to inspect duration, codec, and stream presence.
+- Run `scripts/audit-timing.mjs <video-plan.json>` before and after TTS.
 - Check that the rendered video has audio when `audio.voiceover` is set.
 - If the video ends before audio, fix `durationSeconds`.
 - If captions drift, retime from audio again instead of manually nudging a few captions.

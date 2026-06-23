@@ -1,5 +1,6 @@
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, Img, staticFile} from 'remotion';
 import {VideoPlan} from './lib/types';
+import {resolvePreset} from './lib/stylePresets';
 
 const pickFooter = (plan: VideoPlan) => {
   const platforms = plan.meta.platforms?.length > 0 ? plan.meta.platforms.join(' / ') : 'short video';
@@ -7,34 +8,58 @@ const pickFooter = (plan: VideoPlan) => {
 };
 
 export const CoverStill = ({plan}: {plan: VideoPlan}) => {
-  const secondary = plan.style.textSecondary ?? '#4B5563';
   const titleLength = plan.cover.title.length;
+  const bgAsset = plan.cover.backgroundAsset;
+  const preset = resolvePreset(plan);
+
+  // 有 AI 背景图：深色压暗 + 底部蒙层，保证浅色标题可读
+  const hasImage = Boolean(bgAsset);
+  const secondary = hasImage ? 'rgba(255,255,255,0.72)' : preset.textSecondary;
+  const titleColor = hasImage ? '#FFFFFF' : preset.textPrimary;
 
   return (
     <AbsoluteFill
       style={{
-        background: plan.style.background,
-        color: plan.style.textPrimary,
+        background: preset.background,
+        color: titleColor,
         fontFamily:
           'Inter, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", ui-sans-serif, system-ui, sans-serif',
         overflow: 'hidden',
         padding: 76,
       }}
     >
-      <AbsoluteFill
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0)), radial-gradient(circle at 84% 14%, rgba(37,99,235,0.14), transparent 30%), radial-gradient(circle at 10% 82%, rgba(16,185,129,0.12), transparent 32%)',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          opacity: 0.68,
-          backgroundImage:
-            'linear-gradient(rgba(17,24,39,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(17,24,39,0.045) 1px, transparent 1px)',
-          backgroundSize: '58px 58px',
-        }}
-      />
+      {hasImage ? (
+        <>
+          <Img
+            src={staticFile(bgAsset as string)}
+            style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'}}
+          />
+          {/* 整体压暗 + 底部加重，托住底部大标题 */}
+          <AbsoluteFill
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.10) 38%, rgba(0,0,0,0.62) 74%, rgba(0,0,0,0.86) 100%)',
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <AbsoluteFill
+            style={{
+              background:
+                `linear-gradient(180deg, rgba(255,255,255,0.44), rgba(255,255,255,0)), radial-gradient(circle at 82% 12%, ${preset.accent}24, transparent 30%), radial-gradient(circle at 12% 82%, ${preset.accentAlt}20, transparent 32%)`,
+            }}
+          />
+          <AbsoluteFill
+            style={{
+              opacity: 0.68,
+              backgroundImage:
+                `linear-gradient(${preset.line}66 1px, transparent 1px), linear-gradient(90deg, ${preset.line}50 1px, transparent 1px)`,
+              backgroundSize: '58px 58px',
+            }}
+          />
+        </>
+      )}
 
       <div
         style={{
@@ -42,10 +67,10 @@ export const CoverStill = ({plan}: {plan: VideoPlan}) => {
           left: 84,
           top: 82,
           borderRadius: 6,
-          color: plan.style.accent,
+          color: preset.accent,
           fontSize: 36,
           fontWeight: 850,
-          outline: `2px solid ${plan.style.accent}`,
+          outline: `2px solid ${preset.accent}`,
           padding: '12px 20px',
           zIndex: 1,
         }}
@@ -80,7 +105,7 @@ export const CoverStill = ({plan}: {plan: VideoPlan}) => {
         {plan.cover.subtitle ? (
           <div
             style={{
-              color: plan.style.accent,
+          color: preset.accent,
               fontSize: 42,
               fontWeight: 820,
               marginBottom: 30,

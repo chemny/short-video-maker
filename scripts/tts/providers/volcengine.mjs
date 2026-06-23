@@ -44,7 +44,7 @@ const getConfig = ({skillRoot, options}) => {
         ? Number(options.loudness)
         : envNumber('VOLCENGINE_TTS_LOUDNESS_RATIO', preset?.loudnessRatio ?? 1),
     model: options.model ?? process.env.VOLCENGINE_TTS_MODEL ?? preset?.model ?? 'seed-tts-1.1',
-    uid: process.env.VOLCENGINE_TTS_UID ?? 'remotion-short-video',
+    uid: process.env.VOLCENGINE_TTS_UID ?? 'short-video-maker',
     preset,
   };
 };

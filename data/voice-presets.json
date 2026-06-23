@@ -1,5 +1,125 @@
 [
   {
+    "id": "shuanglang-shaonian",
+    "name": "爽朗少年",
+    "provider": "volcengine",
+    "voiceType": "saturn_zh_male_shuanglangshaonian_tob",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["口播", "观点视频", "知识科普"],
+    "note": "默认角色。爽朗的少年男声，角色扮演音色。"
+  },
+  {
+    "id": "tiancai-tongzhuo",
+    "name": "天才同桌",
+    "provider": "volcengine",
+    "voiceType": "saturn_zh_male_tiancaitongzhuo_tob",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["角色扮演", "轻松内容"],
+    "note": "少年男声，角色扮演音色。"
+  },
+  {
+    "id": "cancan",
+    "name": "知性灿灿",
+    "provider": "volcengine",
+    "voiceType": "saturn_zh_female_cancan_tob",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["知性口播", "讲解"],
+    "note": "知性女声，角色扮演音色。"
+  },
+  {
+    "id": "keai-nvsheng",
+    "name": "可爱女生",
+    "provider": "volcengine",
+    "voiceType": "saturn_zh_female_keainvsheng_tob",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["生活方式", "种草笔记"],
+    "note": "可爱女声，角色扮演音色。"
+  },
+  {
+    "id": "tiaopi-gongzhu",
+    "name": "调皮公主",
+    "provider": "volcengine",
+    "voiceType": "saturn_zh_female_tiaopigongzhu_tob",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["趣味内容", "角色扮演"],
+    "note": "调皮女声，角色扮演音色。"
+  },
+  {
+    "id": "vivi",
+    "name": "vivi 2.0",
+    "provider": "volcengine",
+    "voiceType": "zh_female_vv_uranus_bigtts",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["通用口播", "知识科普"],
+    "note": "通用女声，BigTTS 音色。"
+  },
+  {
+    "id": "xiaohe",
+    "name": "小何",
+    "provider": "volcengine",
+    "voiceType": "zh_female_xiaohe_uranus_bigtts",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["通用口播", "教程"],
+    "note": "通用女声，BigTTS 音色。"
+  },
+  {
+    "id": "yunzhou",
+    "name": "云舟",
+    "provider": "volcengine",
+    "voiceType": "zh_male_m191_uranus_bigtts",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["通用口播", "商业分析"],
+    "note": "通用男声，BigTTS 音色。"
+  },
+  {
+    "id": "xiaotian",
+    "name": "小天",
+    "provider": "volcengine",
+    "voiceType": "zh_male_taocheng_uranus_bigtts",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["通用口播", "工具教程"],
+    "note": "通用男声，BigTTS 音色。"
+  },
+  {
+    "id": "tim",
+    "name": "Tim",
+    "provider": "volcengine",
+    "voiceType": "en_male_tim_uranus_bigtts",
+    "model": "seed-tts-1.1",
+    "cluster": "volcano_tts",
+    "speedRatio": 1,
+    "loudnessRatio": 1,
+    "bestFor": ["英文口播"],
+    "note": "英文男声，BigTTS 音色。"
+  },
+  {
     "id": "deep-male",
     "name": "厚重男声",
     "provider": "volcengine",
@@ -9,42 +129,6 @@
     "speedRatio": 0.94,
     "loudnessRatio": 1.08,
     "bestFor": ["知识讲解", "技术科普", "商业分析"],
-    "note": "当前账号已验证可用的男声。通过较慢语速和更高响度，让声音更沉稳。"
-  },
-  {
-    "id": "natural-male",
-    "name": "自然男声",
-    "provider": "volcengine",
-    "voiceType": "zh_male_M392_conversation_wvae_bigtts",
-    "model": "seed-tts-1.1",
-    "cluster": "volcano_tts",
-    "speedRatio": 1,
-    "loudnessRatio": 1,
-    "bestFor": ["小红书口播", "轻知识", "工具教程"],
-    "note": "当前默认口播男声，语气自然，但厚重感较弱。"
-  },
-  {
-    "id": "calm-female",
-    "name": "沉稳女声",
-    "provider": "volcengine",
-    "voiceType": "",
-    "model": "seed-tts-1.1",
-    "cluster": "volcano_tts",
-    "speedRatio": 0.96,
-    "loudnessRatio": 1.04,
-    "bestFor": ["教程", "新闻感内容", "说明类视频"],
-    "note": "占位预设。使用前先通过火山音色列表接口填入可用 voiceType。"
-  },
-  {
-    "id": "young-female",
-    "name": "年轻女声",
-    "provider": "volcengine",
-    "voiceType": "",
-    "model": "seed-tts-1.1",
-    "cluster": "volcano_tts",
-    "speedRatio": 1.02,
-    "loudnessRatio": 1,
-    "bestFor": ["轻快内容", "生活方式", "种草笔记"],
-    "note": "占位预设。使用前先通过火山音色列表接口填入可用 voiceType。"
+    "note": "此前账号验证可用的男声。较慢语速 + 更高响度更沉稳。"
   }
 ]

@@ -28,7 +28,7 @@ export const preview = async ({text, outputPath, options}) => {
   requireCommands(['say', 'ffmpeg']);
   const voice = options.voice ?? process.env.MACOS_TTS_VOICE ?? 'Tingting';
   const rate = options.rate ?? process.env.MACOS_TTS_RATE ?? '185';
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'remotion-short-video-tts-preview-'));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'short-video-maker-tts-preview-'));
   const textPath = path.join(tmpDir, 'sample.txt');
   const aiffPath = path.join(tmpDir, 'sample.aiff');
 
@@ -53,7 +53,7 @@ export const generate = async ({plan, planDir, outputMp3, options}) => {
   const voice = options.voice ?? process.env.MACOS_TTS_VOICE ?? 'Tingting';
   const rate = options.rate ?? process.env.MACOS_TTS_RATE ?? '185';
   const text = plan.scenes.map((scene) => scene.voiceover).join('\n\n');
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'remotion-short-video-tts-'));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'short-video-maker-tts-'));
   const textPath = path.join(tmpDir, 'voiceover.txt');
   const aiffPath = path.join(tmpDir, 'voiceover.aiff');
 

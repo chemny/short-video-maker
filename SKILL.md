@@ -1,12 +1,12 @@
 ---
-name: remotion-short-video
+name: short-video-maker
 description: Turn an article, idea, topic, or research brief into a Xiaohongshu/Douyin-ready vertical short video using a structured AI-to-Remotion workflow. Use this skill whenever the user asks to create, plan, script, storyboard, synthesize, render, or package a short-form video with narration, captions, cover image, and publish copy, especially for 90-130 second Chinese social videos.
-version: 0.1.0
+version: 0.1.1
 metadata:
   tags: remotion, short-video, xiaohongshu, douyin, script, storyboard, tts, captions
 ---
 
-# Remotion Short Video Skill
+# Short Video Maker Skill
 
 Use this skill to convert user-provided articles, ideas, or topics into a publish-ready vertical short video package. The skill should keep creative reasoning and deterministic rendering separate:
 
@@ -41,6 +41,7 @@ Follow this sequence:
    - For current, factual, financial, legal, medical, technical, or news-like topics, verify with reliable sources before writing the script.
    - Capture the angle, audience pain point, core claim, supporting evidence, risk notes, and recommended narrative structure.
    - Save or produce an `analysis.json`-compatible structure.
+   - If the input is a long article, long narration, video podcast script, or `podcast.txt`, read `references/long-to-short-rules.md` and extract one short-video angle before scripting.
 
 3. Write the short-video script.
    - Build for a 90-130 second spoken video, not an article summary.
@@ -59,6 +60,7 @@ Follow this sequence:
    - Default to Edge TTS for public-friendly local runs. Use Volcengine or HTTP TTS only when the user provides their own credentials in environment variables.
    - Use transcription or forced alignment to produce word-level or sentence-level timestamps.
    - Use those timestamps to build captions and scene boundaries.
+   - Before final TTS for Chinese narration, read `references/pronunciation-rules.md` and create a job-local `phonemes.json` when names, polyphones, or English terms need overrides.
 
 6. Prepare visuals.
    - Use AI-generated still images, sourced images/video, or Remotion-native graphics.
@@ -68,6 +70,8 @@ Follow this sequence:
 7. Build `video-plan.json`.
    - Convert analysis, script, captions, audio, visual assets, style, and cover plan into a single Remotion input file.
    - Use the schema in `references/video-plan-schema.md`.
+   - Read `references/platform-rules.md` before filling `publish`.
+   - Read `references/preference-rules.md` if a local preference file exists or the user asks to save defaults.
 
 8. Render and package.
    - Generate a first-frame preview first when the user has not explicitly confirmed full rendering.
@@ -76,7 +80,8 @@ Follow this sequence:
    - Export the publish package with script, captions, metadata, and platform copy.
 
 9. Quality check.
-   - Verify duration, audio presence, caption timing, missing assets, unreadable text, aspect ratio, and cover readability.
+   - Run `scripts/validate-plan.mjs` and `scripts/audit-timing.mjs` before render.
+   - Verify duration, audio presence, caption timing, missing assets, unreadable text, aspect ratio, cover readability, and platform publish rules.
    - If issues are detected, fix the plan or assets and render again.
 
 ## Recommended File Layout
@@ -105,6 +110,7 @@ jobs/<slug>/
     script.md
     publish.md
     metadata.json
+  phonemes.json
 ```
 
 ## Dependency Policy
@@ -154,9 +160,15 @@ The result is acceptable only if:
 - Visuals support the narration instead of being generic decoration.
 - Cover is readable at small thumbnail size.
 - `publish.md` includes platform-ready title, body copy, tags, and optional comment prompt.
+- Pronunciation risks have been handled by rewriting or a job-local `phonemes.json`.
+- A first-frame preview has been generated before full rendering unless the user explicitly requested a render without preview.
 
 ## References
 
 - Read `references/mvp-spec.md` before designing or implementing the first version.
 - Read `references/video-plan-schema.md` before generating Remotion input data.
+- Read `references/platform-rules.md` before generating publish copy.
+- Read `references/pronunciation-rules.md` before final TTS for Chinese narration.
+- Read `references/preference-rules.md` before reading or writing reusable defaults.
+- Read `references/long-to-short-rules.md` when adapting a long script, article, or podcast into short videos.
 - Use `examples/input.md` as the first smoke-test input.

@@ -37,6 +37,18 @@ const scriptMarkdown = [
   ]),
 ].join('\n');
 
+const formatTags = (name, tags) => {
+  if (!Array.isArray(tags)) {
+    return '';
+  }
+
+  if (name === '小红书') {
+    return tags.map((tag) => `#${String(tag).replaceAll('#', '')}#`).join(' ');
+  }
+
+  return tags.map((tag) => `#${String(tag).replaceAll('#', '')}`).join(' ');
+};
+
 const formatPlatform = (name, value) => {
   if (!value) {
     return '';
@@ -49,7 +61,7 @@ const formatPlatform = (name, value) => {
     '',
     value.body ?? '',
     '',
-    Array.isArray(value.tags) ? value.tags.map((tag) => `#${tag}`).join(' ') : '',
+    formatTags(name, value.tags),
     '',
   ].join('\n');
 };

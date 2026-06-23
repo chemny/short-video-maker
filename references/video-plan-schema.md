@@ -42,6 +42,7 @@ Rules:
 ```json
 {
   "template": "knowledge-explainer-v1",
+  "preset": "soft-product",
   "fontFamily": "sans",
   "background": "#101014",
   "textPrimary": "#FFFFFF",
@@ -58,6 +59,9 @@ Rules:
 - Keep caption text large enough for mobile.
 - Avoid visual palettes that are dominated by one hue.
 - Use safe areas for bottom captions because platform UI may cover edges.
+- `template` controls layout structure; `preset` controls visual skin.
+- Supported short-video templates: `clean-explainer`, `app-workflow`, `sketch-notes`, `dark-card`, `apple-text-video`, `data-punch`, `image-overlay`.
+- Supported presets: `warm-note`, `mono-tech`, `soft-product`, `dark-cinematic`.
 
 ## `audio`
 
@@ -129,6 +133,9 @@ Rules:
     "layout": "full-image-title",
     "voiceover": "你有没有发现，很多人做 AI 产品，其实输在第一步。",
     "caption": "很多 AI 产品，输在第一步",
+    "body": "一个常见但容易被忽略的问题。",
+    "tags": ["AI 产品", "第一步"],
+    "steps": ["发现问题", "定位入口", "形成动作"],
     "visual": {
       "asset": "assets/scene-001.png",
       "prompt": "modern AI product dashboard, frustrated founder, cinematic vertical composition",
@@ -167,6 +174,9 @@ Rules:
 - Scene timing should align with the audio/caption timeline.
 - Each scene should have either a visual asset, a text-driven layout, or a Remotion-native graphic.
 - Avoid scenes shorter than 3 seconds unless used for a hook or transition beat.
+- `body` is a short supporting sentence shown by text-driven templates.
+- `tags` are keywords from the actual narration; keep them suitable for timestamp syncing.
+- `steps` are optional visual workflow nodes for templates such as `app-workflow`; they do not need word-level TTS sync.
 
 ## `publish`
 
@@ -189,7 +199,11 @@ Rules:
 
 - Titles should be platform-friendly but not misleading.
 - Tags should match the actual topic.
+- Keep tags as raw text in `video-plan.json`; `package-output.mjs` adds platform-specific `#` formatting.
+- For Xiaohongshu, prefer a title of 20 Chinese characters or less and 5-10 tags.
+- For Douyin, prefer 3-8 tags and a short conversational title.
 - Include a light comment prompt only if it fits the content.
+- See `platform-rules.md` before finalizing platform copy.
 
 ## Minimal Example
 
@@ -206,7 +220,8 @@ Rules:
     "durationSeconds": 18
   },
   "style": {
-    "template": "knowledge-explainer-v1",
+    "template": "clean-explainer",
+    "preset": "soft-product",
     "background": "#101014",
     "textPrimary": "#FFFFFF",
     "accent": "#F6C85F",

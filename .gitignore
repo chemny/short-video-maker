@@ -7,10 +7,11 @@ node_modules/
 
 remotion/node_modules/
 remotion/out/
+remotion/public/video-plan.json
 remotion/public/audio/
 remotion/public/captions/
 remotion/public/output/
-remotion/public/assets/generated/
+remotion/public/assets/
 
 jobs/*
 !jobs/.gitkeep
