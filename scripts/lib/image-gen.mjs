@@ -3,6 +3,7 @@
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {fetchWithTimeout} from './fetch.mjs';
 
 const skillRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 for (const file of [path.join(os.homedir(), '.cmm', '.env'), path.join(skillRoot, '.env')]) {
@@ -62,7 +63,7 @@ const writeBase64 = (base64, destination) => {
 };
 
 const downloadToFile = async (url, destination) => {
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url, {}, {envName: 'SHORT_VIDEO_IMAGE_FETCH_TIMEOUT_MS', label: 'generated image download'});
   if (!response.ok) throw new Error(`图片下载失败：${response.status} ${response.statusText}`);
   writeFileSync(destination, Buffer.from(await response.arrayBuffer()));
 };
@@ -81,11 +82,11 @@ export const generateImage = async ({prompt, aspect = '9:16', size, outPath}) =>
     throw new Error('未配置 GPT_IMAGE2_API_KEY / GPT_IMAGE2_BASE_URL（应在 ~/.cmm/.env）');
   }
   const endpoint = `${base.replace(/\/$/, '')}/v1/images/generations`;
-  const response = await fetch(endpoint, {
+  const response = await fetchWithTimeout(endpoint, {
     method: 'POST',
     headers: {Authorization: `Bearer ${key}`, 'Content-Type': 'application/json'},
     body: JSON.stringify({model, prompt, size: size ?? sizeFor(aspect), n: 1}),
-  });
+  }, {envName: 'SHORT_VIDEO_IMAGE_FETCH_TIMEOUT_MS', label: 'image generation request'});
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(`生图请求失败 ${response.status}: ${JSON.stringify(payload).slice(0, 240)}`);

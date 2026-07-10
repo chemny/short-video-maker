@@ -17,6 +17,12 @@ Captions are a core output for Xiaohongshu and Douyin videos. Treat them as part
 - Avoid more than two lines.
 - Split long narration into multiple caption items instead of shrinking text too far.
 - Highlight only 1-3 keywords per caption.
+- For Chinese spoken videos, captions should be breath-group phrases, not full
+  punctuated sentences.
+- Remove visible punctuation from burned-in captions unless the punctuation is
+  semantically necessary.
+- Do not show a pile of comma-separated clauses as one caption. Split by speech
+  beat or breath point.
 
 ## Layout
 
@@ -25,6 +31,12 @@ Captions are a core output for Xiaohongshu and Douyin videos. Treat them as part
 - Reserve stable dimensions for the caption container so text changes do not resize the layout.
 - Use high contrast between caption text and the visual background.
 - Add a backing plate or shadow when the background is busy.
+- Use automatic caption color where possible: dark captions on light
+  backgrounds and light captions on dark backgrounds.
+- Avoid caption backing plates by default on clean backgrounds. Add a backdrop
+  only when the background is busy or contrast fails.
+- Captions should remain a separate follow-along layer; do not use them to carry
+  the main screen-copy hierarchy.
 
 ## Readability
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {execFileSync} from 'node:child_process';
+import {envMilliseconds, runCommand} from './lib/process.mjs';
 
 const args = process.argv.slice(2);
 const list = args.includes('--list');
@@ -10,7 +10,7 @@ const speed = args.find((arg) => arg.startsWith('--speed='));
 const loudness = args.find((arg) => arg.startsWith('--loudness='));
 const model = args.find((arg) => arg.startsWith('--model='));
 
-execFileSync(
+runCommand(
   'node',
   [
     new URL('./tts.mjs', import.meta.url).pathname,
@@ -23,5 +23,5 @@ execFileSync(
     ...(loudness ? [loudness] : []),
     ...(model ? [model] : []),
   ],
-  {stdio: 'inherit'},
+  {label: 'volcengine voice preview', timeoutMs: envMilliseconds('SHORT_VIDEO_TTS_TIMEOUT_MS', 900000)},
 );

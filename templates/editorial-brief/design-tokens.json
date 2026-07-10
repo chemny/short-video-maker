@@ -1,0 +1,577 @@
+{
+  "id": "editorial-brief",
+  "primaryAspect": "3:4",
+  "responsiveAspects": ["16:9", "9:16"],
+  "defaultRoute": "html-cobalt-grid",
+  "routes": {
+    "html-cobalt-grid": {
+      "name": "HTML Cobalt Grid",
+      "source": "beautiful-html-templates/cobalt-grid",
+      "useFor": "design-research, AI explainers, trend reports, tech-print editorials",
+      "palette": {
+        "paper": "#F0EBDE",
+        "paper2": "#E6E0CE",
+        "ink": "#1F2BE0",
+        "inkSoft": "#5560E5",
+        "grid": "rgba(31,43,224,0.10)",
+        "hairline": "#1F2BE0"
+      },
+      "typography": {
+        "display": ["Newsreader", "Noto Serif SC", "Georgia", "serif"],
+        "body": ["Hanken Grotesk", "Noto Sans SC", "system-ui"],
+        "label": ["DM Mono", "JetBrains Mono", "ui-monospace", "monospace"]
+      },
+      "frames": ["statement", "split", "process", "quote", "stat", "closing"],
+      "components": {
+        "background": "graph-paper grid",
+        "decor": "pixel-glitch column plus QR patch",
+        "panel": "cobalt filled field-note panel",
+        "tiles": "ordinal bordered process tiles"
+      }
+    },
+    "html-editorial-forest": {
+      "name": "HTML Editorial Forest",
+      "source": "beautiful-html-templates/editorial-forest",
+      "useFor": "quiet business analysis, quarterly reviews, editorial explainers",
+      "palette": {
+        "cream": "#EFE7D4",
+        "cream2": "#E6DCC4",
+        "green": "#2E4A2A",
+        "greenDeep": "#243A21",
+        "pink": "#E89CB1",
+        "ink": "#1A1A17"
+      },
+      "typography": {
+        "display": ["Source Serif 4", "Noto Serif SC", "Georgia", "serif"],
+        "body": ["Source Serif 4", "Noto Serif SC", "Georgia", "serif"],
+        "label": ["JetBrains Mono", "ui-monospace", "Menlo", "monospace"]
+      },
+      "frames": ["statement", "split", "process", "quote", "stat", "closing"],
+      "components": {
+        "background": "oat cream paper with flat editorial color blocks",
+        "decor": "monogram circle and pink/green blocks",
+        "panel": "forest or dusty-pink flat region",
+        "tiles": "serif topic tiles with mono ordinals"
+      }
+    },
+    "html-signal": {
+      "name": "HTML Signal",
+      "source": "beautiful-html-templates/signal",
+      "useFor": "institutional explainers, consulting, advisory and board-style videos",
+      "palette": {
+        "navy": "#1C2644",
+        "navyAlt": "#232F55",
+        "bone": "#F0ECE3",
+        "boneAlt": "#E6E0D4",
+        "creamText": "#E2DCD0",
+        "gold": "#C8A870"
+      },
+      "typography": {
+        "display": ["Source Serif 4", "Noto Serif SC", "Georgia", "serif"],
+        "body": ["DM Sans", "Noto Sans SC", "system-ui"],
+        "label": ["IBM Plex Mono", "JetBrains Mono", "ui-monospace", "monospace"]
+      },
+      "frames": ["statement", "split", "process", "quote", "stat", "closing"],
+      "components": {
+        "background": "deep navy field or bone paper slide",
+        "decor": "gold side rule and navy contrast panel",
+        "panel": "bone paper on navy or navy panel on bone",
+        "tiles": "hairline stat and evidence rows"
+      }
+    },
+    "html-liquid-dark": {
+      "name": "HTML Liquid Dark",
+      "source": "html-video/liquid-bg-hero + logo-outro + glitch-title",
+      "useFor": "dark spoken videos, AI explainers, cinematic tech opinions, brand-forward video intros",
+      "palette": {
+        "black": "#090A12",
+        "navy": "#11182E",
+        "ink": "#F5F7FF",
+        "muted": "#C9D2E8",
+        "violet": "#7567FF",
+        "mint": "#35F2C5",
+        "hairline": "rgba(255,255,255,0.22)"
+      },
+      "typography": {
+        "display": ["Inter Tight", "Noto Sans SC", "system-ui"],
+        "body": ["Inter", "Noto Sans SC", "system-ui"],
+        "label": ["IBM Plex Mono", "JetBrains Mono", "ui-monospace", "monospace"]
+      },
+      "frames": ["statement", "split", "process", "quote", "stat", "closing"],
+      "components": {
+        "background": "near-black field with CSS fluid radial-gradient blooms",
+        "decor": "subtle grid, pixel mark, and cyan/violet line artifacts",
+        "panel": "glass panels with blur and hairline borders",
+        "tiles": "transparent cards with one filled accent card"
+      }
+    },
+    "html-soft-editorial": {
+      "name": "HTML Soft Editorial",
+      "source": "beautiful-html-templates/soft-editorial",
+      "useFor": "warm magazine explainers, founder essays, soft professional content",
+      "palette": {
+        "paper": "#F2EEDF",
+        "paper2": "#ECE6D2",
+        "ink": "#2A241B",
+        "pink": "#E1A4C2",
+        "lemon": "#D6DD63",
+        "blush": "#E8C9B6",
+        "sage": "#B7C7A8",
+        "lilac": "#C9BEDC"
+      },
+      "typography": {
+        "display": ["Cormorant Garamond", "Noto Serif SC", "Garamond", "serif"],
+        "body": ["Work Sans", "Noto Sans SC", "system-ui"],
+        "label": ["Work Sans", "Noto Sans SC", "system-ui"]
+      },
+      "frames": ["statement", "split", "process", "quote", "stat", "closing"],
+      "components": {
+        "background": "warm paper with pastel swatches",
+        "decor": "swatch dots and translucent paper shapes",
+        "panel": "translucent soft card or pastel fill",
+        "tiles": "rounded magazine cards"
+      }
+    },
+    "swiss-blue": {
+      "name": "Swiss Blue",
+      "useFor": "enterprise AI, product strategy, course explainers",
+      "palette": {
+        "paper": "#F7F5EE",
+        "ink": "#0A0A0A",
+        "muted": "#68645C",
+        "accent": "#002FA7",
+        "surface": "#FCFBF7",
+        "hairline": "rgba(10,10,10,0.22)"
+      },
+      "typography": {
+        "display": ["Inter Tight", "PingFang SC", "Noto Sans CJK SC", "system-ui"],
+        "body": ["Inter Tight", "PingFang SC", "Noto Sans CJK SC", "system-ui"],
+        "label": ["Menlo", "ui-monospace", "monospace"]
+      },
+      "components": {
+        "panelRadius": 0,
+        "panelShadow": "hard offset",
+        "label": "Brief"
+      }
+    },
+    "editorial-ink": {
+      "name": "Editorial Ink",
+      "useFor": "serious judgment, consulting, trust-first explainers",
+      "palette": {
+        "paper": "#F4F1EA",
+        "ink": "#14120F",
+        "muted": "#696158",
+        "accent": "#14120F",
+        "surface": "#FFFDF7",
+        "hairline": "rgba(20,18,15,0.26)"
+      },
+      "typography": {
+        "display": ["Noto Serif SC", "Source Han Serif SC", "Songti SC", "serif"],
+        "body": ["Inter Tight", "PingFang SC", "Noto Sans CJK SC", "system-ui"],
+        "label": ["Menlo", "ui-monospace", "monospace"]
+      },
+      "components": {
+        "panelRadius": 0,
+        "panelShadow": "single hairline",
+        "label": "Editorial"
+      }
+    },
+    "magazine-cream": {
+      "name": "Magazine Cream",
+      "useFor": "founder thinking, lesson summaries, warm analysis",
+      "palette": {
+        "paper": "#F6EFE3",
+        "ink": "#201C17",
+        "muted": "#75685B",
+        "accent": "#C45F3B",
+        "surface": "#FFF8EA",
+        "hairline": "rgba(32,28,23,0.20)"
+      },
+      "typography": {
+        "display": ["Noto Serif SC", "Source Han Serif SC", "Songti SC", "serif"],
+        "body": ["Inter Tight", "PingFang SC", "Noto Sans CJK SC", "system-ui"],
+        "label": ["Menlo", "ui-monospace", "monospace"]
+      },
+      "components": {
+        "panelRadius": 0,
+        "panelShadow": "warm hard offset",
+        "label": "Memo"
+      }
+    },
+    "xhs-morandi": {
+      "name": "XHS Morandi",
+      "useFor": "3:4 social explainers with a softer but professional tone",
+      "palette": {
+        "paper": "#F7EFE8",
+        "ink": "#2A2723",
+        "muted": "#7B7068",
+        "accent": "#B86B77",
+        "surface": "#FFF9F2",
+        "hairline": "rgba(42,39,35,0.18)"
+      },
+      "typography": {
+        "display": ["Inter Tight", "PingFang SC", "Noto Sans CJK SC", "system-ui"],
+        "body": ["Inter Tight", "PingFang SC", "Noto Sans CJK SC", "system-ui"],
+        "label": ["Menlo", "ui-monospace", "monospace"]
+      },
+      "components": {
+        "panelRadius": 18,
+        "panelShadow": "soft paper lift",
+        "label": "Note"
+      }
+    },
+    "html-broadside": {
+      "name": "HTML Broadside",
+      "source": "beautiful-html-templates/broadside",
+      "useFor": "dramatic editorial opinion videos, founder vision, bilingual AI/business commentary",
+      "palette": {
+        "bg": "#111111",
+        "bgAlt": "#1A1A18",
+        "ink": "#F0ECE5",
+        "muted": "#888880",
+        "accent": "#E85D26",
+        "line": "#282826"
+      },
+      "typography": {
+        "display": ["Barlow", "Noto Sans SC", "system-ui", "sans-serif"],
+        "body": ["Barlow", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["IBM Plex Mono", "ui-monospace", "monospace"]
+      },
+      "components": {
+        "background": "near-black newspaper canvas",
+        "decor": "fire-orange rule, mono tags, catalogue numbers",
+        "panel": "dark editorial slabs",
+        "tiles": "top-border field-note rows"
+      }
+    },
+    "html-emerald-editorial": {
+      "name": "HTML Emerald Editorial",
+      "source": "beautiful-html-templates/emerald-editorial",
+      "useFor": "strategy readouts, executive briefings, confident magazine-cover business videos",
+      "palette": {
+        "emerald": "#3CD896",
+        "emerald2": "#2DC684",
+        "ink": "#0F1A5C",
+        "inkSoft": "#3A4593",
+        "paper": "#F1E9D6",
+        "line": "rgba(15,26,92,0.22)"
+      },
+      "typography": {
+        "display": ["Bodoni Moda", "Noto Serif SC", "Georgia", "serif"],
+        "body": ["Manrope", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["Manrope", "Noto Sans SC", "system-ui", "sans-serif"]
+      },
+      "components": {
+        "background": "saturated emerald magazine field",
+        "decor": "double-rule masthead ornaments",
+        "panel": "paper editorial inserts",
+        "tiles": "ornamented serif cards"
+      }
+    },
+    "html-neo-grid-bold": {
+      "name": "HTML Neo-Grid Bold",
+      "source": "beautiful-html-templates/neo-grid-bold",
+      "useFor": "design-led explainers, high-density consulting findings, process and comparison videos",
+      "palette": {
+        "bg": "#ECECE8",
+        "paper": "#F5F4EF",
+        "ink": "#0A0A0A",
+        "accent": "#E6FF3D",
+        "muted": "#8A8A85",
+        "line": "#0A0A0A"
+      },
+      "typography": {
+        "display": ["Space Grotesk", "Noto Sans SC", "system-ui", "sans-serif"],
+        "body": ["Space Grotesk", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["JetBrains Mono", "ui-monospace", "monospace"]
+      },
+      "components": {
+        "background": "strict block grid",
+        "decor": "corner marks, pagenum pills, neon-yellow accents",
+        "panel": "hard rectangular grid cells",
+        "tiles": "brutalist editorial cards"
+      }
+    },
+    "html-monochrome": {
+      "name": "HTML Monochrome",
+      "source": "beautiful-html-templates/monochrome",
+      "useFor": "serious research synthesis, white-paper explainers, text-first professional videos",
+      "palette": {
+        "paper": "#FAFADF",
+        "paper2": "#F2F2D2",
+        "ink": "#1A1A16",
+        "muted": "#5E5E54",
+        "line": "#1A1A16",
+        "cream": "#F5F0E4"
+      },
+      "typography": {
+        "display": ["Jost", "Noto Sans SC", "system-ui", "sans-serif"],
+        "body": ["Jost", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["JetBrains Mono", "ui-monospace", "monospace"]
+      },
+      "components": {
+        "background": "ivory ledger paper",
+        "decor": "black dividers and sidebar labels",
+        "panel": "cream paper surfaces",
+        "tiles": "ledger rows without color accents"
+      }
+    },
+    "html-vellum": {
+      "name": "HTML Vellum",
+      "source": "beautiful-html-templates/vellum",
+      "useFor": "scholarly AI/business commentary, quiet intellectual explainers, founder reflections",
+      "palette": {
+        "bg": "#2A3870",
+        "bgAlt": "#343F80",
+        "ink": "#E8D85C",
+        "muted": "rgba(232,216,92,0.62)",
+        "accent": "#3A7878",
+        "line": "rgba(232,216,92,0.20)"
+      },
+      "typography": {
+        "display": ["Cormorant Garamond", "Noto Serif SC", "Georgia", "serif"],
+        "body": ["DM Sans", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["Courier Prime", "Courier New", "monospace"]
+      },
+      "components": {
+        "background": "deep periwinkle scholarly field",
+        "decor": "warm-yellow serif typography and teal quote glyphs",
+        "panel": "low-contrast archival cards",
+        "tiles": "quiet annotation rows"
+      }
+    },
+    "html-blue-professional": {
+      "name": "HTML Blue Professional",
+      "source": "beautiful-html-templates/blue-professional",
+      "useFor": "B2B SaaS, consulting deliverables, advisory and investor-style explainers",
+      "palette": {
+        "paper": "#FDFAE7",
+        "ink": "#111111",
+        "muted": "#6B6B6B",
+        "accent": "#1E2BFA",
+        "surface": "rgba(30,43,250,0.04)",
+        "line": "rgba(30,43,250,0.20)"
+      },
+      "typography": {
+        "display": ["Space Grotesk", "Noto Sans SC", "system-ui", "sans-serif"],
+        "body": ["Inter", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["Inter", "Noto Sans SC", "system-ui", "sans-serif"]
+      },
+      "components": {
+        "background": "cream professional canvas",
+        "decor": "electric-blue geometric accents",
+        "panel": "light cobalt cards",
+        "tiles": "polished consulting rows"
+      }
+    },
+    "html-cartesian": {
+      "name": "HTML Cartesian",
+      "source": "beautiful-html-templates/cartesian",
+      "useFor": "quiet investment thesis, advisory explainers, mature research videos",
+      "palette": {
+        "paper": "#EDE8E0",
+        "paper2": "#E2DBD1",
+        "ink": "#1A1A1A",
+        "muted": "#5A5A5A",
+        "accent": "#8A8178",
+        "line": "#B8B0A4"
+      },
+      "typography": {
+        "display": ["Playfair Display", "Noto Serif SC", "Georgia", "serif"],
+        "body": ["Inter", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["Inter", "Noto Sans SC", "system-ui", "sans-serif"]
+      },
+      "components": {
+        "background": "warm drafting-paper field",
+        "decor": "thin geometric rings and hairlines",
+        "panel": "transparent tracing-paper cards",
+        "tiles": "quiet numbered rows"
+      }
+    },
+    "html-grove": {
+      "name": "HTML Grove",
+      "source": "beautiful-html-templates/grove",
+      "useFor": "warm literary business analysis, advisory explainers, slow thoughtful videos",
+      "palette": {
+        "bg": "#192B1B",
+        "bgAlt": "#1E3221",
+        "ink": "#D4CFBF",
+        "muted": "rgba(212,207,191,0.60)",
+        "accent": "#C8524A",
+        "line": "rgba(212,207,191,0.12)"
+      },
+      "typography": {
+        "display": ["Playfair Display", "Noto Serif SC", "Georgia", "serif"],
+        "body": ["Jost", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["JetBrains Mono", "ui-monospace", "monospace"]
+      },
+      "components": {
+        "background": "deep forest literary canvas",
+        "decor": "coral rules and low-opacity serif numerals",
+        "panel": "hairline green/bone surfaces",
+        "tiles": "patient editorial rows"
+      }
+    },
+    "html-raw-grid": {
+      "name": "HTML Raw Grid",
+      "source": "beautiful-html-templates/raw-grid",
+      "useFor": "direct founder explainers, punchy AI/product takes, high-contrast process videos",
+      "palette": {
+        "paper": "#FFFFFF",
+        "ink": "#0A0A0A",
+        "pink": "#F2D4CF",
+        "green": "#E5EDD6",
+        "gray": "#F5F5F5",
+        "line": "#0A0A0A"
+      },
+      "typography": {
+        "display": ["Segoe UI", "Noto Sans SC", "system-ui", "sans-serif"],
+        "body": ["Segoe UI", "Noto Sans SC", "system-ui", "sans-serif"],
+        "label": ["Segoe UI", "Noto Sans SC", "system-ui", "sans-serif"]
+      },
+      "components": {
+        "background": "white neobrutalist canvas",
+        "decor": "3px borders, hard offset shadows, pastel blocks",
+        "panel": "bordered brutalist cards",
+        "tiles": "black-bordered process boxes"
+      }
+    },
+    "fde-business-grid": {
+      "name": "FDE Business Grid",
+      "source": "fde-3x4-style-variants/01-business-grid",
+      "useFor": "professional AI/business explainers, consulting-style spoken videos",
+      "palette": {"bg":"#071019","card":"#0B1119","ink":"#EDF7FF","muted":"#96A6B6","line":"rgba(105,226,255,0.22)","accent":"#43D5FF","accent2":"#58E3A2","soft":"rgba(255,255,255,0.07)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"dark grid with cyan/mint glow","decor":"thin frame, progress footer, flow cards","panel":"soft translucent cards","tiles":"rounded list and flow nodes"}
+    },
+    "fde-bold-poster": {
+      "name": "FDE Bold Poster",
+      "source": "fde-3x4-style-variants/02-bold-poster",
+      "useFor": "high-impact opinion videos, poster-like hooks, strong shareability",
+      "palette": {"bg":"#EEE4D4","card":"#F5ECDC","ink":"#141414","muted":"#4A433A","line":"rgba(20,20,20,0.28)","accent":"#D12A25","accent2":"#141414","soft":"rgba(255,255,255,0.34)"},
+      "typography": {"display":["Impact","Arial Black","PingFang SC","sans-serif"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"warm poster paper","decor":"thick top rule, red label, uppercase headline","panel":"poster slabs","tiles":"hard editorial rows"}
+    },
+    "fde-nyt-data": {
+      "name": "FDE NYT Data",
+      "source": "fde-3x4-style-variants/03-nyt-data",
+      "useFor": "rational analysis, editorial explainers, data-feeling narrative without fake data",
+      "palette": {"bg":"#F7F5EE","card":"#F8F6EE","ink":"#1C1C1C","muted":"#6B655D","line":"rgba(0,0,0,0.20)","accent":"#B9272A","accent2":"#202020","soft":"rgba(255,255,255,0.44)"},
+      "typography": {"display":["Georgia","Times New Roman","Noto Serif SC","serif"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"editorial horizontal ledger grid","decor":"thin red accents and rule-based tags","panel":"newspaper note blocks","tiles":"structured analysis rows"}
+    },
+    "fde-glitch-title": {
+      "name": "FDE Glitch Title",
+      "source": "fde-3x4-style-variants/04-glitch-title",
+      "useFor": "technology hooks, AI-native themes, high-energy opening pages",
+      "palette": {"bg":"#05070C","card":"#07080C","ink":"#F5F7FB","muted":"#A2ADBA","line":"rgba(0,229,255,0.25)","accent":"#00E5FF","accent2":"#FF2D8C","soft":"rgba(255,255,255,0.07)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"scanline dark tech field","decor":"cyan/magenta chromatic title shadow","panel":"glitch soft cards","tiles":"neon technical rows"}
+    },
+    "fde-light-leak": {
+      "name": "FDE Light Leak",
+      "source": "fde-3x4-style-variants/05-light-leak",
+      "useFor": "story-led spoken videos, reflective business commentary, warmer narrative tone",
+      "palette": {"bg":"#15100D","card":"#1A120E","ink":"#F7E6C7","muted":"#D7B58D","line":"rgba(247,230,199,0.22)","accent":"#EE803E","accent2":"#F7E6C7","soft":"rgba(255,226,185,0.09)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"film-like warm radial leaks","decor":"cinematic grain feeling and orange highlights","panel":"warm translucent cards","tiles":"narrative blocks"}
+    },
+    "fde-liquid-hero": {
+      "name": "FDE Liquid Hero",
+      "source": "fde-3x4-style-variants/06-liquid-hero",
+      "useFor": "premium AI explainers, quote-led hero pages, advanced visual atmosphere",
+      "palette": {"bg":"#101422","card":"#11162A","ink":"#F6F7FF","muted":"#BBC3D4","line":"rgba(117,93,255,0.25)","accent":"#755DFF","accent2":"#3DDDC0","soft":"rgba(255,255,255,0.08)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"multi-point liquid radial hero","decor":"centered title rhythm and soft glow","panel":"glass cards","tiles":"premium soft blocks"}
+    },
+    "fde-logo-outro": {
+      "name": "FDE Logo Outro",
+      "source": "fde-3x4-style-variants/07-logo-outro",
+      "useFor": "branded columns, logo-like recurring shows, strong closing/title cards",
+      "palette": {"bg":"#080A16","card":"#080A16","ink":"#F5F7FF","muted":"#AEB7D3","line":"rgba(81,113,255,0.28)","accent":"#5171FF","accent2":"#F5F7FF","soft":"rgba(255,255,255,0.08)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"deep brand canvas","decor":"large luminous logo ring","panel":"centered brand cards","tiles":"outro-style modules"}
+    },
+    "fde-vfx-cursor": {
+      "name": "FDE VFX Cursor",
+      "source": "fde-3x4-style-variants/08-vfx-cursor",
+      "useFor": "engineer/AI themes, terminal-like spoken videos, tool workflow explanations",
+      "palette": {"bg":"#05090E","card":"#05090E","ink":"#EFFFF7","muted":"#89A59D","line":"rgba(76,255,173,0.24)","accent":"#4CFFAD","accent2":"#47C4FF","soft":"rgba(76,255,173,0.07)"},
+      "typography": {"display":["ui-monospace","SFMono-Regular","Menlo","monospace"],"body":["ui-monospace","SFMono-Regular","Menlo","PingFang SC","monospace"],"label":["ui-monospace","SFMono-Regular","Menlo","monospace"]},
+      "components": {"background":"terminal dark canvas","decor":"prompt prefix and cursor suffix","panel":"terminal output cards","tiles":"command rows"}
+    },
+    "fde-pentagram-stat": {
+      "name": "FDE Pentagram Stat",
+      "source": "fde-3x4-style-variants/09-pentagram-stat",
+      "useFor": "structured arguments, Swiss-style concept pages, opinion videos with numbered logic",
+      "palette": {"bg":"#F5F4EE","card":"#F5F4EE","ink":"#151515","muted":"#61615B","line":"rgba(221,30,43,0.34)","accent":"#DD1E2B","accent2":"#151515","soft":"rgba(255,255,255,0.35)"},
+      "typography": {"display":["Helvetica","Arial","PingFang SC","sans-serif"],"body":["Helvetica","Arial","PingFang SC","sans-serif"],"label":["Helvetica","Arial","PingFang SC","sans-serif"]},
+      "components": {"background":"red Swiss grid","decor":"giant page number and red rules","panel":"stat-like editorial panels","tiles":"numbered structure cards"}
+    },
+    "fde-electric-studio": {
+      "name": "FDE Electric Studio",
+      "source": "fde-3x4-style-variants/10-electric-studio",
+      "useFor": "business-tech explainers, blue-white split pages, commercial technology tone",
+      "palette": {"bg":"#F1F5F8","card":"#F1F5F8","ink":"#12161E","muted":"#5A6572","line":"rgba(20,107,255,0.24)","accent":"#146BFF","accent2":"#12161E","soft":"rgba(255,255,255,0.62)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"electric blue split field","decor":"diagonal split alternating pages","panel":"bright studio panels","tiles":"commercial tech rows"}
+    },
+    "fde-bold-signal": {
+      "name": "FDE Bold Signal",
+      "source": "fde-3x4-style-variants/11-bold-signal",
+      "useFor": "strong rhythm videos, high-saturation dark cards, punchy AI opinions",
+      "palette": {"bg":"#0E1018","card":"#0E1018","ink":"#F5F5F5","muted":"#AEB2BD","line":"rgba(255,109,36,0.28)","accent":"#FF6D24","accent2":"#F5F5F5","soft":"rgba(255,255,255,0.08)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"dark signal field","decor":"high-saturation orange labels","panel":"bold filled emphasis cards","tiles":"fast rhythm blocks"}
+    },
+    "fde-build-minimal": {
+      "name": "FDE Build Minimal",
+      "source": "fde-3x4-style-variants/12-build-minimal",
+      "useFor": "trust-first course/consulting videos, calm expert analysis, premium minimal pages",
+      "palette": {"bg":"#FAF9F5","card":"#FAF9F5","ink":"#191919","muted":"#817968","line":"rgba(191,151,74,0.36)","accent":"#BF974A","accent2":"#191919","soft":"rgba(255,255,255,0.20)"},
+      "typography": {"display":["Georgia","Times New Roman","Noto Serif SC","serif"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"luxury minimal paper","decor":"gold hairlines and wide inset frame","panel":"shadowless calm cards","tiles":"premium sparse rows"}
+    },
+    "fde-creative-voltage": {
+      "name": "FDE Creative Voltage",
+      "source": "fde-3x4-style-variants/13-creative-voltage",
+      "useFor": "younger tech communication, design-led AI takes, energetic split pages",
+      "palette": {"bg":"#080C18","card":"#080C18","ink":"#F4F2E9","muted":"#BAC4D8","line":"rgba(41,139,255,0.30)","accent":"#298BFF","accent2":"#F4F2E9","soft":"rgba(255,255,255,0.08)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"electric blue side slab","decor":"slight rotated headline","panel":"energetic dark cards","tiles":"young creative blocks"}
+    },
+    "fde-takram-organic": {
+      "name": "FDE Takram Organic",
+      "source": "fde-3x4-style-variants/14-takram-organic",
+      "useFor": "course/consulting explainers, softer AI workflow narratives, organic node-map feeling",
+      "palette": {"bg":"#E9DFD2","card":"#EFE7DA","ink":"#2D362F","muted":"#74756A","line":"rgba(101,141,119,0.28)","accent":"#658D77","accent2":"#B46753","soft":"rgba(255,255,255,0.42)"},
+      "typography": {"display":["PingFang SC","Noto Sans SC","system-ui"],"body":["PingFang SC","Noto Sans SC","system-ui"],"label":["PingFang SC","Noto Sans SC","system-ui"]},
+      "components": {"background":"warm organic radial paper","decor":"soft blob node shape","panel":"frosted organic cards","tiles":"consulting-friendly nodes"}
+    }
+  },
+  "typography": {
+    "display": ["Inter Tight", "PingFang SC", "Noto Sans CJK SC", "system-ui"],
+    "body": ["Inter", "PingFang SC", "Noto Sans CJK SC", "system-ui"],
+    "mono": ["Menlo", "JetBrains Mono", "ui-monospace", "monospace"]
+  },
+  "components": [
+    "statement-frame",
+    "split-frame",
+    "process-frame",
+    "quote-frame",
+    "stat-frame",
+    "closing-frame",
+    "metadata-chrome",
+    "ledger-row",
+    "caption-band"
+  ],
+  "constraints": {
+    "singleLayoutOnly": false,
+    "frameVarietyRequired": true,
+    "accentCount": "route-defined",
+    "roundedCards": "route-defined",
+    "decorativeRails": false,
+    "gradientOrbs": false,
+    "dataMustBeReal": true
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "title": "FDE 火了，真正信号是什么？",
+    "subtitle": "AI 正在进入企业流程",
+    "topic": "FDE 与 AI 企业落地",
+    "platforms": ["xiaohongshu", "douyin"],
+    "language": "zh-CN",
+    "width": 1080,
+    "height": 1440,
+    "fps": 30,
+    "durationSeconds": 12
+  },
+  "style": {
+    "template": "editorial-brief",
+    "editorialVariant": "html-cobalt-grid",
+    "preset": "mono-tech",
+    "background": "#F0EBDE",
+    "textPrimary": "#1F2BE0",
+    "textSecondary": "#5560E5",
+    "accent": "#1F2BE0",
+    "captionPosition": "bottom",
+    "captionMode": "sentence",
+    "motionIntensity": "medium",
+    "captionBackdrop": true
+  },
+  "audio": {
+    "voiceVolume": 1
+  },
+  "cover": {
+    "title": "FDE 真正信号",
+    "subtitle": "AI 正在进入企业流程",
+    "label": "AI 企业落地",
+    "layout": "bold-title",
+    "introSeconds": 0
+  },
+  "captions": [
+    {
+      "id": "cap-001",
+      "start": 0,
+      "end": 4,
+      "text": "最近 FDE 这个词很火。",
+      "keywords": ["FDE"]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene-001",
+      "start": 0,
+      "end": 12,
+      "type": "hook",
+      "layout": "text-card",
+      "voiceover": "最近 FDE 这个词很火。但真正值得关注的，不是又多了一个新岗位。",
+      "caption": "信号不是新岗位",
+      "body": "真正的变化，是 AI 开始进入企业流程",
+      "tags": ["FDE", "AI", "企业流程"],
+      "motion": {"type": "fade-up"},
+      "transition": "fade"
+    }
+  ],
+  "publish": {}
+}

@@ -3,6 +3,11 @@ export type Caption = {
   start: number;
   end: number;
   text: string;
+  lines?: Array<{
+    text: string;
+    scale?: number;
+    weight?: number;
+  }>;
   keywords?: string[];
 };
 
@@ -69,6 +74,17 @@ export type VideoPlan = {
   style: {
     template: string;
     preset?: 'warm-note' | 'mono-tech' | 'soft-product' | 'dark-cinematic';
+    layoutSystem?: 'spoken-card-v1' | 'xhs-card-v1';
+    editorialVariant?:
+      | 'swiss-blue'
+      | 'editorial-ink'
+      | 'magazine-cream'
+      | 'xhs-morandi'
+      | 'html-cobalt-grid'
+      | 'html-editorial-forest'
+      | 'html-signal'
+      | 'html-liquid-dark'
+      | 'html-soft-editorial';
     fontFamily?: string;
     background: string;
     textPrimary: string;
@@ -76,7 +92,17 @@ export type VideoPlan = {
     accent: string;
     captionPosition: 'bottom' | 'middle';
     captionMode: 'sentence' | 'word';
+    captionScale?: number;
+    captionTheme?: 'auto' | 'dark-on-light' | 'light-on-dark';
     motionIntensity: 'low' | 'medium' | 'high';
+    chrome?: {
+      header?: 'none' | 'minimal' | 'editorial';
+      footer?: 'none' | 'caption-only' | 'tags' | 'progress';
+      showSceneNumber?: boolean;
+      showTopic?: boolean;
+      showSceneLabel?: boolean;
+      showLedger?: boolean;
+    };
     // 给底部字幕加深色毛玻璃底衬，保证在浅色画面（如奶油底手绘卡）上也清晰可读。
     captionBackdrop?: boolean;
     // 一次性"视觉背景设定"：全文核心论点 + 统一主体/场景/世界观。
@@ -90,6 +116,7 @@ export type VideoPlan = {
       speed?: number;
       polarCapDeg?: number;
     };
+    safeAreaOverlay?: boolean;
   };
   audio?: {
     voiceover?: string;

@@ -33,3 +33,16 @@ Fonts determine whether the video feels polished, especially for Chinese short v
 - Use simpler fonts for captions and body text.
 - Avoid thin Chinese fonts in compressed mobile video.
 - Avoid decorative fonts for factual or educational videos unless the brand requires them.
+- For information-heavy spoken videos, avoid making every text layer equally
+  heavy. Use a clear weight ladder:
+  - title: strong, but one step lighter than poster weight when the frame is not
+    a cover;
+  - card keyword: lighter than title;
+  - support line: medium weight;
+  - labels, scene numbers, and mono tags: small, restrained, and secondary;
+  - bottom captions: large enough for mobile compression, even if other text is
+    visually refined.
+- If the frame feels crude or overly loud, reduce title and card keyword weight
+  before reducing font size.
+- If the frame is hard to read, increase contrast or support-line size before
+  making all weights heavier.

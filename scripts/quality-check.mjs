@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import {envMilliseconds, runCommand} from './lib/process.mjs';
 
 const planPath = process.argv[2];
 const outputDirArg = process.argv[3] ?? 'output';
@@ -36,7 +36,7 @@ const countChars = (value) => [...String(value ?? '')].length;
 const durationOf = (filePath) => {
   try {
     return Number(
-      execFileSync('ffprobe', [
+      runCommand('ffprobe', [
         '-v',
         'error',
         '-show_entries',
@@ -44,7 +44,11 @@ const durationOf = (filePath) => {
         '-of',
         'default=noprint_wrappers=1:nokey=1',
         filePath,
-      ])
+      ], {
+        stdio: 'pipe',
+        label: `quality ffprobe ${filePath}`,
+        timeoutMs: envMilliseconds('SHORT_VIDEO_PROBE_TIMEOUT_MS', 15000),
+      })
         .toString()
         .trim(),
     );
@@ -58,8 +62,21 @@ const expectedRenderedDuration = () => {
   return plan.meta.durationSeconds + Math.max(0, introSeconds);
 };
 
-if (plan.meta.width !== 1080 || plan.meta.height !== 1920) {
-  warnings.push(`Expected 1080x1920, got ${plan.meta.width}x${plan.meta.height}`);
+const supportedFormats = [
+  {name: '3:4', width: 1080, height: 1440},
+  {name: '9:16', width: 1080, height: 1920},
+  {name: '16:9', width: 1920, height: 1080},
+];
+const matchedFormat = supportedFormats.find(
+  (format) => plan.meta.width === format.width && plan.meta.height === format.height,
+);
+
+if (!matchedFormat) {
+  warnings.push(
+    `Unsupported output size ${plan.meta.width}x${plan.meta.height}; expected ${supportedFormats
+      .map((format) => `${format.name} ${format.width}x${format.height}`)
+      .join(', ')}`,
+  );
 }
 
 if (plan.meta.durationSeconds < 75 || plan.meta.durationSeconds > 140) {

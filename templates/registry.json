@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "source": "short-video-maker template registry",
+  "borrowedPrinciples": [
+    "HTML Anything folder-per-template routing",
+    "tone-first template matching",
+    "closed design systems",
+    "example-driven previews",
+    "hard visual constraints"
+  ],
+  "templates": [
+    {
+      "id": "editorial-brief",
+      "name": "Editorial Brief",
+      "component": "SceneEditorialBrief",
+      "category": "spoken-video",
+      "tone": [
+        "professional",
+        "editorial",
+        "analytical",
+        "trust-first"
+      ],
+      "density": "medium",
+      "primaryAspect": "3:4",
+      "responsiveAspects": [
+        "16:9",
+        "9:16"
+      ],
+      "bestFor": [
+        "business explainers",
+        "AI workflow analysis",
+        "course and consulting accounts",
+        "professional opinion videos"
+      ],
+      "avoidFor": [
+        "meme content",
+        "emotion-led storytelling",
+        "data-heavy videos with precise charts",
+        "glitch-heavy entertainment edits"
+      ],
+      "layoutPool": [
+        "hook",
+        "definition",
+        "scenario-matrix",
+        "diagnostic",
+        "flow",
+        "signal",
+        "capability",
+        "takeaway"
+      ],
+      "motionGrammar": [
+        "global wire globe",
+        "subtle background drift",
+        "staggered card entrance",
+        "fade or slide scene transition"
+      ],
+      "routes": [
+        "html-cobalt-grid",
+        "html-editorial-forest",
+        "html-signal",
+        "html-liquid-dark",
+        "html-soft-editorial",
+        "swiss-blue",
+        "editorial-ink",
+        "magazine-cream",
+        "xhs-morandi",
+        "html-broadside",
+        "html-emerald-editorial",
+        "html-neo-grid-bold",
+        "html-monochrome",
+        "html-vellum",
+        "html-blue-professional",
+        "html-cartesian",
+        "html-grove",
+        "html-raw-grid",
+        "fde-business-grid",
+        "fde-bold-poster",
+        "fde-nyt-data",
+        "fde-glitch-title",
+        "fde-light-leak",
+        "fde-liquid-hero",
+        "fde-logo-outro",
+        "fde-vfx-cursor",
+        "fde-pentagram-stat",
+        "fde-electric-studio",
+        "fde-bold-signal",
+        "fde-build-minimal",
+        "fde-creative-voltage",
+        "fde-takram-organic"
+      ],
+      "requiredPackageFiles": [
+        "SKILL.md",
+        "design-tokens.json",
+        "example-plan.json"
+      ],
+      "previewGate": [
+        "middle frame for every scene",
+        "contact sheet",
+        "safe-area overlay for new aspect ratios",
+        "caption readability check"
+      ]
+    }
+  ]
+}

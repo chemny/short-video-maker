@@ -19,6 +19,7 @@ const rotX = (p: P3, a: number): P3 => ({
  * 深度着色：前半球（z>0）不透明度高，后半球低，产生半透明球体感。
  */
 export const WireGlobe = ({
+  frame: externalFrame,
   cx = 540,
   cy = 500,
   radius = 420,
@@ -31,6 +32,7 @@ export const WireGlobe = ({
   segments = 72,      // 每条线的分段数
   polarCapDeg = 18,   // 极点附近跳过的角度（消除汇聚）
 }: {
+  frame?: number;
   cx?: number;
   cy?: number;
   radius?: number;
@@ -43,8 +45,9 @@ export const WireGlobe = ({
   segments?: number;
   polarCapDeg?: number;
 }) => {
-  const frame = useCurrentFrame();
+  const localFrame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const frame = externalFrame ?? localFrame;
   const angle = (frame / fps) * speed;
 
   // 将一个球面点变换到屏幕空间，返回投影坐标和 z 深度

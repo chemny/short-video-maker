@@ -3,6 +3,15 @@ import path from 'node:path';
 import {envNumber, requireEnv} from '../args.mjs';
 import {detectDuration, requireCommands} from '../media.mjs';
 import {concatMp3Segments} from '../timeline.mjs';
+import {fetchWithTimeout} from '../../lib/fetch.mjs';
+import {
+  positiveInteger,
+  readCachedScene,
+  runWithConcurrency,
+  sceneCacheKey,
+  writeCachedScene,
+} from '../cache.mjs';
+import {timed} from '../../lib/timing.mjs';
 
 export const name = 'http';
 
@@ -50,7 +59,7 @@ const extractAudio = async (response) => {
 
   const audioUrl = result.url ?? result.audio_url ?? result.audioUrl ?? result.data?.url ?? result.data?.audio_url;
   if (typeof audioUrl === 'string') {
-    const audioResponse = await fetch(audioUrl);
+    const audioResponse = await fetchWithTimeout(audioUrl, {}, {envName: 'SHORT_VIDEO_TTS_FETCH_TIMEOUT_MS', label: 'HTTP TTS audio download'});
     if (!audioResponse.ok) {
       throw new Error(`Unable to download TTS audio URL: HTTP ${audioResponse.status}`);
     }
@@ -80,11 +89,11 @@ const requestTts = async ({text, options}) => {
     ...extra,
   };
 
-  const response = await fetch(process.env.TTS_API_BASE_URL, {
+  const response = await fetchWithTimeout(process.env.TTS_API_BASE_URL, {
     method: process.env.TTS_API_METHOD ?? 'POST',
     headers: getHeaders(),
     body: JSON.stringify(body),
-  });
+  }, {envName: 'SHORT_VIDEO_TTS_FETCH_TIMEOUT_MS', label: 'HTTP TTS request'});
 
   if (!response.ok) {
     throw new Error(`HTTP TTS failed: HTTP ${response.status}`);
@@ -105,9 +114,9 @@ export const listVoices = async () => {
     ];
   }
 
-  const response = await fetch(process.env.TTS_API_VOICES_URL, {
+  const response = await fetchWithTimeout(process.env.TTS_API_VOICES_URL, {
     headers: getHeaders(),
-  });
+  }, {envName: 'SHORT_VIDEO_TTS_FETCH_TIMEOUT_MS', label: 'HTTP TTS voices request'});
 
   if (!response.ok) {
     throw new Error(`HTTP voices request failed: HTTP ${response.status}`);
@@ -139,40 +148,67 @@ export const generate = async ({plan, outputMp3, options}) => {
   requireCommands(['ffmpeg', 'ffprobe']);
   const audioDir = path.dirname(outputMp3);
   const segmentsDir = path.join(audioDir, 'segments');
+  const config = {
+    endpoint: process.env.TTS_API_BASE_URL,
+    model: options.model ?? process.env.TTS_API_MODEL,
+    voice: options.voice ?? process.env.TTS_API_VOICE,
+    speed: options.speed !== undefined ? Number(options.speed) : envNumber('TTS_API_SPEED', 1),
+  };
+  const concurrency = positiveInteger(
+    options.concurrency ?? process.env.SHORT_VIDEO_TTS_CONCURRENCY,
+    2,
+    'SHORT_VIDEO_TTS_CONCURRENCY',
+  );
   fs.rmSync(segmentsDir, {recursive: true, force: true});
   fs.mkdirSync(segmentsDir, {recursive: true});
 
-  const segmentFiles = [];
-  const sceneDurations = [];
+  const results = await runWithConcurrency({
+    items: plan.scenes,
+    concurrency,
+    worker: async (scene, index) => {
+      const text = String(scene.voiceover ?? '').trim();
+      if (!text) {
+        throw new Error(`Scene ${index + 1} has empty voiceover`);
+      }
 
-  for (const [index, scene] of plan.scenes.entries()) {
-    const text = String(scene.voiceover ?? '').trim();
-    if (!text) {
-      throw new Error(`Scene ${index + 1} has empty voiceover`);
-    }
+      const segmentPath = path.join(segmentsDir, `scene-${String(index + 1).padStart(3, '0')}.mp3`);
+      const key = sceneCacheKey({provider: 'http', text, config});
+      const cached = readCachedScene({audioDir, provider: 'http', key});
+      if (cached) {
+        fs.copyFileSync(cached.audioPath, segmentPath);
+        console.log(`Reused cached scene ${index + 1}: ${cached.duration.toFixed(2)}s`);
+        return {segmentPath, duration: cached.duration};
+      }
 
-    const segmentPath = path.join(segmentsDir, `scene-${String(index + 1).padStart(3, '0')}.mp3`);
-    const audio = await requestTts({text, options});
-    fs.writeFileSync(segmentPath, audio);
-    const duration = detectDuration(segmentPath);
-    segmentFiles.push(segmentPath);
-    sceneDurations.push(duration);
-    console.log(`Generated scene ${index + 1}: ${duration.toFixed(2)}s`);
-  }
+      const audio = await timed(`http tts scene ${index + 1}`, () => requestTts({text, options}));
+      fs.writeFileSync(segmentPath, audio);
+      const duration = detectDuration(segmentPath);
+      writeCachedScene({
+        audioDir,
+        provider: 'http',
+        key,
+        sourcePath: segmentPath,
+        meta: {duration, provider: 'http', endpoint: config.endpoint, model: config.model, voice: config.voice},
+      });
+      console.log(`Generated scene ${index + 1}: ${duration.toFixed(2)}s`);
+      return {segmentPath, duration};
+    },
+  });
 
   concatMp3Segments({
-    segmentFiles,
+    segmentFiles: results.map((result) => result.segmentPath),
     outputMp3,
     concatListPath: path.join(segmentsDir, 'concat.txt'),
   });
 
   return {
-    sceneDurations,
+    sceneDurations: results.map((result) => result.duration),
     providerMeta: {
       provider: 'http',
       endpoint: process.env.TTS_API_BASE_URL,
       model: options.model ?? process.env.TTS_API_MODEL,
       voice: options.voice ?? process.env.TTS_API_VOICE,
+      concurrency,
     },
   };
 };

@@ -4,6 +4,15 @@ import path from 'node:path';
 import {envNumber, requireEnv} from '../args.mjs';
 import {detectDuration, requireCommands} from '../media.mjs';
 import {concatMp3Segments} from '../timeline.mjs';
+import {fetchWithTimeout} from '../../lib/fetch.mjs';
+import {
+  positiveInteger,
+  readCachedScene,
+  runWithConcurrency,
+  sceneCacheKey,
+  writeCachedScene,
+} from '../cache.mjs';
+import {timed} from '../../lib/timing.mjs';
 
 export const name = 'volcengine';
 
@@ -80,14 +89,14 @@ const requestTts = async ({config, text, index}) => {
     },
   };
 
-  const response = await fetch(config.endpoint, {
+  const response = await fetchWithTimeout(config.endpoint, {
     method: 'POST',
     headers: {
       Authorization: `Bearer;${config.accessToken}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
-  });
+  }, {envName: 'SHORT_VIDEO_TTS_FETCH_TIMEOUT_MS', label: `Volcengine TTS${index !== undefined ? ` scene ${index + 1}` : ''}`});
 
   if (!response.ok) {
     throw new Error(`Volcengine TTS HTTP ${response.status}${index !== undefined ? ` for scene ${index + 1}` : ''}`);
@@ -134,37 +143,57 @@ export const generate = async ({plan, planDir, outputMp3, options, skillRoot}) =
   const config = getConfig({skillRoot, options});
   const audioDir = path.dirname(outputMp3);
   const segmentsDir = path.join(audioDir, 'segments');
+  const concurrency = positiveInteger(
+    options.concurrency ?? process.env.SHORT_VIDEO_TTS_CONCURRENCY,
+    2,
+    'SHORT_VIDEO_TTS_CONCURRENCY',
+  );
   fs.rmSync(segmentsDir, {recursive: true, force: true});
   fs.mkdirSync(segmentsDir, {recursive: true});
 
-  const segmentFiles = [];
-  const sceneDurations = [];
+  const results = await runWithConcurrency({
+    items: plan.scenes,
+    concurrency,
+    worker: async (scene, index) => {
+      const text = String(scene.voiceover ?? '').trim();
+      if (!text) {
+        throw new Error(`Scene ${index + 1} has empty voiceover`);
+      }
 
-  for (const [index, scene] of plan.scenes.entries()) {
-    const text = String(scene.voiceover ?? '').trim();
-    if (!text) {
-      throw new Error(`Scene ${index + 1} has empty voiceover`);
-    }
+      const segmentPath = path.join(segmentsDir, `scene-${String(index + 1).padStart(3, '0')}.mp3`);
+      const key = sceneCacheKey({provider: 'volcengine', text, config});
+      const cached = readCachedScene({audioDir, provider: 'volcengine', key});
+      if (cached) {
+        fs.copyFileSync(cached.audioPath, segmentPath);
+        console.log(`Reused cached scene ${index + 1}: ${cached.duration.toFixed(2)}s`);
+        return {segmentPath, duration: cached.duration};
+      }
 
-    const result = await requestTts({config, text, index});
-    const segmentPath = path.join(segmentsDir, `scene-${String(index + 1).padStart(3, '0')}.mp3`);
-    fs.writeFileSync(segmentPath, Buffer.from(result.data, 'base64'));
+      const result = await timed(`volcengine tts scene ${index + 1}`, () => requestTts({config, text, index}));
+      fs.writeFileSync(segmentPath, Buffer.from(result.data, 'base64'));
 
-    const apiDuration = Number(result.addition?.duration) / 1000;
-    const duration = Number.isFinite(apiDuration) && apiDuration > 0 ? apiDuration : detectDuration(segmentPath);
-    segmentFiles.push(segmentPath);
-    sceneDurations.push(duration);
-    console.log(`Generated scene ${index + 1}: ${duration.toFixed(2)}s`);
-  }
+      const apiDuration = Number(result.addition?.duration) / 1000;
+      const duration = Number.isFinite(apiDuration) && apiDuration > 0 ? apiDuration : detectDuration(segmentPath);
+      writeCachedScene({
+        audioDir,
+        provider: 'volcengine',
+        key,
+        sourcePath: segmentPath,
+        meta: {duration, provider: 'volcengine', voiceType: config.voiceType, model: config.model},
+      });
+      console.log(`Generated scene ${index + 1}: ${duration.toFixed(2)}s`);
+      return {segmentPath, duration};
+    },
+  });
 
   concatMp3Segments({
-    segmentFiles,
+    segmentFiles: results.map((result) => result.segmentPath),
     outputMp3,
     concatListPath: path.join(segmentsDir, 'concat.txt'),
   });
 
   return {
-    sceneDurations,
+    sceneDurations: results.map((result) => result.duration),
     providerMeta: {
       provider: 'volcengine',
       preset: config.preset?.id,
@@ -174,6 +203,7 @@ export const generate = async ({plan, planDir, outputMp3, options, skillRoot}) =
       loudnessRatio: config.loudnessRatio,
       model: config.model,
       endpoint: config.endpoint,
+      concurrency,
     },
   };
 };

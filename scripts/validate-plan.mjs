@@ -38,6 +38,7 @@ const supportedTemplates = new Set([
   'app-workflow',
   'sketch-notes',
   'dark-card',
+  'editorial-brief',
   'apple-text-video',
   'data-punch',
   'image-overlay',
@@ -95,8 +96,20 @@ if (plan.meta) {
     errors.push('meta.durationSeconds must be a positive number');
   }
 
-  if (plan.meta.width !== 1080 || plan.meta.height !== 1920) {
-    warnings.push(`meta.width/meta.height is ${plan.meta.width}x${plan.meta.height}; 1080x1920 is the default short-video target`);
+  const supportedFormats = [
+    {name: '3:4', width: 1080, height: 1440},
+    {name: '9:16', width: 1080, height: 1920},
+    {name: '16:9', width: 1920, height: 1080},
+  ];
+  const matchedFormat = supportedFormats.find(
+    (format) => plan.meta.width === format.width && plan.meta.height === format.height,
+  );
+  if (!matchedFormat) {
+    warnings.push(
+      `meta.width/meta.height is ${plan.meta.width}x${plan.meta.height}; expected ${supportedFormats
+        .map((format) => `${format.name} ${format.width}x${format.height}`)
+        .join(', ')}`,
+    );
   }
 
   if (Number.isFinite(plan.meta.durationSeconds) && (plan.meta.durationSeconds < 75 || plan.meta.durationSeconds > 140)) {

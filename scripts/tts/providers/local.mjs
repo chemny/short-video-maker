@@ -1,14 +1,17 @@
-import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {envMilliseconds, readCommand, runCommand} from '../../lib/process.mjs';
 import {requireCommands} from '../media.mjs';
 
 export const name = 'local';
 
 export const listVoices = () => {
   requireCommands(['say']);
-  const output = execFileSync('say', ['-v', '?']).toString();
+  const output = readCommand('say', ['-v', '?'], {
+    label: 'list macOS voices',
+    timeoutMs: envMilliseconds('SHORT_VIDEO_SAY_TIMEOUT_MS', 30000),
+  });
   return output
     .split('\n')
     .map((line) => line.trim())
@@ -33,11 +36,15 @@ export const preview = async ({text, outputPath, options}) => {
   const aiffPath = path.join(tmpDir, 'sample.aiff');
 
   fs.writeFileSync(textPath, text, 'utf8');
-  execFileSync('say', ['-v', voice, '-r', String(rate), '-f', textPath, '-o', aiffPath], {
+  runCommand('say', ['-v', voice, '-r', String(rate), '-f', textPath, '-o', aiffPath], {
     stdio: 'inherit',
+    label: 'macOS TTS preview',
+    timeoutMs: envMilliseconds('SHORT_VIDEO_SAY_TIMEOUT_MS', 180000),
   });
-  execFileSync('ffmpeg', ['-y', '-i', aiffPath, '-codec:a', 'libmp3lame', '-q:a', '3', outputPath], {
+  runCommand('ffmpeg', ['-y', '-i', aiffPath, '-codec:a', 'libmp3lame', '-q:a', '3', outputPath], {
     stdio: 'ignore',
+    label: 'convert preview audio',
+    timeoutMs: envMilliseconds('SHORT_VIDEO_FFMPEG_TIMEOUT_MS', 180000),
   });
   fs.rmSync(tmpDir, {recursive: true, force: true});
 
@@ -58,11 +65,15 @@ export const generate = async ({plan, planDir, outputMp3, options}) => {
   const aiffPath = path.join(tmpDir, 'voiceover.aiff');
 
   fs.writeFileSync(textPath, text, 'utf8');
-  execFileSync('say', ['-v', voice, '-r', String(rate), '-f', textPath, '-o', aiffPath], {
+  runCommand('say', ['-v', voice, '-r', String(rate), '-f', textPath, '-o', aiffPath], {
     stdio: 'inherit',
+    label: 'macOS TTS',
+    timeoutMs: envMilliseconds('SHORT_VIDEO_SAY_TIMEOUT_MS', 600000),
   });
-  execFileSync('ffmpeg', ['-y', '-i', aiffPath, '-codec:a', 'libmp3lame', '-q:a', '3', outputMp3], {
+  runCommand('ffmpeg', ['-y', '-i', aiffPath, '-codec:a', 'libmp3lame', '-q:a', '3', outputMp3], {
     stdio: 'ignore',
+    label: 'convert TTS audio',
+    timeoutMs: envMilliseconds('SHORT_VIDEO_FFMPEG_TIMEOUT_MS', 180000),
   });
   fs.rmSync(tmpDir, {recursive: true, force: true});
 

@@ -1,8 +1,12 @@
-import {execFileSync} from 'node:child_process';
+import {envMilliseconds, runCommand} from '../lib/process.mjs';
 
 export const hasCommand = (command) => {
   try {
-    execFileSync('which', [command], {stdio: 'ignore'});
+    runCommand('which', [command], {
+      stdio: 'ignore',
+      label: `check command ${command}`,
+      timeoutMs: envMilliseconds('SHORT_VIDEO_PROBE_TIMEOUT_MS', 15000),
+    });
     return true;
   } catch {
     return false;
@@ -19,7 +23,7 @@ export const requireCommands = (commands) => {
 
 export const detectDuration = (filePath) =>
   Number(
-    execFileSync('ffprobe', [
+      runCommand('ffprobe', [
       '-v',
       'error',
       '-show_entries',
@@ -27,7 +31,11 @@ export const detectDuration = (filePath) =>
       '-of',
       'default=noprint_wrappers=1:nokey=1',
       filePath,
-    ])
+    ], {
+      stdio: 'pipe',
+      label: `ffprobe duration ${filePath}`,
+      timeoutMs: envMilliseconds('SHORT_VIDEO_PROBE_TIMEOUT_MS', 15000),
+    })
       .toString()
       .trim(),
   );

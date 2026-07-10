@@ -77,18 +77,7 @@ export const SceneCleanExplainer = ({
         {label}
       </div>
 
-      <div
-        style={{
-          position: 'absolute',
-          left: 76,
-          top: 168,
-          bottom: 318,
-          width: 12,
-          background: preset.textPrimary,
-          borderRadius: 8,
-        }}
-      />
-      <div style={{position: 'absolute', left: 118, right: 78, top: 170}}>
+      <div style={{position: 'absolute', left: 84, right: 78, top: 170}}>
         <div style={{color: preset.accent, fontSize: 32, fontWeight: 880, marginBottom: 22}}>
           {plan.meta.topic}
         </div>
@@ -111,7 +100,7 @@ export const SceneCleanExplainer = ({
       <div
         style={{
           position: 'absolute',
-          left: 118,
+          left: 84,
           right: 78,
           top: 566,
           display: 'grid',
@@ -169,7 +158,7 @@ export const SceneCleanExplainer = ({
         <div
           style={{
             position: 'absolute',
-            left: 118,
+            left: 84,
             right: 78,
             bottom: 328,
             display: 'flex',

@@ -3,6 +3,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {detectDuration, requireCommands} from '../media.mjs';
 import {concatMp3Segments} from '../timeline.mjs';
+import {
+  positiveInteger,
+  readCachedScene,
+  runWithConcurrency,
+  sceneCacheKey,
+  writeCachedScene,
+} from '../cache.mjs';
+import {timed} from '../../lib/timing.mjs';
 
 export const name = 'edge';
 
@@ -81,41 +89,61 @@ export const generate = async ({plan, outputMp3, options}) => {
   const config = getConfig({options});
   const audioDir = path.dirname(outputMp3);
   const segmentsDir = path.join(audioDir, 'segments');
+  const concurrency = positiveInteger(
+    options.concurrency ?? process.env.SHORT_VIDEO_TTS_CONCURRENCY,
+    2,
+    'SHORT_VIDEO_TTS_CONCURRENCY',
+  );
   fs.rmSync(segmentsDir, {recursive: true, force: true});
   fs.mkdirSync(segmentsDir, {recursive: true});
 
-  const segmentFiles = [];
-  const sceneDurations = [];
+  const results = await runWithConcurrency({
+    items: plan.scenes,
+    concurrency,
+    worker: async (scene, index) => {
+      const text = String(scene.voiceover ?? '').trim();
+      if (!text) {
+        throw new Error(`Scene ${index + 1} has empty voiceover`);
+      }
 
-  for (const [index, scene] of plan.scenes.entries()) {
-    const text = String(scene.voiceover ?? '').trim();
-    if (!text) {
-      throw new Error(`Scene ${index + 1} has empty voiceover`);
-    }
+      const segmentPath = path.join(segmentsDir, `scene-${String(index + 1).padStart(3, '0')}.mp3`);
+      const key = sceneCacheKey({provider: 'edge', text, config});
+      const cached = readCachedScene({audioDir, provider: 'edge', key});
+      if (cached) {
+        fs.copyFileSync(cached.audioPath, segmentPath);
+        console.log(`Reused cached scene ${index + 1}: ${cached.duration.toFixed(2)}s`);
+        return {segmentPath, duration: cached.duration};
+      }
 
-    const segmentPath = path.join(segmentsDir, `scene-${String(index + 1).padStart(3, '0')}.mp3`);
-    await runEdgeTts({text, outputPath: segmentPath, config});
-
-    const duration = detectDuration(segmentPath);
-    segmentFiles.push(segmentPath);
-    sceneDurations.push(duration);
-    console.log(`Generated scene ${index + 1}: ${duration.toFixed(2)}s`);
-  }
+      await timed(`edge tts scene ${index + 1}`, () => runEdgeTts({text, outputPath: segmentPath, config}));
+      const duration = detectDuration(segmentPath);
+      writeCachedScene({
+        audioDir,
+        provider: 'edge',
+        key,
+        sourcePath: segmentPath,
+        meta: {duration, provider: 'edge', voice: config.voice, rate: config.rate},
+      });
+      console.log(`Generated scene ${index + 1}: ${duration.toFixed(2)}s`);
+      return {segmentPath, duration};
+    },
+  });
 
   concatMp3Segments({
-    segmentFiles,
+    segmentFiles: results.map((result) => result.segmentPath),
     outputMp3,
     concatListPath: path.join(segmentsDir, 'concat.txt'),
   });
 
   return {
-    sceneDurations,
+    sceneDurations: results.map((result) => result.duration),
     providerMeta: {
       provider: 'edge',
       voice: config.voice,
       lang: config.lang,
       rate: config.rate,
       outputFormat: config.outputFormat,
+      concurrency,
     },
   };
 };

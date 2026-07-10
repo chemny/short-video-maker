@@ -59,9 +59,12 @@ Rules:
 - Keep caption text large enough for mobile.
 - Avoid visual palettes that are dominated by one hue.
 - Use safe areas for bottom captions because platform UI may cover edges.
-- `template` controls layout structure; `preset` controls visual skin.
-- Supported short-video templates: `clean-explainer`, `app-workflow`, `sketch-notes`, `dark-card`, `apple-text-video`, `data-punch`, `image-overlay`.
+- `template` controls the design system and layout pool; `preset` is legacy visual skin support for older templates.
+- Before selecting `template`, read `references/template-system-rules.md`, `templates/README.md`, and `templates/registry.json`.
+- Supported short-video templates: `clean-explainer`, `app-workflow`, `sketch-notes`, `dark-card`, `editorial-brief`, `apple-text-video`, `data-punch`, `image-overlay`.
 - Supported presets: `warm-note`, `mono-tech`, `soft-product`, `dark-cinematic`.
+- `style.layoutSystem` may be used by template packages to select an internal layout family, such as `spoken-card-v1`.
+- `style.editorialVariant` may be used by `editorial-brief` to choose a closed route such as `html-liquid-dark`; do not mix route palettes or component grammar inside one scene.
 
 ## `audio`
 
@@ -131,6 +134,9 @@ Rules:
     "end": 6,
     "type": "hook",
     "layout": "full-image-title",
+    "arcRole": "Hook",
+    "narrativeAction": "name the topic and create tension",
+    "contentShape": "statement",
     "voiceover": "你有没有发现，很多人做 AI 产品，其实输在第一步。",
     "caption": "很多 AI 产品，输在第一步",
     "body": "一个常见但容易被忽略的问题。",
@@ -172,6 +178,18 @@ Supported `motion.type` values for MVP:
 Rules:
 
 - Scene timing should align with the audio/caption timeline.
+- For topic-to-video generation, plan the scene first using
+  `references/narrative-planning-rules.md`. Optional fields such as `arcRole`,
+  `narrativeAction`, and `contentShape` may be kept in `video-plan.json` as
+  authoring metadata. Remotion templates may ignore them, but validators and
+  agents can use them to check narrative structure.
+- `arcRole` should normally be one of `Hook`, `Context`, `Core`, `Shift`, or
+  `Takeaway`.
+- `narrativeAction` should describe the one job of the scene. If it needs "and"
+  to explain two unrelated jobs, split the scene.
+- `contentShape` should describe the information shape, such as `statement`,
+  `definition`, `contrast`, `examples`, `diagnostic`, `flow`, `signal`,
+  `capability`, `data`, `case`, or `image-evidence`.
 - Each scene should have either a visual asset, a text-driven layout, or a Remotion-native graphic.
 - Avoid scenes shorter than 3 seconds unless used for a hook or transition beat.
 - `body` is a short supporting sentence shown by text-driven templates.

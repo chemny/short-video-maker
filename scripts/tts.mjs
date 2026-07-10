@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import './tts/load-env.mjs';
 import {parseArgs} from './tts/args.mjs';
 import {writeTimeline} from './tts/timeline.mjs';
 import * as edgeProvider from './tts/providers/edge.mjs';
 import * as httpProvider from './tts/providers/http.mjs';
 import * as localProvider from './tts/providers/local.mjs';
 import * as volcengineProvider from './tts/providers/volcengine.mjs';
+import {timed} from './lib/timing.mjs';
 
 const providers = {
   edge: edgeProvider,
@@ -33,6 +35,8 @@ Common options:
   --speed=<number>
   --loudness=<number>
   --model=<model-id>
+  --concurrency=<number>
+  --skip-if-exists
   --output=<path>`);
 };
 
@@ -52,6 +56,7 @@ const options = {
   model: args.model,
   rate: args.rate,
   cluster: args.cluster,
+  concurrency: args.concurrency,
 };
 
 const defaultPreviewText =
@@ -104,14 +109,36 @@ if (command === 'voices') {
   const audioDir = path.join(planDir, 'audio');
   fs.mkdirSync(audioDir, {recursive: true});
   const outputMp3 = path.join(audioDir, 'voiceover.mp3');
-  const result = await provider.generate({
-    plan,
-    planDir,
-    planPath,
-    outputMp3,
-    options,
-    skillRoot,
-  });
+  const skipIfExists = Boolean(args['skip-if-exists']);
+  const reusableSceneDurations =
+    Array.isArray(plan.scenes) &&
+    plan.scenes.every((scene) => Number.isFinite(scene.start) && Number.isFinite(scene.end) && scene.end > scene.start)
+      ? plan.scenes.map((scene) => scene.end - scene.start)
+      : null;
+  const result =
+    skipIfExists && fs.existsSync(outputMp3) && fs.statSync(outputMp3).size > 0
+      ? {
+          sceneDurations: reusableSceneDurations,
+          providerMeta: {
+            ...(plan.audio ?? {}),
+            provider: plan.audio?.provider ?? providerName,
+            reusedExistingAudio: true,
+          },
+        }
+      : await timed(`${providerName} tts generate`, () =>
+          provider.generate({
+            plan,
+            planDir,
+            planPath,
+            outputMp3,
+            options,
+            skillRoot,
+          }),
+        );
+
+  if (skipIfExists && result.providerMeta.reusedExistingAudio) {
+    console.log(`Reused existing ${outputMp3}`);
+  }
   const timeline = writeTimeline({
     planPath,
     plan,

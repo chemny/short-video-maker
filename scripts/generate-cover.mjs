@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import {fetchWithTimeout} from './lib/fetch.mjs';
+import {envMilliseconds, runCommand} from './lib/process.mjs';
 
 const args = process.argv.slice(2);
 const planPath = args[0];
@@ -54,7 +55,7 @@ const writeBase64 = (base64, destination) => {
 };
 
 const downloadToFile = async (url, destination) => {
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url, {}, {envName: 'SHORT_VIDEO_IMAGE_FETCH_TIMEOUT_MS', label: 'cover image download'});
   if (!response.ok) {
     throw new Error(`Image download failed: ${response.status} ${response.statusText}`);
   }
@@ -156,9 +157,11 @@ const renderRemotionCover = () => {
   const outDir = path.join(remotionDir, 'out');
   const renderedCover = path.join(outDir, 'cover.png');
   fs.mkdirSync(outDir, {recursive: true});
-  execFileSync(remotionBin, ['still', 'src/index.ts', 'CoverStill', 'out/cover.png', '--frame=0'], {
+  runCommand(remotionBin, ['still', 'src/index.ts', 'CoverStill', 'out/cover.png', '--frame=0'], {
     cwd: remotionDir,
     stdio: 'inherit',
+    label: 'remotion cover generation',
+    timeoutMs: envMilliseconds('SHORT_VIDEO_PREVIEW_TIMEOUT_MS', 300000),
   });
   fs.copyFileSync(renderedCover, coverPath);
 };
@@ -189,14 +192,14 @@ const generateOpenAiCover = async () => {
     }
   }
 
-  const response = await fetch(endpoint, {
+  const response = await fetchWithTimeout(endpoint, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${imageCredential}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
-  });
+  }, {envName: 'SHORT_VIDEO_IMAGE_FETCH_TIMEOUT_MS', label: 'OpenAI cover request'});
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -228,14 +231,14 @@ const generateNanoBananaCover = async () => {
     },
   };
 
-  const response = await fetch(apiUrl, {
+  const response = await fetchWithTimeout(apiUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-goog-api-key': imageCredential,
     },
     body: JSON.stringify(body),
-  });
+  }, {envName: 'SHORT_VIDEO_IMAGE_FETCH_TIMEOUT_MS', label: 'Nano Banana cover request'});
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -268,11 +271,11 @@ const generateHttpCover = async () => {
     headers.Authorization = `Bearer ${coverCredential}`;
   }
 
-  const response = await fetch(endpoint, {
+  const response = await fetchWithTimeout(endpoint, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
-  });
+  }, {envName: 'SHORT_VIDEO_IMAGE_FETCH_TIMEOUT_MS', label: 'HTTP cover request'});
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {

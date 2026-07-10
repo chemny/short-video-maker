@@ -43,45 +43,71 @@ Follow this sequence:
    - Save or produce an `analysis.json`-compatible structure.
    - If the input is a long article, long narration, video podcast script, or `podcast.txt`, read `references/long-to-short-rules.md` and extract one short-video angle before scripting.
 
-3. Write the short-video script.
+3. Plan the narrative.
+   - Read `references/narrative-planning-rules.md` before turning a topic, one-sentence idea, or rough opinion into scenes.
+   - Do not jump from a one-line topic directly to `video-plan.json`.
+   - Create a narrative brief: subject, audience, occasion, thesis, context gap, proof shape, and takeaway.
+   - Use the default arc when the user has not supplied a stronger structure: Hook -> Context -> Core -> Shift -> Takeaway.
+   - For every scene, identify one `narrative_action` and one `content_shape` before selecting a visual layout.
+   - Keep the layer boundary clear: narrative planning decides what each scene says; template governance decides how it is visually structured; video production handles TTS, captions, timing, transitions, and render.
+
+4. Write the short-video script.
    - Build for a 90-130 second spoken video, not an article summary.
    - Use a strong hook in the first 3-6 seconds.
    - Keep one central thesis and 2-4 supporting points.
    - Include voiceover, on-screen caption text, visual direction, emotional tone, and estimated duration per scene.
+   - Before writing visible scene text, read `references/screen-copy-rules.md`.
+   - Screen text should not be a narration summary. Generate a main judgment, support line, support items, and intended visual structure for each scene.
 
-4. Convert the script into a storyboard.
+5. Convert the script into a storyboard.
    - Split the video into scenes.
    - Each scene should include narration, caption text, visual prompt or asset direction, layout type, motion style, and transition intent.
+   - Before building the storyboard, satisfy the scene planning table from `references/narrative-planning-rules.md`: scene, arc role, narrative action, content shape, recommended layout, screen copy, visual slot, and motion role.
+   - Choose the layout by scene function: hook, definition, example/context, diagnosis, process, evidence, role implication, or takeaway.
+   - Avoid assigning the same title/list layout to every scene unless the user explicitly asks for a minimal system.
    - Prefer 5-9 scenes for a 2 minute video.
+   - For template-driven videos, read `references/template-system-rules.md` before finalizing the storyboard. Treat templates as closed design systems with layout pools, not visual skins.
 
-5. Generate audio and timing.
+6. Generate audio and timing.
    - Treat narration audio as the master timeline.
+   - Read `references/audio-sync-rules.md` and `references/media-diagnostics-rules.md` before finalizing imported or generated voiceover audio.
    - Generate TTS audio or instruct the user/agent to generate it using the configured TTS provider.
    - Default to Edge TTS for public-friendly local runs. Use Volcengine or HTTP TTS only when the user provides their own credentials in environment variables.
    - Use transcription or forced alignment to produce word-level or sentence-level timestamps.
    - Use those timestamps to build captions and scene boundaries.
+   - Audio quality gate: if the narration has obvious room echo, reverb tail, hiss, hum, clipping, or broadband noise, run a denoise / dialogue-enhancement pass before render and retime captions from the processed audio if duration changes.
    - Before final TTS for Chinese narration, read `references/pronunciation-rules.md` and create a job-local `phonemes.json` when names, polyphones, or English terms need overrides.
 
-6. Prepare visuals.
+7. Prepare visuals.
    - Use AI-generated still images, sourced images/video, or Remotion-native graphics.
    - For MVP work, prefer still images plus motion, typography, charts, and transitions over AI-generated video clips.
    - Check licensing and factual fidelity when using sourced assets.
 
-7. Build `video-plan.json`.
+8. Build `video-plan.json`.
    - Convert analysis, script, captions, audio, visual assets, style, and cover plan into a single Remotion input file.
    - Use the schema in `references/video-plan-schema.md`.
+   - Read `references/screen-copy-rules.md` and ensure `caption`, `body`, `tags`, `steps`, `data`, and `layout` form a real information hierarchy.
+   - Before choosing `style.template`, read `references/template-system-rules.md`, `templates/README.md`, and `templates/registry.json`; then read the selected template package's `SKILL.md` and `design-tokens.json`.
+   - Treat each template package as a small design skill: follow its content fields, layout primitives, hard constraints, and preview requirements.
+   - Use the selected template's declared layout pool. If a scene needs a missing structure, extend the selected template using its own design system instead of mixing in another template.
    - Read `references/platform-rules.md` before filling `publish`.
+   - Apply platform safe-area rules from `references/platform-rules.md` before
+     placing titles, cards, diagrams, and captions. When the aspect ratio or
+     platform changes, generate a safe-area overlay preview.
    - Read `references/preference-rules.md` if a local preference file exists or the user asks to save defaults.
 
-8. Render and package.
+9. Render and package.
    - Generate a first-frame preview first when the user has not explicitly confirmed full rendering.
    - Render the video through Remotion.
    - Render the cover still.
    - Export the publish package with script, captions, metadata, and platform copy.
 
-9. Quality check.
+10. Quality check.
    - Run `scripts/validate-plan.mjs` and `scripts/audit-timing.mjs` before render.
-   - Verify duration, audio presence, caption timing, missing assets, unreadable text, aspect ratio, cover readability, and platform publish rules.
+   - Verify duration, audio presence, audio quality gate status, caption timing, missing assets, unreadable text, aspect ratio, cover readability, and platform publish rules.
+   - If imported or generated narration still has obvious echo or noise after render, do not treat the video as final; create a repaired audio version and re-render or remux it into the final package.
+   - Before a full render, render the middle frame of every scene plus a contact sheet; check information hierarchy, repeated layouts, lower-frame emptiness, title wrapping, linework crossing text, platform safe areas, and caption readability.
+   - For 9:16, 3:4, or 16:9 platform adaptation, also render a safe-area overlay contact sheet and verify that critical text, cards, diagrams, and captions are outside danger zones.
    - If issues are detected, fix the plan or assets and render again.
 
 ## Recommended File Layout
@@ -167,8 +193,14 @@ The result is acceptable only if:
 
 - Read `references/mvp-spec.md` before designing or implementing the first version.
 - Read `references/video-plan-schema.md` before generating Remotion input data.
+- Read `references/audio-sync-rules.md` and `references/media-diagnostics-rules.md` before using imported audio, generated TTS, or a rendered video with source audio.
+- Read `references/narrative-planning-rules.md` before turning a topic, one-sentence idea, or rough opinion into a script/storyboard.
+- Read `references/screen-copy-rules.md` before writing screen text, storyboard layouts, or `video-plan.json` scene fields.
+- Read `references/template-system-rules.md` before choosing, extending, or creating a visual template.
 - Read `references/platform-rules.md` before generating publish copy.
 - Read `references/pronunciation-rules.md` before final TTS for Chinese narration.
 - Read `references/preference-rules.md` before reading or writing reusable defaults.
 - Read `references/long-to-short-rules.md` when adapting a long script, article, or podcast into short videos.
+- Read `templates/README.md` before selecting or creating a visual template.
+- Read `templates/registry.json` before selecting a template package.
 - Use `examples/input.md` as the first smoke-test input.

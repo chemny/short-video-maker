@@ -1,29 +1,76 @@
-import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import {envMilliseconds, runCommand} from '../lib/process.mjs';
 import {detectDuration} from './media.mjs';
 
 const roundTime = (value) => Math.round(value * 1000) / 1000;
 const textWeight = (value) => Math.max(1, String(value ?? '').replace(/\s+/g, '').length);
+const hasLatinWords = (value) => /[A-Za-z][A-Za-z\s-]*[A-Za-z]/.test(value);
+const captionWeightLimit = 16;
+
+export const cleanCaptionText = (value) =>
+  String(value ?? '')
+    .replace(/[，,。.!！?？、；;：:“”"‘’'（）()《》【】[\]{}…·]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const visualWeight = (value) => {
+  const compact = String(value ?? '').replace(/\s+/g, ' ').trim();
+  let weight = 0;
+  for (const token of compact.split(/(\s+)/).filter((part) => !/^\s+$/.test(part))) {
+    if (/^[A-Za-z0-9-]+$/.test(token)) {
+      weight += Math.min(8, token.length * 0.45);
+    } else {
+      weight += token.length;
+    }
+  }
+  return weight;
+};
+
+const splitCjkChunk = (chunk, size = 12) => {
+  const result = [];
+  for (let index = 0; index < chunk.length; index += size) {
+    result.push(cleanCaptionText(chunk.slice(index, index + size)));
+  }
+  return result.filter(Boolean);
+};
 
 const splitCaptionText = (value) => {
   const source = String(value ?? '').trim();
   const parts = source
-    .split(/(?<=[。！？；.!?;])\s*/)
-    .map((part) => part.trim())
+    .split(/[，,。.!！?？、；;：:\n]+/)
+    .map(cleanCaptionText)
     .filter(Boolean);
-  const chunks = parts.length > 0 ? parts : [source];
+  const chunks = parts.length > 0 ? parts : [cleanCaptionText(source)].filter(Boolean);
 
   return chunks.flatMap((chunk) => {
-    if (chunk.length <= 30) {
+    if (visualWeight(chunk) <= captionWeightLimit) {
       return [chunk];
     }
 
-    const result = [];
-    for (let index = 0; index < chunk.length; index += 26) {
-      result.push(chunk.slice(index, index + 26));
+    if (hasLatinWords(chunk)) {
+      const words = chunk.split(/\s+/).filter(Boolean);
+      const lines = [];
+      let line = '';
+
+      for (const word of words) {
+        const wordParts = visualWeight(word) > captionWeightLimit ? splitCjkChunk(word) : [word];
+        for (const part of wordParts) {
+          const candidate = line ? `${line} ${part}` : part;
+          if (visualWeight(candidate) > captionWeightLimit && line) {
+            lines.push(line);
+            line = part;
+          } else {
+            line = candidate;
+          }
+        }
+      }
+
+      if (line) lines.push(line);
+      return lines;
     }
-    return result;
+
+    return splitCjkChunk(chunk);
   });
 };
 
@@ -136,7 +183,9 @@ export const concatMp3Segments = ({segmentFiles, outputMp3, concatListPath}) => 
     segmentFiles.map((file) => `file '${file.replaceAll("'", "'\\''")}'`).join('\n'),
     'utf8',
   );
-  execFileSync('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', concatListPath, '-c', 'copy', outputMp3], {
+  runCommand('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', concatListPath, '-c', 'copy', outputMp3], {
     stdio: 'ignore',
+    label: 'concat mp3 segments',
+    timeoutMs: envMilliseconds('SHORT_VIDEO_FFMPEG_TIMEOUT_MS', 180000),
   });
 };

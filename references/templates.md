@@ -1,11 +1,20 @@
 # Templates & Effects Catalog
 
-This file is the **selection menu** for the video generation step. When building
-`video-plan.json` (Core Workflow step 7), the agent MUST consult this file to:
+This file is the legacy **selection menu** for the video generation step. New or
+refined templates should also have a package under `templates/<template-id>/`.
+When building `video-plan.json` (Core Workflow step 7), the agent MUST consult
+this file, then read the selected template package if it exists:
 
 1. Pick `style.template` based on content type.
 2. Fill the per-scene fields that each template needs to activate its effects.
 3. Choose per-scene `transition`.
+4. Apply `references/screen-copy-rules.md` so scene text becomes an information
+   hierarchy, not a compressed transcript.
+
+For packaged templates, `templates/<template-id>/SKILL.md` and
+`design-tokens.json` override the short summary here. This mirrors HTML
+Anything's "template as a small skill" model and prevents visual style from
+collapsing into loose adjectives.
 
 If a template's required fields are missing, its signature effects simply won't
 render — the content falls back to plain text. So filling these fields is what
@@ -20,6 +29,7 @@ Set `style.template` to one of these. Pick by the **dominant nature of the conte
 | Content signal | `template` | Why |
 |---|---|---|
 | 通用知识解释 / 方法论 / 观点拆解 | `clean-explainer` | 清爽信息层级、强标题、关键词条，适合多数可发布短视频 |
+| 专业口播 / 课程咨询 / 商业观点 / 需要信任感 | `editorial-brief` | 借鉴 HTML Anything 的 Swiss / magazine 风格：严谨网格、大标题、少色、高级排版 |
 | AI 工具 / 工作流 / 操作流程 / SOP | `app-workflow` | 模拟应用窗口 + 流程节点，适合讲工具如何进入日常动作 |
 | 小红书收藏型 / 笔记感 / 框架总结 | `sketch-notes` | 纸张网格、手绘边框、荧光标记，适合收藏转发 |
 | 知识科普 / 概念解释 / 观点陈述，**无配图** | `dark-card` | 深色卡片 + 旋转线框球背景，关键词随旁白逐个点亮 |
@@ -45,6 +55,7 @@ identity). Mixing templates per-scene is not supported.
 Recommended combinations:
 
 - `clean-explainer + warm-note`
+- `editorial-brief + mono-tech`
 - `app-workflow + soft-product`
 - `sketch-notes + warm-note`
 - `data-punch + dark-cinematic`
@@ -61,6 +72,16 @@ All scenes always need: `id`, `start`, `end`, `type`, `layout`, `voiceover`,
 - `caption` — 一屏主观点，尽量 ≤16 字。
 - `body` — 解释句，≤34 字。
 - `tags` — 1-3 个关键词，会显示为底部条。
+
+### `editorial-brief`
+- `caption` — 一屏主判断，尽量 ≤18 字；允许自动断成两行。
+- `body` — 一句支撑判断，≤34 字，不复述字幕。
+- `tags` — 2-4 个支撑项，优先是口播里真实出现的具体角色、动作、概念或对比侧。
+- `layout` / `type` — must select the frame function: statement, definition,
+  examples/context, diagnosis, process, evidence, role implication, or takeaway.
+- Best for 3:4. Use strict grid, strong display type, one accent color, and no decorative rails.
+- Do not make every scene a list. Use the selected template package's layout
+  taxonomy to vary structure within one consistent visual language.
 
 ### `app-workflow`
 - `steps` — 2-3 个视觉流程节点，按顺序显示在模拟应用窗口内；这是首选字段。
@@ -200,6 +221,22 @@ punctuates the reveal — all driven by the JSON, no code edits.
 （写回 `tags: [{text, at}]`），标签在那一刻点亮 → 真同步。若标签是提炼/概括词、
 旁白里没逐字出现，则匹配不到时刻（`at=null`），退化为均匀分布的假同步，且相关性差。
 所以**从旁白里挑词当标签**，一举解决"同步"和"相关性"两个问题。
+
+For information-heavy spoken videos, also follow
+`references/screen-copy-rules.md`:
+
+- The first scene must establish context when the topic is a new concept, role,
+  product, acronym, person, company, or event. Name it, define or identify it,
+  then make the main judgment.
+- `caption` is the main judgment, not a neutral section title.
+- `body` is the support line: why it matters, what it means, or the implication.
+- `tags`, `steps`, `data`, or template-specific fields are support items, not
+  decorative labels.
+- `layout` should express scene function. Repeating the same title/list frame
+  across every scene is a quality issue unless the user explicitly requested a
+  deliberately minimal format.
+- Build a per-scene contact sheet before full render and inspect layout variety,
+  title wrapping, empty lower-frame space, and linework crossing text.
 
 写作示例（hook 场景）：
 - 旁白：「很多人做 AI 产品，一上来就想做一个无所不能的大 Agent…」

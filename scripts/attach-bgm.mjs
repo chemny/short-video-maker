@@ -8,6 +8,7 @@ import './tts/load-env.mjs';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {fetchWithTimeout} from './lib/fetch.mjs';
 
 const args = process.argv.slice(2);
 const planPath = args[0];
@@ -26,7 +27,7 @@ const env = (n) => (process.env[n] && process.env[n].trim() ? process.env[n].tri
 const exists = (rel) => rel && fs.existsSync(path.join(planDir, rel));
 
 const downloadTo = async (url, dest) => {
-  const r = await fetch(url);
+  const r = await fetchWithTimeout(url, {}, {envName: 'SHORT_VIDEO_MUSIC_FETCH_TIMEOUT_MS', label: 'BGM download'});
   if (!r.ok) throw new Error(`音乐下载失败 ${r.status}`);
   fs.mkdirSync(path.dirname(dest), {recursive: true});
   fs.writeFileSync(dest, Buffer.from(await r.arrayBuffer()));
@@ -43,11 +44,11 @@ const generateViaApi = async () => {
     duration: Math.ceil(plan.meta?.durationSeconds ?? 60),
     model: env('MUSIC_API_MODEL'),
   };
-  const r = await fetch(apiUrl, {
+  const r = await fetchWithTimeout(apiUrl, {
     method: 'POST',
     headers: {'Content-Type': 'application/json', ...(apiKey ? {Authorization: `Bearer ${apiKey}`} : {})},
     body: JSON.stringify(body),
-  });
+  }, {envName: 'SHORT_VIDEO_MUSIC_FETCH_TIMEOUT_MS', label: 'BGM generation request'});
   const payload = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`音乐 API 失败 ${r.status}: ${JSON.stringify(payload).slice(0, 200)}`);
   const url = payload.url || payload.audio_url || payload.data?.[0]?.url;
