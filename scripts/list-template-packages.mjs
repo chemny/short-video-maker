@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import {skillRootFrom} from './lib/paths.mjs';
 
-const skillRoot = path.resolve(new URL('..', import.meta.url).pathname);
+const skillRoot = skillRootFrom(import.meta.url, '..');
 const templatesDir = path.join(skillRoot, 'templates');
 const registryPath = path.join(templatesDir, 'registry.json');
 const requiredFiles = ['SKILL.md', 'design-tokens.json', 'example-plan.json'];

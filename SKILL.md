@@ -1,8 +1,8 @@
 ---
 name: short-video-maker
 description: Turn an article, idea, topic, or research brief into a Xiaohongshu/Douyin-ready vertical short video using a structured AI-to-Remotion workflow. Use this skill whenever the user asks to create, plan, script, storyboard, synthesize, render, or package a short-form video with narration, captions, cover image, and publish copy, especially for 90-130 second Chinese social videos.
-version: 0.1.1
 metadata:
+  version: "0.1.1"
   tags: remotion, short-video, xiaohongshu, douyin, script, storyboard, tts, captions
 ---
 

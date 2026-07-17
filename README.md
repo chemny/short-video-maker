@@ -101,9 +101,25 @@ Install dependencies:
 npm install
 cd remotion
 npm install
+cd ..
+npm run doctor
 ```
 
 After installation, start a fresh agent session if your agent runtime only discovers skills on startup.
+
+Windows first-run path:
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+winget install Gyan.FFmpeg
+npm install
+cd remotion
+npm install
+cd ..
+npm run doctor
+```
+
+If FFmpeg is installed outside `PATH`, set `FFMPEG_BIN` and `FFPROBE_BIN` to the executable paths before running the workflow.
 
 ## Installation
 
@@ -128,7 +144,7 @@ Example layout:
 The workflow supports:
 
 - `edge`: default provider, Microsoft Edge online TTS, no API key required. The runtime default voice is `zh-CN-XiaoxiaoNeural`.
-- `local`: macOS system TTS, no API key required. Useful for offline smoke tests on macOS.
+- `local`: macOS system TTS, no API key required. Useful for offline smoke tests on macOS. It is not supported on Windows.
 - `volcengine`: Volcengine/ByteDance TTS. Requires user-provided credentials.
 - `http`: generic third-party TTS adapter. Requires user-provided endpoint and credentials when the provider needs them.
 - `none`: skip TTS when audio is handled separately.
@@ -142,6 +158,8 @@ TTS_PROVIDER=edge
 EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural
 EDGE_TTS_RATE=default
 ```
+
+On Windows, use `edge`, `volcengine`, or `http`. Do not use `local`, because it depends on the macOS `say` command.
 
 Volcengine credentials:
 

@@ -1,12 +1,20 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {commandFromEnv} from '../../lib/bins.mjs';
 import {envMilliseconds, readCommand, runCommand} from '../../lib/process.mjs';
 import {requireCommands} from '../media.mjs';
 
 export const name = 'local';
 
+const assertMacOs = () => {
+  if (process.platform !== 'darwin') {
+    throw new Error('The local TTS provider uses the macOS say command and is only supported on macOS. Use --provider=edge, --provider=volcengine, or --provider=http on Windows.');
+  }
+};
+
 export const listVoices = () => {
+  assertMacOs();
   requireCommands(['say']);
   const output = readCommand('say', ['-v', '?'], {
     label: 'list macOS voices',
@@ -28,6 +36,7 @@ export const listVoices = () => {
 };
 
 export const preview = async ({text, outputPath, options}) => {
+  assertMacOs();
   requireCommands(['say', 'ffmpeg']);
   const voice = options.voice ?? process.env.MACOS_TTS_VOICE ?? 'Tingting';
   const rate = options.rate ?? process.env.MACOS_TTS_RATE ?? '185';
@@ -41,7 +50,7 @@ export const preview = async ({text, outputPath, options}) => {
     label: 'macOS TTS preview',
     timeoutMs: envMilliseconds('SHORT_VIDEO_SAY_TIMEOUT_MS', 180000),
   });
-  runCommand('ffmpeg', ['-y', '-i', aiffPath, '-codec:a', 'libmp3lame', '-q:a', '3', outputPath], {
+  runCommand(commandFromEnv('ffmpeg'), ['-y', '-i', aiffPath, '-codec:a', 'libmp3lame', '-q:a', '3', outputPath], {
     stdio: 'ignore',
     label: 'convert preview audio',
     timeoutMs: envMilliseconds('SHORT_VIDEO_FFMPEG_TIMEOUT_MS', 180000),
@@ -56,6 +65,7 @@ export const preview = async ({text, outputPath, options}) => {
 };
 
 export const generate = async ({plan, planDir, outputMp3, options}) => {
+  assertMacOs();
   requireCommands(['say', 'ffmpeg', 'ffprobe']);
   const voice = options.voice ?? process.env.MACOS_TTS_VOICE ?? 'Tingting';
   const rate = options.rate ?? process.env.MACOS_TTS_RATE ?? '185';
@@ -70,7 +80,7 @@ export const generate = async ({plan, planDir, outputMp3, options}) => {
     label: 'macOS TTS',
     timeoutMs: envMilliseconds('SHORT_VIDEO_SAY_TIMEOUT_MS', 600000),
   });
-  runCommand('ffmpeg', ['-y', '-i', aiffPath, '-codec:a', 'libmp3lame', '-q:a', '3', outputMp3], {
+  runCommand(commandFromEnv('ffmpeg'), ['-y', '-i', aiffPath, '-codec:a', 'libmp3lame', '-q:a', '3', outputMp3], {
     stdio: 'ignore',
     label: 'convert TTS audio',
     timeoutMs: envMilliseconds('SHORT_VIDEO_FFMPEG_TIMEOUT_MS', 180000),

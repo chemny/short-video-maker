@@ -4,8 +4,9 @@
 import {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {skillRootFrom} from '../lib/paths.mjs';
 
-const skillRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+const skillRoot = skillRootFrom(import.meta.url, '..', '..');
 
 const candidates = [
   path.join(os.homedir(), '.cmm', 'remotion-volcengine.env'),

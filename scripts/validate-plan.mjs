@@ -22,6 +22,14 @@ const supportedLayouts = new Set([
   'data-card',
   'step-list',
   'ending-card',
+  'hook',
+  'definition',
+  'scenario-matrix',
+  'diagnostic',
+  'flow',
+  'signal',
+  'capability',
+  'takeaway',
 ]);
 
 const supportedMotions = new Set([

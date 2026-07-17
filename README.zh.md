@@ -101,9 +101,25 @@ templates/                   模板包和视觉路线 token
 npm install
 cd remotion
 npm install
+cd ..
+npm run doctor
 ```
 
 安装后，如果你的 agent 运行环境只在启动时扫描 skill，请开启一个新的 agent 会话。
+
+Windows 首次运行路径：
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+winget install Gyan.FFmpeg
+npm install
+cd remotion
+npm install
+cd ..
+npm run doctor
+```
+
+如果 FFmpeg 没有安装在 `PATH` 中，可以先设置 `FFMPEG_BIN` 和 `FFPROBE_BIN` 指向实际可执行文件。
 
 ## 安装方式
 
@@ -128,7 +144,7 @@ git clone https://github.com/chemny/short-video-maker.git
 当前支持：
 
 - `edge`：默认供应商，Microsoft Edge 在线 TTS，不需要 API key。运行时默认音色是 `zh-CN-XiaoxiaoNeural`。
-- `local`：macOS 系统 TTS，不需要 API key，适合 macOS 离线冒烟测试。
+- `local`：macOS 系统 TTS，不需要 API key，适合 macOS 离线冒烟测试；Windows 不支持。
 - `volcengine`：火山引擎/字节 TTS，需要用户自己提供凭证。
 - `http`：通用第三方 TTS 适配器。如果供应商需要鉴权，需要用户自己提供 endpoint 和凭证。
 - `none`：跳过 TTS，用于外部音频流程。
@@ -142,6 +158,8 @@ TTS_PROVIDER=edge
 EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural
 EDGE_TTS_RATE=default
 ```
+
+Windows 默认使用 `edge`、`volcengine` 或 `http`。不要使用 `local`，因为它依赖 macOS 的 `say` 命令。
 
 火山引擎凭证：
 

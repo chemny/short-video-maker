@@ -133,11 +133,19 @@ const resolveTokens = (variant: VideoPlan['style']['editorialVariant']) =>
   routeTokens[variant ?? 'html-cobalt-grid'] ?? routeTokens['html-cobalt-grid'];
 
 const resolveFrame = (scene: Scene, sceneIndex: number): FrameKind => {
-  if (scene.type === 'hook') return 'statement';
-  if (scene.type === 'ending' || scene.layout === 'ending-card') return 'closing';
-  if (scene.layout === 'data-card') return 'stat';
+  if (scene.type === 'hook' || scene.layout === 'hook') return 'statement';
+  if (scene.type === 'ending' || scene.layout === 'ending-card' || scene.layout === 'takeaway') return 'closing';
+  if (scene.layout === 'data-card' || scene.layout === 'signal') return 'stat';
+  if (scene.layout === 'flow') return 'quote';
   if (scene.layout === 'quote-card' || scene.type === 'thesis') return scene.type === 'definition' ? 'split' : 'quote';
-  if (scene.layout === 'step-list' || scene.type === 'example' || scene.type === 'benefits') return 'process';
+  if (
+    scene.layout === 'step-list' ||
+    scene.layout === 'scenario-matrix' ||
+    scene.layout === 'diagnostic' ||
+    scene.layout === 'capability' ||
+    scene.type === 'example' ||
+    scene.type === 'benefits'
+  ) return 'process';
   return 'split';
 };
 
@@ -598,6 +606,11 @@ export const SceneEditorialBrief = ({
   const isNineSixteen = safeArea.name === '9:16';
   const bodyText = scene.body || shortText(scene.voiceover, 42);
   const tags = (scene.tags ?? []).map(tagText).slice(0, 4);
+  const fallbackTags = [
+    shortText(plan.meta.topic || plan.meta.title, 8),
+    '关键动作',
+    '交付结果',
+  ];
   const config = chromeConfig(plan.style);
   const showFrameLabels = config.header !== 'none';
   const showLedger = config.showLedger;
@@ -728,7 +741,7 @@ export const SceneEditorialBrief = ({
   );
 
   const renderProcess = () => {
-    const items = tags.length > 0 ? tags : ['业务现场', 'AI 判断', '流程重构'];
+    const items = tags.length > 0 ? tags : fallbackTags;
     return (
       <>
         <Chrome plan={plan} scene={scene} sceneIndex={sceneIndex} totalScenes={totalScenes} tokens={tokens} />
@@ -900,7 +913,7 @@ export const SceneEditorialBrief = ({
   );
 
   const renderSpokenCardV1 = () => {
-    const items = tags.length > 0 ? tags : ['业务现场', 'AI 判断', '流程重构'];
+    const items = tags.length > 0 ? tags : fallbackTags;
     const indexText = String(sceneIndex + 1).padStart(2, '0');
     const isDark = tokens.mode === 'liquid-dark' || tokens.mode === 'signal';
     const surface = isDark ? 'rgba(255,255,255,0.072)' : 'rgba(255,255,255,0.56)';
@@ -938,14 +951,31 @@ export const SceneEditorialBrief = ({
       };
     };
     const accentFor = (index: number) => [tokens.accent2, tokens.accent, '#ED5C98', '#F2C94C'][index % 4];
+    const labelByLayout: Record<string, string> = {
+      hook: '开场判断',
+      definition: '它到底是什么',
+      'scenario-matrix': '关键变化',
+      diagnostic: '判断问题',
+      flow: '流程变化',
+      signal: '关键信号',
+      capability: '能力要求',
+      takeaway: '最终判断',
+    };
     const labelByFrame: Record<FrameKind, string> = {
       statement: '开场判断',
       split: '它到底是什么',
-      process: scene.type === 'analysis' ? '真正的问题' : '进到真实业务里',
-      quote: 'FDE 难在哪',
-      stat: '为什么突然火',
-      closing: '未来能力',
+      process: '关键变化',
+      quote: '流程变化',
+      stat: '关键信号',
+      closing: '最终判断',
     };
+    const currentLabel = labelByLayout[scene.layout] ?? labelByLayout[scene.type] ?? labelByFrame[frameKind];
+    const topicChrome = plan.cover.label || plan.meta.topic || plan.meta.title;
+    const chromeTopic = topicChrome.includes('Codex')
+      ? 'CODEX / AI WORKFLOW'
+      : topicChrome.includes('FDE')
+        ? 'FDE / AI WORKFLOW'
+        : shortText(topicChrome, 24).toUpperCase();
 
     const titleText = scene.caption;
     const leadText = bodyText;
@@ -966,7 +996,7 @@ export const SceneEditorialBrief = ({
           marginBottom: isNineSixteen ? 24 : 42,
         }}
       >
-        <span>FDE / AI WORKFLOW</span>
+        <span>{chromeTopic}</span>
         <span>{indexText}</span>
       </div>
     );
@@ -1006,7 +1036,7 @@ export const SceneEditorialBrief = ({
         <span style={{color: tokens.accent2, fontFamily: tokens.monoFont, fontSize: 16, letterSpacing: '0.08em'}}>
           {String(sceneIndex + 1).padStart(2, '0')}
         </span>
-        <span>{labelByFrame[frameKind]}</span>
+        <span>{currentLabel}</span>
       </div>
     );
 
@@ -1164,12 +1194,24 @@ export const SceneEditorialBrief = ({
       </div>
     );
 
+    const definitionRows = () => {
+      const first = items[0] ?? scene.caption;
+      const second = items[1] ?? bodyText;
+      const parse = (value: string, fallbackLabel: string, fallbackDesc: string) => {
+        const compact = value.trim();
+        if (compact.startsWith('不是')) return ['不是', compact.replace(/^不是/, '').trim() || compact, fallbackDesc];
+        if (compact.startsWith('而是')) return ['而是', compact.replace(/^而是/, '').trim() || compact, fallbackDesc];
+        return [fallbackLabel, compact, fallbackDesc];
+      };
+      return [
+        parse(first, '不是', scene.voiceover.split('，').find((line) => line.includes('不是')) || scene.caption),
+        parse(second, '而是', scene.voiceover.split('，').find((line) => line.includes('变成') || line.includes('走向')) || bodyText),
+      ];
+    };
+
     const DefinitionContrast = () => (
       <div style={{display: 'grid', gap: 16}}>
-        {[
-          ['不是', '卖软件', '不是销售话术，也不是需求转述'],
-          ['而是', '进现场', '把 AI 接进真实业务动作'],
-        ].map(([label, strong, desc], index) => (
+        {definitionRows().map(([label, strong, desc], index) => (
           <div
             key={label}
             style={{
@@ -1219,7 +1261,11 @@ export const SceneEditorialBrief = ({
     );
 
     const Diagnostic = () => {
-      const descriptions = ['哪个环节需要理解与生成', '哪里需要连续执行和调用工具', '哪些动作应该被重新设计'];
+      const descriptions = [
+        bodyText,
+        scene.voiceover.split('，').find((line) => line.includes(items[1] ?? '')) || '对应一个真实工作动作',
+        scene.voiceover.split('，').find((line) => line.includes(items[2] ?? '')) || '需要形成可执行判断',
+      ];
       return (
         <div style={{display: 'grid', gap: 16}}>
           {items.slice(0, 3).map((item, index) => (
@@ -1251,10 +1297,11 @@ export const SceneEditorialBrief = ({
     };
 
     const TransformFlow = () => {
-      const nodes = ['业务问题', '抽象规则', 'AI 工作流'];
+      const nodes = (scene.steps?.length ? scene.steps : items).slice(0, 3);
+      const displayNodes = nodes.length >= 3 ? nodes : [scene.caption, bodyText, '交付结果'].filter(Boolean).slice(0, 3);
       return (
         <div style={{display: 'grid', gridTemplateColumns: isNineSixteen ? '1fr' : '1fr 54px 1fr 54px 1fr', alignItems: 'center', gap: isNineSixteen ? 12 : 8}}>
-          {nodes.map((node, index) => (
+          {displayNodes.map((node, index) => (
             <React.Fragment key={node}>
               <div
                 style={{
@@ -1274,7 +1321,7 @@ export const SceneEditorialBrief = ({
                 <span style={{fontFamily: tokens.monoFont, color: accentFor(index), fontSize: 16, fontWeight: 650, opacity: 0.84}}>0{index + 1}</span>
                 <strong style={{fontFamily: tokens.displayFont, fontSize: isNineSixteen ? 28 : 30, lineHeight: 1.08}}>{node}</strong>
               </div>
-              {index < nodes.length - 1 ? (
+              {index < displayNodes.length - 1 ? (
                 <div style={{color: accentFor(index), fontSize: isNineSixteen ? 26 : 34, fontWeight: 700, textAlign: 'center', opacity: 0.72}}>{isNineSixteen ? '↓' : '→'}</div>
               ) : null}
             </React.Fragment>
@@ -1316,19 +1363,26 @@ export const SceneEditorialBrief = ({
             </div>
             <strong style={{display: 'block', paddingRight: 56}}>{item}</strong>
             <small style={{display: 'block', marginTop: 10, color: tokens.muted, fontSize: 20, fontWeight: 560}}>
-              {index === 0 ? '总结、检索、生成、判断' : index === 1 ? '连续执行、调用工具、跨系统协作' : '不只是替换人，而是改造工作方式'}
+              {index === 0 ? bodyText : index === 1 ? '连接上下文、工具和执行动作' : '形成可交付的工作结果'}
             </small>
           </div>
         ))}
       </div>
     );
 
-    const Split = () => (
+    const Split = () => {
+      const splitRows = items.length >= 4
+        ? [
+            ['显性变化', `${items[0]} / ${items[1]}`],
+            ['底层能力', `${items[2]} / ${items[3]}`],
+          ]
+        : [
+            ['表层功能', items[0] ?? scene.caption],
+            ['真实信号', items[1] ?? bodyText],
+          ];
+      return (
       <div style={{display: 'grid', gridTemplateColumns: isNineSixteen ? '1fr' : '1fr 1fr', gap: isNineSixteen ? 12 : 16}}>
-        {[
-          ['旧角色被压缩', '裁员 / 降本'],
-          ['新角色被招聘', '招 FDE / 做落地'],
-        ].map(([small, strong], index) => (
+        {splitRows.map(([small, strong], index) => (
           <div
             key={small}
             style={{
@@ -1349,7 +1403,8 @@ export const SceneEditorialBrief = ({
           </div>
         ))}
       </div>
-    );
+      );
+    };
 
     const RoleMatrix = () => (
       <div style={{display: 'grid', gridTemplateColumns: isNineSixteen ? '1fr' : '1fr 1fr', gap: isNineSixteen ? 12 : 15}}>
@@ -1376,7 +1431,10 @@ export const SceneEditorialBrief = ({
       </div>
     );
 
-    const ConnectionTriangle = () => (
+    const ConnectionTriangle = () => {
+      const triangleItems = (items.length >= 3 ? items : ['项目', '工具', '规则']).slice(0, 3);
+      const triangleDesc = ['组织上下文', '连接执行工具', '形成交付约束'];
+      return (
       <div style={{position: 'relative', height: isNineSixteen ? 420 : 360, maxWidth: isNineSixteen ? 620 : 780}}>
         <svg viewBox={isNineSixteen ? '0 0 620 420' : '0 0 780 360'} style={{position: 'absolute', inset: 0, opacity: 0.72}}>
           <circle cx="390" cy="188" r="28" fill="rgba(53,242,197,0.09)" stroke={tokens.accent2} strokeWidth="1.4" opacity="0.72" />
@@ -1388,14 +1446,14 @@ export const SceneEditorialBrief = ({
         {[
           ...(isNineSixteen
             ? [
-                ['懂业务', '知道问题在哪', 210, 0, tokens.accent2],
-                ['懂模型', '知道能力边界', 70, 245, tokens.accent],
-                ['懂落地', '知道怎么跑通', 350, 245, '#ED5C98'],
+	                [triangleItems[0], triangleDesc[0], 210, 0, tokens.accent2],
+	                [triangleItems[1], triangleDesc[1], 70, 245, tokens.accent],
+	                [triangleItems[2], triangleDesc[2], 350, 245, '#ED5C98'],
               ]
             : [
-                ['懂业务', '知道问题在哪', 292, 18, tokens.accent2],
-                ['懂模型', '知道能力边界', 44, 252, tokens.accent],
-                ['懂落地', '知道怎么跑通', 536, 252, '#ED5C98'],
+	                [triangleItems[0], triangleDesc[0], 292, 18, tokens.accent2],
+	                [triangleItems[1], triangleDesc[1], 44, 252, tokens.accent],
+	                [triangleItems[2], triangleDesc[2], 536, 252, '#ED5C98'],
               ]),
         ].map(([title, desc, left, top, color], index) => (
           <div
@@ -1420,7 +1478,8 @@ export const SceneEditorialBrief = ({
           </div>
         ))}
       </div>
-    );
+      );
+    };
 
     const CornerMarks = () => (
       <>
@@ -1470,8 +1529,8 @@ export const SceneEditorialBrief = ({
     );
 
     const heroSupportLine = sceneIndex === 0
-      ? '简单说，就是深入企业现场，把 AI 落到真实业务里'
-      : scene.voiceover.split('。').find((line) => line.includes('AI')) || '这不是多了一个 title，而是企业开始认真问：AI 到底怎么在业务里干活？';
+      ? bodyText
+      : scene.voiceover.split('。').find((line) => line.includes('AI') || line.includes('Codex')) || bodyText;
 
     const renderHero = () => (
       <Shell>
@@ -1495,11 +1554,11 @@ export const SceneEditorialBrief = ({
       <Shell>
         <Lead />
         <ContentZone>
-          {scene.id === 'scene-003'
+          {scene.layout === 'scenario-matrix'
             ? <SceneMatrix />
-            : scene.id === 'scene-004'
+            : scene.layout === 'diagnostic'
               ? <Diagnostic />
-              : scene.id === 'scene-007'
+              : scene.layout === 'capability'
                 ? <RoleMatrix />
                 : scene.type === 'analysis'
                   ? <Flow />

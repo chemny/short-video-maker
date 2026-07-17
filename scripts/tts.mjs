@@ -8,6 +8,7 @@ import * as edgeProvider from './tts/providers/edge.mjs';
 import * as httpProvider from './tts/providers/http.mjs';
 import * as localProvider from './tts/providers/local.mjs';
 import * as volcengineProvider from './tts/providers/volcengine.mjs';
+import {skillRootFrom} from './lib/paths.mjs';
 import {timed} from './lib/timing.mjs';
 
 const providers = {
@@ -21,7 +22,7 @@ const args = parseArgs(process.argv.slice(2));
 const command = args._[0];
 const providerName = args.provider ?? process.env.TTS_PROVIDER ?? 'edge';
 const provider = providers[providerName];
-const skillRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const skillRoot = skillRootFrom(import.meta.url, '..');
 
 const usage = () => {
   console.error(`Usage:

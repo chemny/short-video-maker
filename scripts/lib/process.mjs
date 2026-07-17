@@ -37,7 +37,12 @@ export const runCommand = (command, args = [], options = {}) => {
 
   const start = nowMs();
   try {
-    const result = execFileSync(command, args, {cwd, stdio, timeout: timeoutMs});
+    const result = execFileSync(command, args, {
+      cwd,
+      stdio,
+      timeout: timeoutMs,
+      shell: process.platform === 'win32' && /\.(cmd|bat)$/i.test(command),
+    });
     if (stdio === 'inherit') {
       console.log(`[done] ${label ?? describeCommand(command, args)} in ${formatDuration(nowMs() - start)}`);
     }

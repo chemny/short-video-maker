@@ -4,8 +4,9 @@ import {existsSync, mkdirSync, writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {fetchWithTimeout} from './fetch.mjs';
+import {skillRootFrom} from './paths.mjs';
 
-const skillRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+const skillRoot = skillRootFrom(import.meta.url, '..', '..');
 for (const file of [path.join(os.homedir(), '.cmm', '.env'), path.join(skillRoot, '.env')]) {
   if (existsSync(file)) {
     try {

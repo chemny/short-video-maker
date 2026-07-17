@@ -2,6 +2,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fetchWithTimeout} from './lib/fetch.mjs';
+import {resolveRemotionBin} from './lib/bins.mjs';
+import {skillRootFrom} from './lib/paths.mjs';
 import {envMilliseconds, runCommand} from './lib/process.mjs';
 
 const args = process.argv.slice(2);
@@ -17,7 +19,7 @@ if (!planPath) {
   process.exit(2);
 }
 
-const skillRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const skillRoot = skillRootFrom(import.meta.url, '..');
 const absolutePlanPath = path.resolve(planPath);
 const planDir = path.dirname(absolutePlanPath);
 const plan = JSON.parse(fs.readFileSync(absolutePlanPath, 'utf8'));
@@ -147,8 +149,7 @@ const saveImageFromPayload = async (payload, destination) => {
 
 const renderRemotionCover = () => {
   const remotionDir = path.join(skillRoot, 'remotion');
-  const remotionBin =
-    remotionBinArg ?? envValue('REMOTION_BIN', path.join(remotionDir, 'node_modules', '.bin', 'remotion'));
+  const remotionBin = remotionBinArg ?? resolveRemotionBin(remotionDir);
 
   if (!fs.existsSync(remotionBin)) {
     throw new Error(`Remotion CLI not found: ${remotionBin}`);

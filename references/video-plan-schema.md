@@ -165,6 +165,14 @@ Supported `layout` values for MVP:
 - `data-card`
 - `step-list`
 - `ending-card`
+- `hook`
+- `definition`
+- `scenario-matrix`
+- `diagnostic`
+- `flow`
+- `signal`
+- `capability`
+- `takeaway`
 
 Supported `motion.type` values for MVP:
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import {skillRootFrom} from './lib/paths.mjs';
 
 const jobDirArg = process.argv[2];
 
@@ -17,7 +18,7 @@ if (!fs.existsSync(planPath)) {
   process.exit(1);
 }
 
-const skillRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const skillRoot = skillRootFrom(import.meta.url, '..');
 const remotionPublic = path.join(skillRoot, 'remotion', 'public');
 const remotionPlanPath = path.join(remotionPublic, 'video-plan.json');
 

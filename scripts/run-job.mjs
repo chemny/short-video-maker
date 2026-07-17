@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import {resolveRemotionBin} from './lib/bins.mjs';
+import {skillRootFrom} from './lib/paths.mjs';
 import {envMilliseconds, runCommand} from './lib/process.mjs';
 
 const args = process.argv.slice(2);
@@ -36,7 +38,7 @@ if (previewFrame !== undefined && (!Number.isInteger(previewFrame) || previewFra
   process.exit(2);
 }
 
-const skillRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const skillRoot = skillRootFrom(import.meta.url, '..');
 const jobDir = path.resolve(jobDirArg);
 const remotionDir = path.join(skillRoot, 'remotion');
 const remotionPublic = path.join(remotionDir, 'public');
@@ -112,7 +114,7 @@ syncJobArtifacts();
 run('node', [path.join(skillRoot, 'scripts/package-output.mjs'), planPath, 'output'], skillRoot, {label: 'package output'});
 
 if (previewFrame !== undefined || shouldRender) {
-  const remotionBin = path.join(remotionDir, 'node_modules', '.bin', 'remotion');
+  const remotionBin = resolveRemotionBin(remotionDir);
 
   if (!fs.existsSync(remotionBin)) {
     console.error(`Remotion dependencies are not installed in ${remotionDir}`);
@@ -124,7 +126,7 @@ if (previewFrame !== undefined || shouldRender) {
 }
 
 if (previewFrame !== undefined) {
-  const remotionBin = path.join(remotionDir, 'node_modules', '.bin', 'remotion');
+  const remotionBin = resolveRemotionBin(remotionDir);
   run(
     remotionBin,
     [
@@ -143,7 +145,7 @@ if (previewFrame !== undefined) {
 }
 
 if (shouldRender) {
-  const remotionBin = path.join(remotionDir, 'node_modules', '.bin', 'remotion');
+  const remotionBin = resolveRemotionBin(remotionDir);
   run(remotionBin, ['still', 'src/index.ts', 'CoverStill', 'out/cover.png', '--frame=0'], remotionDir, {
     label: 'remotion cover still',
     timeoutMs: envMilliseconds('SHORT_VIDEO_PREVIEW_TIMEOUT_MS', 300000),

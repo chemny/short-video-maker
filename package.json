@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "find scripts -name '*.mjs' -maxdepth 3 -print0 | xargs -0 -n1 node --check",
+    "check": "node scripts/check-js.mjs",
+    "doctor": "node scripts/doctor.mjs",
     "audit:timing": "node scripts/audit-timing.mjs",
     "plan:validate": "node scripts/validate-plan.mjs",
     "quality:check": "node scripts/quality-check.mjs",

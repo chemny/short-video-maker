@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import {skillRootFrom} from './lib/paths.mjs';
 
 const inputPath = process.argv[2];
 const slugArg = process.argv[3];
@@ -17,7 +18,7 @@ if (!fs.existsSync(absoluteInputPath)) {
   process.exit(1);
 }
 
-const skillRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const skillRoot = skillRootFrom(import.meta.url, '..');
 const jobsRoot = path.join(skillRoot, 'jobs');
 const rawInput = fs.readFileSync(absoluteInputPath, 'utf8').trim();
 const baseSlug =

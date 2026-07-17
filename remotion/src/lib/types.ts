@@ -23,7 +23,15 @@ export type Scene = {
     | 'quote-card'
     | 'data-card'
     | 'step-list'
-    | 'ending-card';
+    | 'ending-card'
+    | 'hook'
+    | 'definition'
+    | 'scenario-matrix'
+    | 'diagnostic'
+    | 'flow'
+    | 'signal'
+    | 'capability'
+    | 'takeaway';
   voiceover: string;
   caption: string;
   // 卡片正文：一句支撑/延伸（不重复旁白）。缺省时回退到旁白摘要。

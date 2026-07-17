@@ -1,8 +1,23 @@
 import {envMilliseconds, runCommand} from '../lib/process.mjs';
+import {commandFromEnv} from '../lib/bins.mjs';
 
 export const hasCommand = (command) => {
+  const resolvedCommand = commandFromEnv(command);
+  if (resolvedCommand !== command) {
+    try {
+      runCommand(resolvedCommand, ['-version'], {
+        stdio: 'ignore',
+        label: `check command ${command}`,
+        timeoutMs: envMilliseconds('SHORT_VIDEO_PROBE_TIMEOUT_MS', 15000),
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   try {
-    runCommand('which', [command], {
+    runCommand(process.platform === 'win32' ? 'where' : 'which', [command], {
       stdio: 'ignore',
       label: `check command ${command}`,
       timeoutMs: envMilliseconds('SHORT_VIDEO_PROBE_TIMEOUT_MS', 15000),
@@ -23,7 +38,7 @@ export const requireCommands = (commands) => {
 
 export const detectDuration = (filePath) =>
   Number(
-      runCommand('ffprobe', [
+      runCommand(commandFromEnv('ffprobe'), [
       '-v',
       'error',
       '-show_entries',

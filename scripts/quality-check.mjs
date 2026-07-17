@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import {commandFromEnv} from './lib/bins.mjs';
 import {envMilliseconds, runCommand} from './lib/process.mjs';
 
 const planPath = process.argv[2];
@@ -36,7 +37,7 @@ const countChars = (value) => [...String(value ?? '')].length;
 const durationOf = (filePath) => {
   try {
     return Number(
-      runCommand('ffprobe', [
+      runCommand(commandFromEnv('ffprobe'), [
         '-v',
         'error',
         '-show_entries',

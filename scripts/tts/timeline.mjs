@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {commandFromEnv} from '../lib/bins.mjs';
 import {envMilliseconds, runCommand} from '../lib/process.mjs';
 import {detectDuration} from './media.mjs';
 
@@ -178,12 +179,14 @@ export const writeTimeline = ({
 };
 
 export const concatMp3Segments = ({segmentFiles, outputMp3, concatListPath}) => {
+  const escapeConcatPath = (file) => path.resolve(file).replaceAll('\\', '/').replaceAll("'", "'\\''");
+
   fs.writeFileSync(
     concatListPath,
-    segmentFiles.map((file) => `file '${file.replaceAll("'", "'\\''")}'`).join('\n'),
+    segmentFiles.map((file) => `file '${escapeConcatPath(file)}'`).join('\n'),
     'utf8',
   );
-  runCommand('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', concatListPath, '-c', 'copy', outputMp3], {
+  runCommand(commandFromEnv('ffmpeg'), ['-y', '-f', 'concat', '-safe', '0', '-i', concatListPath, '-c', 'copy', outputMp3], {
     stdio: 'ignore',
     label: 'concat mp3 segments',
     timeoutMs: envMilliseconds('SHORT_VIDEO_FFMPEG_TIMEOUT_MS', 180000),
