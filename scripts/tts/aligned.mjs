@@ -103,7 +103,7 @@ export const alignGenerated = ({planPath, options = {}, provider, generated}) =>
     fs.writeFileSync(path.join(dir, `plan-before-${provider}-${hash(before).slice(0, 16)}.json`), before);
     // Commit only after full matching; old audio/outputs remain recoverable.
     for (const entry of fs.readdirSync(alignment)) if (entry.startsWith('alignment-') || entry.startsWith('transcript-') || entry === 'provider-timing.json') fs.copyFileSync(path.join(alignment, entry), path.join(dir, entry));
-    for (const key of ['provider', 'model', 'voice', 'voiceType', 'preset', 'rate', 'lang', 'outputFormat', 'speedRatio', 'loudnessRatio', 'concurrency', 'cluster', 'endpoint', 'reusedExistingAudio']) delete aligned.audio[key];
+    for (const key of ['provider', 'model', 'voice', 'voiceType', 'preset', 'rate', 'lang', 'outputFormat', 'speedRatio', 'loudnessRatio', 'concurrency', 'cluster', 'endpoint', 'reusedExistingAudio', 'voiceMode', 'voiceProfilePath', 'voiceProfileSha256', 'voiceReferenceSha256', 'voiceSpeed', 'voiceSpeedAppliedOnce']) delete aligned.audio[key];
     aligned.audio = {...aligned.audio, ...generated.meta.providerMeta, sourceMode: 'tts', provider,
       processing: {normalize: true, ...plan.audio?.processing}};
     // Fresh observations replace old refined cue times, even for a reused WAV.

@@ -35,6 +35,10 @@ node scripts/tts.mjs preview --output=/new/sample.wav --text='你好，这是本
 node scripts/tts.mjs generate /absolute/job/video-plan.json
 ```
 
+## Personal voice profile (VoxCPM2 clone)
+
+`--voice-profile=/absolute/profile.json` (or `SHORT_VIDEO_VOXCPM2_VOICE_PROFILE`; `none` returns to plain speech) selects a clone profile: `provider` VoxCPM2, `mode: clone`, `reference_audio` (the ORIGINAL recording), `speed`, `generation_settings.{seed,steps}` and a `sha256` entry for the reference. The runner clones from the original reference and applies `atempo=<speed>` exactly once to each scene's raw output; the profile's already-sped approved sample is a listening benchmark and is rejected as a cloning input. A missing profile, changed reference hash, missing recorded hash or implausible speed blocks the run; no other voice is substituted. Scene caches are keyed by reference hash, speed, seed/steps and text, and record the raw/sped hashes. The job saves `audio.voiceProfilePath` (and `voiceSpeedAppliedOnce`) so phrase repair re-synthesizes with the same voice. Seeds are applied before model loading by the shared generator, so output is the same voice and settings but not guaranteed bit-identical to audio made by a script that seeds after loading. Personal recordings stay outside the repository.
+
 ## Approved text, caching and failure behavior
 
 Keep approved caption text equal to the narration, apart from punctuation/spacing/case and Traditional/Simplified matching normalization. Captions must partition scenes at narration boundaries. If no captions are supplied, the adapter creates short phrase texts from the narration, then gets their times from ASR. It never writes guessed times into the canonical plan.

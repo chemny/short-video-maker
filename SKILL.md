@@ -31,7 +31,7 @@ Unless the user specifies otherwise, use these defaults:
 
 ## Capability audit and routing
 
-Before choosing or replacing a template, run `node scripts/inspect-capabilities.mjs` and read `references/capability-routing.md`. Compare suitable content types with the same script/audio; distinguish registered packages,5implemented editorial styles (27 legacy fallback aliases), legacy render branches and20semantic families. Shotcraft Brief is an opt-in9:16 list/statement candidate, not the full B workflow or an automatic default. Preserve existing templates and rejected experiments outside default routing.
+Before choosing or replacing a template, run `node scripts/inspect-capabilities.mjs` and read `references/capability-routing.md`. Compare suitable content types with the same script/audio; distinguish registered packages, 5 implemented editorial styles (27 legacy fallback aliases), legacy render branches and 20 semantic families. Shotcraft Brief is an opt-in 9:16 list/statement candidate, not the full B workflow or an automatic default. Preserve existing templates and rejected experiments outside default routing.
 
 ## Core Workflow
 
@@ -57,7 +57,7 @@ Read `references/semantic-components.md` and `components/registry.json` when usi
 
 Read `references/default-voice-pipeline.md`. For generated narration, `run-job.mjs` auto-selects local VoxCPM2 when its runtime/weights and ASR prerequisites exist, otherwise Edge TTS. Users may explicitly choose VoxCPM2, Edge or Volcengine. All three commit only matched captions/scenes, prepare lossless PCM and rebuild/verify the final audio timeline. No `--tts` or `--align` flag is needed for this default. Imported narration remains protected and defaults to `--tts=none`; its final export still uses the PCM timeline. No local setup is required for the default Edge route: use its returned word times and Node/FFmpeg export checks. Local synthesis uses ASR; cloud word timing is explicitly labeled provider-matched. Missing prerequisites for an explicit provider or ambiguous timing block that choice; explicit selections never silently switch on runtime/API failure; automatic mode can use the documented final macOS fallback. Preserve the explicit `sourceVolume` of native video clips when rebuilding final audio.
 
-Honor a user's requested provider, voice and speaking rate. When the user wants to compare/select voices, offer local VoxCPM2, online Edge (no API key), and Volcengine (requires credentials); use `--tts`, `--voice`, `--voice-preset`, `--rate` or `--speed` as appropriate. If no preference is stated, use automatic capability detection without an extra confirmation question. Existing per-job provider choices remain stable unless the user changes them or selects `auto`.
+Personal voice: `--voice-profile=/path/profile.json` (or `SHORT_VIDEO_VOXCPM2_VOICE_PROFILE`) clones the profile's ORIGINAL reference with VoxCPM2 and applies its tempo exactly once; see `references/default-voice-pipeline.md`. Honor a user's requested provider, voice and speaking rate. When the user wants to compare/select voices, offer local VoxCPM2, online Edge (no API key), and Volcengine (requires credentials); use `--tts`, `--voice`, `--voice-preset`, `--rate` or `--speed` as appropriate. If no preference is stated, use automatic capability detection without an extra confirmation question. Existing per-job provider choices remain stable unless the user changes them or selects `auto`.
 
 ### P0 content and layout gates
 

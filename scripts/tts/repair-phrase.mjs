@@ -66,7 +66,8 @@ export const repairPhrase = async ({planPath, caption, sourceFile, outputDir, pr
       speed: options.speed ?? plan.audio?.speedRatio, loudness: options.loudness ?? plan.audio?.loudnessRatio,
       cluster: options.cluster ?? plan.audio?.cluster, voicePreset: options.voicePreset ?? plan.audio?.preset,
       ...(selected === 'volcengine' ? {model: options.model ?? plan.audio?.model} : {}),
-      ...(options.seed === undefined && seedFromVoice ? {seed: Number(seedFromVoice)} : {})};
+      ...(options.seed === undefined && seedFromVoice ? {seed: Number(seedFromVoice)} : {}),
+      ...(selected === 'voxcpm2' && options.voiceProfile === undefined && plan.audio?.voiceProfilePath ? {voiceProfile: plan.audio.voiceProfilePath} : {})};
     const synthesisDir = path.join(outputDir, 'synthesis', hash(JSON.stringify({provider: selected, text: caption.text})).slice(0, 24));
     fs.mkdirSync(synthesisDir, {recursive: true});
     generated = await (adapters.synthesize ?? synthesizePhrase)({provider: selected, text: caption.text, plan, outputDir: synthesisDir, options: settings});

@@ -95,7 +95,7 @@ run('node', [path.join(skillRoot, 'scripts/validate-plan.mjs'), planPath], skill
 run('node', [path.join(skillRoot, 'scripts/audit-timing.mjs'), planPath], skillRoot, {label: 'audit timing'});
 
 if (['voxcpm2', 'edge', 'volcengine', 'local'].includes(ttsArg)) {
-  const optionNames = ['voice', 'voice-preset', 'rate', 'speed', 'loudness', 'model', 'cluster', 'seed', 'steps', 'asr-model', 'asr-transcript'];
+  const optionNames = ['voice', 'voice-preset', 'rate', 'speed', 'loudness', 'model', 'cluster', 'seed', 'steps', 'voice-profile', 'asr-model', 'asr-transcript'];
   const forwarded = args.filter((arg) => optionNames.some((name) => arg.startsWith(`--${name}=`)));
   run('node', [path.join(skillRoot, 'scripts/tts.mjs'), 'generate', planPath, `--provider=${selection.source === 'auto' ? 'auto' : ttsArg}`,
     ...forwarded, ...(ttsConcurrencyArg ? [ttsConcurrencyArg] : []), ...(args.includes('--align') ? ['--force-asr'] : [])], skillRoot,

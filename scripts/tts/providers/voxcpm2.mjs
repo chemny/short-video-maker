@@ -21,20 +21,48 @@ export const resolveRuntime = () => {
   return {folder, python, script, model: spec.repository, revision: spec.revision,
     fingerprint: hash(Buffer.concat([fs.readFileSync(script), fs.readFileSync(path.join(folder, 'model-spec.json'))]))};
 };
-const settings = (options = {}) => {
-  const seed = Number(options.seed ?? process.env.SHORT_VIDEO_VOXCPM2_SEED ?? 42);
-  const steps = Number(options.steps ?? process.env.SHORT_VIDEO_VOXCPM2_STEPS ?? 10);
+// A personal voice profile clones from the ORIGINAL reference recording and applies its tempo once to the output.
+// The approved sped-up sample is only a listening benchmark and is rejected as a cloning input.
+export const loadVoiceProfile = (file) => {
+  const profilePath = path.resolve(file);
+  if (!fs.existsSync(profilePath)) throw new Error('Voice profile not found; no voice is substituted');
+  const raw = fs.readFileSync(profilePath), profile = JSON.parse(raw);
+  if (profile.mode !== 'clone' || !/voxcpm2/i.test(profile.provider ?? '')) throw new Error('Voice profile must be a VoxCPM2 clone profile');
+  const reference = path.resolve(path.dirname(profilePath), profile.reference_audio ?? '');
+  if (!profile.reference_audio || !fs.existsSync(reference)) throw new Error('Voice profile reference recording is missing');
+  const referenceSha256 = hash(fs.readFileSync(reference)), expected = profile.sha256?.[path.basename(reference)];
+  if (!expected) throw new Error('Voice profile has no recorded SHA256 for its reference recording');
+  if (expected !== referenceSha256) throw new Error('Voice profile reference recording changed; it no longer matches the recorded SHA256');
+  if (profile.approved_sample) {
+    const sample = path.resolve(path.dirname(profilePath), profile.approved_sample);
+    if (sample === reference || (fs.existsSync(sample) && hash(fs.readFileSync(sample)) === referenceSha256)) throw new Error('The approved sped-up sample must not be the cloning reference');
+  }
+  const speed = Number(profile.speed ?? 1);
+  if (!Number.isFinite(speed) || speed < 0.5 || speed > 2) throw new Error('Voice profile speed must be between 0.5 and 2');
+  const generation = profile.generation_settings ?? {};
+  return {path: profilePath, sha256: hash(raw), name: String(profile.name ?? path.basename(path.dirname(profilePath))), reference, referenceSha256, speed,
+    preservePitch: profile.preserve_pitch !== false, seed: generation.seed, steps: generation.steps};
+};
+const resolveProfile = (options = {}) => {
+  const choice = options.voiceProfile ?? process.env.SHORT_VIDEO_VOXCPM2_VOICE_PROFILE;
+  return choice && choice !== 'none' ? loadVoiceProfile(choice) : null;
+};
+const settings = (options = {}, profile = null) => {
+  const seed = Number(options.seed ?? profile?.seed ?? process.env.SHORT_VIDEO_VOXCPM2_SEED ?? 42);
+  const steps = Number(options.steps ?? profile?.steps ?? process.env.SHORT_VIDEO_VOXCPM2_STEPS ?? 10);
   if (!Number.isInteger(seed) || seed < 0 || !Number.isInteger(steps) || steps < 1 || steps > 30) throw new Error('VoxCPM2 requires seed>=0 and steps=1..30');
-  return {seed, steps, mode: 'plain', maxTokens: 2000};
+  if (!profile) return {seed, steps, mode: 'plain', maxTokens: 2000};
+  return {seed, steps, mode: 'clone', maxTokens: 2000, referenceSha256: profile.referenceSha256, speed: profile.speed};
 };
 export const listVoices = () => {
   const runtime = resolveRuntime();
-  return [{id: 'plain', name: 'VoxCPM2 local plain speech', note: `${runtime.model}@${runtime.revision}; no fixed personal speaker identity`}];
+  return [{id: 'plain', name: 'VoxCPM2 local plain speech', note: `${runtime.model}@${runtime.revision}; no fixed personal speaker identity`},
+    {id: 'profile', name: 'VoxCPM2 personal clone profile', note: 'Select with --voice-profile=/path/profile.json; clones the original reference and applies tempo once'}];
 };
 
 // Content-addressed WAVs, not a filename-only skip: text/settings/runtime changes regenerate.
 export const synthesize = ({texts, audioDir, options = {}}) => {
-  const runtime = resolveRuntime(); const config = settings(options);
+  const runtime = resolveRuntime(); const profile = resolveProfile(options); const config = settings(options, profile);
   if (!texts.length || texts.some((text) => !String(text).trim())) throw new Error('Nonempty approved narration required');
   // Each approved scene is immutable and reusable independently of order/other scenes.
   const chunks = texts;
@@ -50,12 +78,21 @@ export const synthesize = ({texts, audioDir, options = {}}) => {
     }
     const stage = fs.mkdtempSync(path.join(dir, '.generating-'));
     try {
-      const out = path.join(stage, 'scene.wav');
-      runCommand(runtime.python, [runtime.script, '--mode', 'plain', '--text', text, '--seed', String(config.seed), '--steps', String(config.steps), '--max-tokens', String(config.maxTokens), '--output', out],
+      let out = path.join(stage, profile ? 'raw.wav' : 'scene.wav');
+      runCommand(runtime.python, [runtime.script, '--mode', config.mode, ...(profile ? ['--ref-audio', profile.reference] : []), '--text', text, '--seed', String(config.seed), '--steps', String(config.steps), '--max-tokens', String(config.maxTokens), '--output', out],
         {cwd: runtime.folder, label: 'local VoxCPM2 scene cache miss', timeoutMs: envMilliseconds('SHORT_VIDEO_TTS_TIMEOUT_MS', 900000)});
+      const generation = JSON.parse(fs.readFileSync(out.replace(/\.wav$/, '.json')));
+      let rawAudioSha256;
+      if (profile) {
+        // Tempo is applied exactly once, to the raw clone output; pitch is preserved by atempo.
+        rawAudioSha256 = hash(fs.readFileSync(out));
+        runCommand(commandFromEnv('ffmpeg'), ['-v', 'error', '-nostdin', '-n', '-i', out, '-af', `atempo=${profile.speed}`, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', path.join(stage, 'scene.wav')], {stdio: 'pipe'});
+        fs.rmSync(out); fs.rmSync(out.replace(/\.wav$/, '.json'));
+        out = path.join(stage, 'scene.wav');
+      }
       const duration = inspectAsset(out).duration;
       const meta = {text, config, engineFingerprint: runtime.fingerprint, duration, audioSha256: hash(fs.readFileSync(out)),
-        generation: JSON.parse(fs.readFileSync(out.replace(/\.wav$/, '.json')))};
+        ...(profile ? {rawAudioSha256, speedAppliedOnce: profile.speed, voiceProfileSha256: profile.sha256} : {}), generation};
       fs.renameSync(out, file); write(metadata, meta);
       return {key, file, meta, reused: false};
     } finally {fs.rmSync(stage, {recursive: true, force: true});}
@@ -73,7 +110,9 @@ export const synthesize = ({texts, audioDir, options = {}}) => {
     const joined = path.join(stage, 'joined.wav');
     runCommand(commandFromEnv('ffmpeg'), ['-v', 'error', '-nostdin', '-n', ...segments.flatMap(s => ['-i', s.file]),
       '-filter_complex', `${segments.map((_, i) => `[${i}:a]`).join('')}concat=n=${segments.length}:v=0:a=1[a]`, '-map', '[a]', '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', joined], {stdio: 'pipe'});
-    const meta = {provider: name, providerMeta: {model: runtime.model, voice: `plain-seed-${config.seed}`}, model: runtime.model, revision: runtime.revision, config, texts, chunks, duration: inspectAsset(joined).duration,
+    const meta = {provider: name, providerMeta: profile
+      ? {model: runtime.model, voice: profile.name, voiceMode: 'clone', voiceProfilePath: profile.path, voiceProfileSha256: profile.sha256, voiceReferenceSha256: profile.referenceSha256, voiceSpeed: profile.speed, voiceSpeedAppliedOnce: true}
+      : {model: runtime.model, voice: `plain-seed-${config.seed}`}, model: runtime.model, revision: runtime.revision, config, texts, chunks, duration: inspectAsset(joined).duration,
       engineFingerprint: runtime.fingerprint, audioSha256: hash(fs.readFileSync(joined)), sceneCache, generation: segments.map(s => s.meta.generation)};
     fs.renameSync(joined, output); write(metadata, meta);
     return {file: output, meta, segments: segments.map(s => ({file: s.file, audioSha256: s.meta.audioSha256})), reused: segments.every(s => s.reused)};
@@ -89,8 +128,10 @@ export const preview = async ({text, outputPath, options}) => {
 export const generateAligned = ({planPath, options = {}}) => {
   const plan = JSON.parse(fs.readFileSync(planPath));
   prepareNarration(plan);
+  // A job remembers its personal profile; --voice-profile=none returns to plain speech.
+  const voiceProfile = options.voiceProfile ?? plan.audio?.voiceProfilePath;
   let generated;
-  try {generated = synthesize({texts: plan.scenes.map((s) => s.voiceover), audioDir: path.join(path.dirname(planPath), 'audio'), options});}
+  try {generated = synthesize({texts: plan.scenes.map((s) => s.voiceover), audioDir: path.join(path.dirname(planPath), 'audio'), options: {...options, voiceProfile}});}
   catch (error) {error.ttsSynthesisFailed = true; throw error;}
   // Older verified caches may predate the common provider metadata field.
   generated.meta.providerMeta ??= {model: generated.meta.model, voice: `plain-seed-${generated.meta.config.seed}`};

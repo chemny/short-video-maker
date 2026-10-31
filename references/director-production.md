@@ -10,6 +10,10 @@ Keep sentence-storyboard.json as the single authored board. Add directorVersion:
 
 Select style.template=directed-news, meta.directorVersion=director-v1, productionWorkflow=reviewed-v1, style.layoutReadability=phone-v1, componentSystem=off, no extra cover intro. Supported recipes are media, question, list, evidence, keyword, comparison, steps, ability, distinction, ending, statement and time-budget. Candidate currently supports1080x1920/30fps only. Actual official media and dated evidence remain mandatory where used; recipe names do not justify the claim. Compile happens in the runner after timing repair, before component selection, evidence audits and preview. Do not hand-edit derived directorRender.
 
+## Content gate
+
+`compileDirector` also audits decisions, not only field presence: `understanding` and `visualContribution` must differ, be substantive, not merely repeat the narration, and not repeat across more than 40% of rows (errors). Warnings (in `director-report.json` and the console) flag a `reason` copied from `understanding` on every row, one shared `motionPurpose` across shots, and persistent `title`/`kicker` text visible from the shot start whose wording is first spoken later in that shot. Warnings need an authored fix or a justification; the gate cannot judge relevance, taste or listening.
+
 ## Template and authored renderer
 
 Template rendering identifies actual template/composition in preview metadata. An authored job can instead declare meta.renderSource `{kind:"authored-remotion",entry:"src/index.tsx",composition:"MyFilm",layoutProtocol:"svm-layout-v1"}` and optional coverComposition. Entry is confined to the job. It must consume the canonical plan and authored board, expose shared LayoutAudit measurements under style.layoutAudit, use job-local media and the shared audio pipeline. Otherwise common layout inspection blocks; it cannot claim a built-in template made its picture. Existing runtimes are reused; no installers or arbitrary shell command hooks are launched.

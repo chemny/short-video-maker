@@ -1,6 +1,40 @@
 import fs from 'node:fs';import path from 'node:path';import {createHash}from'node:crypto';
 import{auditSentenceStoryboard,sentenceTimelineHash}from'./sentence-storyboard.mjs';
 export const recipes=['media','question','list','evidence','keyword','comparison','steps','ability','distinction','ending','statement','time-budget'];
+const letters=s=>(String(s).match(/[\p{L}\p{N}]/gu)??[]).length;
+const compact=s=>String(s).normalize('NFKC').toLowerCase().replace(/[\p{P}\p{Z}\s]/gu,'');
+// Content checks. A gate that only tests "non-empty" can be filled mechanically, so reject copy-paste decisions
+// and flag persistent text that shows a conclusion before it is spoken. Semantic quality still needs real review.
+export function auditDirectorContent(plan,board){
+ const errors=[],warnings=[],rows=board.rows??[];
+ for(const r of rows){
+  for(const k of ['understanding','visualContribution'])if(typeof r[k]==='string'&&r[k].trim()&&letters(r[k])<4)errors.push(`Director: ${r.captionId}: ${k} is too short to be a decision`);
+  if(typeof r.understanding==='string'&&r.understanding.trim()&&compact(r.understanding)===compact(r.visualContribution??''))errors.push(`Director: ${r.captionId}: understanding and visualContribution must differ (what to grasp vs what the picture adds)`);
+  if(typeof r.understanding==='string'&&compact(r.understanding)===compact(r.text??'')&&compact(r.text??''))errors.push(`Director: ${r.captionId}: understanding only repeats the narration`);
+ }
+ for(const k of ['understanding','visualContribution']){
+  const counts=new Map();for(const r of rows)if(typeof r[k]==='string')counts.set(compact(r[k]),(counts.get(compact(r[k]))??0)+1);
+  const top=Math.max(0,...counts.values());if(rows.length>=4&&top/rows.length>.4)errors.push(`Director: ${k} repeats across ${top}/${rows.length} rows; author a distinct decision per sentence`);
+ }
+ const copied=rows.filter(r=>typeof r.understanding==='string'&&typeof r.reason==='string'&&compact(r.understanding)===compact(r.reason)).length;
+ if(rows.length>=4&&copied===rows.length)warnings.push('Every row copies understanding into reason; keep reason as an independent rationale (evidence or editorial intent)');
+ const purposes=new Set((board.shots??[]).map(s=>compact(s.motionPurpose??'')));
+ if((board.shots?.length??0)>=3&&purposes.size===1)warnings.push('All shots share one motionPurpose; state what each shot\'s motion explains');
+ // Persistent shot text must not preview content that is first spoken later in the same shot.
+ const byId=new Map((plan.captions??[]).map(c=>[c.id,c]));
+ for(const s of board.shots??[]){
+  const spoken=rows.filter(r=>r.shotId===s.id).map(r=>byId.get(r.captionId)).filter(Boolean).sort((a,b)=>a.start-b.start);
+  if(spoken.length<2)continue;
+  for(const key of ['title','kicker']){
+   const text=compact(s[key]??'');if(text.length<4)continue;
+   for(let i=0;i+4<=text.length;i++){
+    const gram=text.slice(i,i+4),first=spoken.find(c=>compact(c.text).includes(gram));
+    if(first&&first.start-s.start>.75){warnings.push(`${s.id}: ${key} "${s[key]}" is visible from shot start but "${gram}" is first spoken at ${first.start.toFixed(2)}s (${first.id}); use a neutral label or reveal it with a cue`);break;}
+   }
+  }
+ }
+ return{errors,warnings};
+}
 export const digest=v=>createHash('sha256').update(v).digest('hex');
 export const directorIdentity=(plan,board)=>digest(JSON.stringify({timeline:sentenceTimelineHash(plan),board,template:plan.style.template}));
 export function compileDirector(plan,board,{job}={}){
@@ -43,7 +77,8 @@ export function compileDirector(plan,board,{job}={}){
   if(s.revealPolicy==='spoken-cues'&&!anchors)fail(`${s.id}: spoken-cues has no actual caption anchor`);
   return result;
  });
+ const content=auditDirectorContent(plan,board);errors.push(...content.errors);
  const out=structuredClone(plan);out.directorRender={version:1,sourceSha256:directorIdentity(plan,board),shots};
- return{plan:out,report:{status:errors.length?'blocked':'compiled',errors,captionRows:board.rows?.length??0,shots:shots.length,sourceSha256:out.directorRender.sourceSha256,limits:'Checks declared decisions and actual caption anchors. Semantic relevance and aesthetic/listening quality require real review.'}};
+ return{plan:out,report:{status:errors.length?'blocked':'compiled',errors,warnings:content.warnings,captionRows:board.rows?.length??0,shots:shots.length,sourceSha256:out.directorRender.sourceSha256,limits:'Checks declared decisions and actual caption anchors. Semantic relevance and aesthetic/listening quality require real review.'}};
 }
-export function compileDirectorFile(planPath){const plan=JSON.parse(fs.readFileSync(planPath));if(plan.meta.directorVersion!=='director-v1')return {status:'not-selected',errors:[]};const job=path.dirname(planPath),board=JSON.parse(fs.readFileSync(path.join(job,'sentence-storyboard.json'))),r=compileDirector(plan,board,{job});fs.writeFileSync(path.join(job,'director-report.json'),JSON.stringify(r.report,null,2)+'\n');if(r.report.errors.length)throw Error(r.report.errors.join('\n'));fs.writeFileSync(planPath,JSON.stringify(r.plan,null,2)+'\n');return r.report;}
+export function compileDirectorFile(planPath){const plan=JSON.parse(fs.readFileSync(planPath));if(plan.meta.directorVersion!=='director-v1')return {status:'not-selected',errors:[]};const job=path.dirname(planPath),board=JSON.parse(fs.readFileSync(path.join(job,'sentence-storyboard.json'))),r=compileDirector(plan,board,{job});fs.writeFileSync(path.join(job,'director-report.json'),JSON.stringify(r.report,null,2)+'\n');for(const w of r.report.warnings??[])console.warn('Director warning: '+w);if(r.report.errors.length)throw Error(r.report.errors.join('\n'));fs.writeFileSync(planPath,JSON.stringify(r.plan,null,2)+'\n');return r.report;}

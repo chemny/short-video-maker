@@ -41,6 +41,7 @@ Common options:
   --voice=<voice-id>
   --voice-preset=<preset-id>
   --speed=<number>
+  --voice-profile=<profile.json|none>   VoxCPM2 personal clone profile (original reference, tempo applied once)
   --loudness=<number>
   --model=<model-id>
   --concurrency=<number>
@@ -66,6 +67,7 @@ const options = {
   cluster: args.cluster,
   concurrency: args.concurrency,
   seed: args.seed,
+  voiceProfile: args['voice-profile'],
   steps: args.steps,
   asrModel: args['asr-model'],
   transcript: args['asr-transcript'],
