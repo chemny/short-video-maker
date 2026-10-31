@@ -158,7 +158,7 @@ The MVP should not lock to one provider.
 Use configuration fields such as:
 
 ```text
-TTS_PROVIDER
+SHORT_VIDEO_TTS_PROVIDER
 IMAGE_PROVIDER
 SEARCH_PROVIDER
 LLM_PROVIDER
@@ -168,7 +168,8 @@ LLM provider is optional when the skill runs inside an agent that can perform re
 
 Current TTS providers:
 
-- Default Edge TTS provider: `scripts/sync-edge-tts.mjs`.
+- Default local VoxCPM2 and verified audio route: `scripts/tts.mjs` (default provider), `scripts/run-job.mjs`; see `default-voice-pipeline.md`.
+- Explicit Edge TTS provider: `scripts/sync-edge-tts.mjs`.
 - Local macOS provider: `scripts/sync-local-audio.mjs`.
 - Volcengine provider: `scripts/sync-volcengine-tts.mjs`.
 

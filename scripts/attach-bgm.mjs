@@ -97,5 +97,8 @@ plan.audio = {
   bgm: chosen,
   bgmVolume: volArg ? Number(volArg) : plan.audio?.bgmVolume ?? 0.35,
 };
+delete plan.audio.mix;
+delete plan.audio.mixIncludesBgm;
+delete plan.audio.sourceBgm;
 fs.writeFileSync(absPlanPath, `${JSON.stringify(plan, null, 2)}\n`, 'utf8');
 console.log(`✓ 已挂 BGM（来源：${source}）→ ${chosen}，音量 ${plan.audio.bgmVolume}`);

@@ -1,7 +1,10 @@
+import {DirectedNews} from './components/DirectedNews';
+import {LayoutAudit} from './components/LayoutAudit';
 import {AbsoluteFill, Img, staticFile, useVideoConfig} from 'remotion';
 import {VideoPlan} from './lib/types';
 import {resolvePreset} from './lib/stylePresets';
 import {WireGlobe} from './components/WireGlobe';
+import {ResponsiveCover} from './components/SceneResponsive';
 
 const pickFooter = (plan: VideoPlan) => {
   const platforms = plan.meta.platforms?.length > 0 ? plan.meta.platforms.join(' / ') : 'short video';
@@ -10,6 +13,8 @@ const pickFooter = (plan: VideoPlan) => {
 
 export const CoverStill = ({plan}: {plan: VideoPlan}) => {
   const {width, height} = useVideoConfig();
+  if(plan.style.template==='directed-news')return <><DirectedNews plan={plan}/>{plan.style.layoutAudit?<LayoutAudit plan={plan}/>:null}</>;
+  if (['responsive-report','shotcraft-brief'].includes(plan.style.template) || plan.style.componentSystem==='semantic-v1') return <><ResponsiveCover plan={plan} />{plan.style.layoutAudit ? <LayoutAudit plan={plan} /> : null}</>;
   const titleLength = plan.cover.title.length;
   const bgAsset = plan.cover.backgroundAsset;
   const preset = resolvePreset(plan);

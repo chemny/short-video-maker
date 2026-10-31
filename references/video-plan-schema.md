@@ -68,6 +68,12 @@ Rules:
 
 ## `audio`
 
+Upgrade fields: `meta.productionMode: "researched" | "authored"`, `meta.reportType: "product" | "article" | "daily"`; `style.template: "responsive-report"`; `audio.timingSource: "provided" | "asr-matched"`; optional `audio.intent: "silent"` for intentionally silent visual assets (cannot coexist with narration). A scene can declare `captionIds` and `evidence: {claimIds,sourceIds,visualReason,visualOrigin,mediaId?}`. A selected clip uses `visual: {kind:"video",asset,sourceStart,sourceVolume,fit,focalPoint?}`. All times are seconds; focal point x/y are normalized 0..1. See `researched-production.md` for provenance and validation behavior.
+
+For recitation credits, `meta.speaker` is optional. `cover.overlaySeconds` displays the title/speaker over the start of the content without delaying audio; `cover.introSeconds` instead prepends a title card. Both durations must be non-negative. See `delivery-checks.md` for legacy conversion and review limits.
+
+Phase-1 material jobs additionally use `sourceMode: "imported"`, `timingSource: "provided"`, immutable `sourceVoiceover`/`sourceBgm` references and optional `processing: {cleanup: "none" | "light", normalize: boolean}`. The audio-preparation step writes `mix` and `mixIncludesBgm`; the renderer plays the prepared mix alone. Supplied timings are not automatically aligned or proportionally stretched. See `material-input-workflow.md` for the full input/output contract.
+
 ```json
 {
   "voiceover": "audio/voiceover.mp3",
@@ -308,3 +314,24 @@ Rules:
   }
 }
 ```
+
+## P0 production extension
+
+New researched plans set `meta.productionVersion="p0-v1"`, and dated briefs also set `meta.editorialDate`. Each scene adds `visualBindings:[{captionIds,kind,shows,reason,sourceStart?,sourceEnd?}]`; kinds are `official-demo|official-image|authored-diagram|authored-card|user-media`. Caption IDs must partition the approved cues in order. Video source intervals must equal actual playback intervals after final narration alignment. See `p0-production.md` for schema examples and evidence requirements. `style.layoutAudit` is an internal preview switch and is not a saved editorial approval.
+
+## Acoustic timing and demonstration holds
+
+`scene.preservePauses` and `scene.pausePreservationReason` mark intentional holds. Optional `scene.minimumDurationSeconds` (0..60) survives synthesis retiming; explicit preserve scenes capture their planned duration if omitted. All video scenes protect existing pauses automatically. `audio.timingRepair` accepts `enabled` and `preserveWindows:[{start,end,reason}]` in content seconds. Imported audio is audit-only. `audio.acousticTiming` is generated hash-bound evidence, not an author-created approval. See [default-acoustic-timing.md](default-acoustic-timing.md).
+
+
+Optional `meta.renderEngine`: `remotion` or `hyperframes`. CLI `--engine` overrides it; omitted values retain Remotion unless SHORT_VIDEO_RENDER_ENGINE is set. See render-engines.md.
+
+
+## Parameterized semantic components
+
+Optional `style.componentSystem` is `semantic-v1` or `off`. Scenes may declare `contentShape`, `visualComponent: {id, variant, props, cues}` and `visualReuseReason`. `componentRender` is derived after audio timing; never author its timestamps. See `semantic-components.md` and `components/registry.json` for contracts and examples. `Caption.displayStart` optionally delays visible/SRT onset within its canonical accepted interval; it does not rewrite observed ASR start/end.
+
+
+## Sentence-directed production
+
+New narrated productions and remakes set `meta.editorialWorkflow="sentence-v1"`; provide `baseline.json` locking the selected audio SHA256 and `sentence-storyboard.json` with one ordered row per canonical caption, concrete shot/source/emphasis decisions and aspect-specific typography. The production audit blocks stale/missing maps, invalid source windows, missing voice baseline and unreadable font tokens. Read `sentence-directed-production.md`. Existing jobs remain compatible; component defaults are off until explicitly chosen after directing.

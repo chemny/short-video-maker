@@ -59,34 +59,7 @@
         "html-editorial-forest",
         "html-signal",
         "html-liquid-dark",
-        "html-soft-editorial",
-        "swiss-blue",
-        "editorial-ink",
-        "magazine-cream",
-        "xhs-morandi",
-        "html-broadside",
-        "html-emerald-editorial",
-        "html-neo-grid-bold",
-        "html-monochrome",
-        "html-vellum",
-        "html-blue-professional",
-        "html-cartesian",
-        "html-grove",
-        "html-raw-grid",
-        "fde-business-grid",
-        "fde-bold-poster",
-        "fde-nyt-data",
-        "fde-glitch-title",
-        "fde-light-leak",
-        "fde-liquid-hero",
-        "fde-logo-outro",
-        "fde-vfx-cursor",
-        "fde-pentagram-stat",
-        "fde-electric-studio",
-        "fde-bold-signal",
-        "fde-build-minimal",
-        "fde-creative-voltage",
-        "fde-takram-organic"
+        "html-soft-editorial"
       ],
       "requiredPackageFiles": [
         "SKILL.md",
@@ -98,6 +71,279 @@
         "contact sheet",
         "safe-area overlay for new aspect ratios",
         "caption readability check"
+      ],
+      "compatibilityAliases": [
+        {
+          "id": "swiss-blue",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "editorial-ink",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "magazine-cream",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "xhs-morandi",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-broadside",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-emerald-editorial",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-neo-grid-bold",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-monochrome",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-vellum",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-blue-professional",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-cartesian",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-grove",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "html-raw-grid",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-business-grid",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-bold-poster",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-nyt-data",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-glitch-title",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-light-leak",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-liquid-hero",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-logo-outro",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-vfx-cursor",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-pentagram-stat",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-electric-studio",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-bold-signal",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-build-minimal",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-creative-voltage",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        },
+        {
+          "id": "fde-takram-organic",
+          "resolvesTo": "html-cobalt-grid",
+          "status": "legacy-fallback-not-independent-style"
+        }
+      ]
+    },
+    {
+      "id": "responsive-report",
+      "name": "Responsive Semantic Report",
+      "component": "SceneComponents",
+      "category": "researched-report",
+      "tone": [
+        "professional",
+        "analytical",
+        "trust-first"
+      ],
+      "density": "medium",
+      "primaryAspect": "9:16",
+      "responsiveAspects": [
+        "16:9",
+        "3:4"
+      ],
+      "bestFor": [
+        "product demonstrations",
+        "news commentary",
+        "article explainers"
+      ],
+      "avoidFor": [
+        "music videos",
+        "character animation"
+      ],
+      "layoutPool": [
+        "hook",
+        "flow",
+        "text-card",
+        "image-with-caption",
+        "data-card",
+        "quote-card",
+        "takeaway"
+      ],
+      "motionGrammar": [
+        "caption-anchored emphasis",
+        "group onset when no precise association is authored",
+        "complex enhancements are opt-in"
+      ],
+      "componentSystem": "semantic-v1",
+      "requiredPackageFiles": [
+        "SKILL.md",
+        "design-tokens.json",
+        "example-plan.json"
+      ],
+      "previewGate": [
+        "browser-measured geometry",
+        "complete preview",
+        "matched audio export",
+        "explicit editorial review"
+      ]
+    },
+    {
+      "id": "shotcraft-brief",
+      "name": "Shotcraft Brief（候选）",
+      "component": "SceneShotcraftBrief",
+      "category": "shot-recipe-candidate",
+      "maturity": "opt-in tested list/statement adapter; not full B workflow",
+      "tone": [
+        "analytical",
+        "dark",
+        "clear"
+      ],
+      "density": "low",
+      "primaryAspect": "9:16",
+      "responsiveAspects": [],
+      "bestFor": [
+        "short authored list or statement scenes within news/product/article/daily videos"
+      ],
+      "avoidFor": [
+        "full automatic news production",
+        "dense reports",
+        "media/data scenes",
+        "unverified horizontal adaptation"
+      ],
+      "layoutPool": [
+        "text-card",
+        "step-list"
+      ],
+      "motionGrammar": [
+        "real24frame ListReveal softBack",
+        "authored cue times",
+        "cumulative emphasis",
+        "duration-bound slow drift"
+      ],
+      "requiredPackageFiles": [
+        "SKILL.md",
+        "design-tokens.json",
+        "example-plan.json"
+      ],
+      "previewGate": [
+        "same-input comparison",
+        "phone-size still",
+        "full preview before promotion"
+      ]
+    },
+    {
+      "id": "directed-news",
+      "name": "Directed News（B配方新闻解读候选）",
+      "component": "DirectedNews",
+      "category": "authored-news-candidate",
+      "maturity": "opt-in portrait authored recipes; cross-topic previews required; no automatic director or global promotion",
+      "primaryAspect": "9:16",
+      "responsiveAspects": [],
+      "bestFor": [
+        "authored technology news commentary and opinion explanation"
+      ],
+      "avoidFor": [
+        "automatic topic-to-video without authored decisions",
+        "unreviewed landscape conversion"
+      ],
+      "layoutPool": [
+        "media",
+        "question",
+        "list",
+        "evidence",
+        "keyword",
+        "comparison",
+        "steps",
+        "ability",
+        "distinction",
+        "ending",
+        "statement",
+        "time-budget"
+      ],
+      "requiredPackageFiles": [
+        "SKILL.md",
+        "design-tokens.json",
+        "example-plan.json"
+      ],
+      "previewGate": [
+        "measured phone readability",
+        "complete preview",
+        "bound visual/listening review before HD"
       ]
     }
   ]

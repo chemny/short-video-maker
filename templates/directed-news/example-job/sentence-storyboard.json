@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "directorVersion": 1,
+  "timelineSha256": "36d51aee2a2600a571a017c1a53adc0809e13af06366fe01eeab5d24d71aa04d",
+  "typography": {
+    "width": 1080,
+    "height": 1920,
+    "referenceWidth": 390,
+    "title": 68,
+    "body": 54,
+    "caption": 48,
+    "source": 30
+  },
+  "shots": [
+    {
+      "id": "example",
+      "start": 0,
+      "end": 3,
+      "kind": "diagram",
+      "recipe": "statement",
+      "title": "先明确一个判断",
+      "kicker": "模板静音示例",
+      "revealPolicy": "spoken-cues",
+      "motionPurpose": "在字幕起点揭示主题",
+      "blocks": [
+        {
+          "text": "把事情说清楚",
+          "at": {
+            "captionId": "example-c1"
+          },
+          "size": 80
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "captionId": "example-c1",
+      "sceneId": "example",
+      "text": "先明确一个判断",
+      "start": 0,
+      "end": 2.8,
+      "shotId": "example",
+      "shows": "一句可读的判断",
+      "change": "在字幕起点出现并保持",
+      "reason": "用于展示模板调用格式",
+      "screenText": "把事情说清楚",
+      "understanding": "明确当前主题",
+      "visualContribution": "突出一个判断",
+      "claimType": "instruction"
+    }
+  ]
+}

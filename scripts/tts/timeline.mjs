@@ -36,7 +36,7 @@ const splitCjkChunk = (chunk, size = 12) => {
   return result.filter(Boolean);
 };
 
-const splitCaptionText = (value) => {
+export const splitCaptionText = (value) => {
   const source = String(value ?? '').trim();
   const parts = source
     .split(/[，,。.!！?？、；;：:\n]+/)
@@ -156,6 +156,12 @@ export const writeTimeline = ({
     voiceVolume: plan.audio?.voiceVolume ?? 1,
     ...providerMeta,
   };
+  // A new voice/timeline invalidates any previously prepared mix, including direct CLI use.
+  delete plan.audio.mix;
+  delete plan.audio.mixIncludesBgm;
+  delete plan.audio.sourceVoiceover;
+  delete plan.audio.timingSource;
+  plan.audio.sourceMode = 'tts';
   plan.captions = captions;
 
   const captionsJsonPath = path.join(captionsDir, 'captions.json');

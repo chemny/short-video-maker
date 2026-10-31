@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "title": "组件配置示例",
+    "topic": "组件配置示例",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationSeconds": 8,
+    "platforms": [
+      "douyin"
+    ],
+    "language": "zh-CN",
+    "productionMode": "authored",
+    "renderEngine": "remotion"
+  },
+  "style": {
+    "template": "responsive-report",
+    "componentSystem": "semantic-v1",
+    "background": "#101B2D",
+    "textPrimary": "#F4F7FB",
+    "textSecondary": "#B5C5D8",
+    "accent": "#68E0CF",
+    "captionPosition": "bottom",
+    "captionMode": "sentence",
+    "captionBackdrop": true,
+    "motionIntensity": "low"
+  },
+  "cover": {
+    "title": "组件配置示例",
+    "layout": "bold-title",
+    "introSeconds": 0
+  },
+  "audio": {
+    "intent": "silent"
+  },
+  "publish": {},
+  "captions": [
+    {
+      "id": "c1",
+      "start": 0.1,
+      "end": 1.8,
+      "text": "先明确问题。"
+    },
+    {
+      "id": "c2",
+      "start": 2,
+      "end": 3.8,
+      "text": "再核对证据。"
+    },
+    {
+      "id": "c3",
+      "start": 4.1,
+      "end": 5.8,
+      "text": "区分原话与解读。"
+    },
+    {
+      "id": "c4",
+      "start": 6,
+      "end": 7.8,
+      "text": "用证据支撑判断。"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "start": 0,
+      "end": 4,
+      "type": "core",
+      "layout": "text-card",
+      "caption": "先明确问题，再核对证据",
+      "voiceover": "先明确问题。再核对证据。",
+      "captionIds": [
+        "c1",
+        "c2"
+      ],
+      "transition": "cut",
+      "visualComponent": {
+        "id": "cards",
+        "variant": "default",
+        "props": {
+          "items": [
+            "明确问题",
+            "核对证据"
+          ]
+        },
+        "cues": [
+          {
+            "captionId": "c1",
+            "target": 0,
+            "action": "focus"
+          },
+          {
+            "captionId": "c2",
+            "target": 1,
+            "action": "focus"
+          }
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "start": 4,
+      "end": 8,
+      "type": "ending",
+      "layout": "text-card",
+      "caption": "区分原话与作者解读",
+      "voiceover": "区分原话与解读。用证据支撑判断。",
+      "captionIds": [
+        "c3",
+        "c4"
+      ],
+      "transition": "cut",
+      "visualComponent": {
+        "id": "compare",
+        "props": {
+          "columns": [
+            {
+              "title": "原话",
+              "body": "保留原始出处"
+            },
+            {
+              "title": "解读",
+              "body": "明确作者判断"
+            }
+          ]
+        },
+        "cues": [
+          {
+            "captionId": "c3",
+            "target": 0,
+            "action": "focus"
+          },
+          {
+            "captionId": "c4",
+            "target": 1,
+            "action": "focus"
+          }
+        ]
+      }
+    }
+  ]
+}

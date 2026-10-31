@@ -73,7 +73,8 @@ export const SceneImageOverlay = ({
   // 裸图模式：成品整图满屏 + 极轻微缓动，不叠任何文字层/蒙层。
   // 用 contain + 同色背景避免裁掉图上已有的文字；缓动幅度很小，防止边缘文字被裁。
   if (bare && hasImage) {
-    const bareScale = interpolate(frame, [0, durationInFrames], [1.0, 1.035], clamp);
+    const bareScale = scene.motion?.type === 'none' ? 1 : interpolate(frame, [0, durationInFrames],
+      scene.motion?.type === 'slow-zoom-out' ? [1.035, 1.0] : [1.0, 1.035], clamp);
     return (
       <AbsoluteFill style={{background: plan.style.background ?? '#F5F0E8', overflow: 'hidden'}}>
         <Img

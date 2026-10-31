@@ -1,15 +1,13 @@
-import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import {resolveSafeArea} from '../lib/safeArea';
 import {Caption, VideoPlan} from '../lib/types';
 import {secondsToFrames} from '../lib/timing';
 
-const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
-
 const activeCaption = (captions: Caption[], frame: number, fps: number) =>
   captions.find(
     (c) =>
-      frame >= secondsToFrames(c.start, fps) &&
-      frame <= secondsToFrames(c.end, fps),
+      frame >= secondsToFrames(Math.max(c.start,c.displayStart??c.start), fps) &&
+      frame < secondsToFrames(c.end, fps),
   );
 
 const cleanCaptionText = (value: string) =>
@@ -24,7 +22,8 @@ const HighlightedText = ({caption, accent}: {caption: Caption; accent: string}) 
     ?.map(cleanCaptionText)
     .find((k) => k && text.includes(k));
   if (!keyword) return <>{text}</>;
-  const [before, after] = text.split(keyword);
+  const index = text.indexOf(keyword);
+  const before = text.slice(0,index), after = text.slice(index+keyword.length);
   return (
     <>
       {before}
@@ -56,7 +55,8 @@ const CaptionLines = ({
             fontSize: Math.round(baseFontSize * (line.scale ?? 1)),
             fontWeight: line.weight ?? (index === 0 ? 900 : 700),
             lineHeight: 1.18,
-            whiteSpace: 'nowrap',
+            whiteSpace: 'normal',
+            overflowWrap: 'anywhere',
           }}
         >
           {line.text}
@@ -99,9 +99,9 @@ export const CaptionLayer = ({
 
   if (!caption) return null;
 
-  const startFrame = secondsToFrames(caption.start, fps);
-  const opacity = interpolate(frame, [startFrame, startFrame + 6], [0, 1], clamp);
-  const y = interpolate(frame, [startFrame, startFrame + 8], [12, 0], clamp);
+  // Speech-timed cues must be readable at their first frame, including short cues.
+  const opacity = 1;
+  const y = 0;
   const plainCaption = !style.captionBackdrop;
   const captionColor = resolveCaptionColor(style, plainCaption);
   const safeArea = resolveSafeArea(width, height, platforms);
@@ -115,7 +115,8 @@ export const CaptionLayer = ({
         ? 35
         : 40
     : 40;
-  const fontSize = Math.round(baseFontSize * captionScale);
+  const dimensionScale = width > height ? Math.min(width / 1920, height / 1080) : Math.min(width / 1080, height / 1440);
+  const fontSize = Math.max(style.layoutReadability==='phone-v1'?Math.ceil(width*16/390):0,Math.round(baseFontSize * captionScale * Math.min(1, dimensionScale)));
 
   return (
     <AbsoluteFill
@@ -126,6 +127,9 @@ export const CaptionLayer = ({
       }}
     >
       <div
+        data-layout-role="caption"
+        data-explicit-lines={Boolean(caption.lines?.length)}
+        data-safe-left={safeArea.captionLeft} data-safe-right={safeArea.captionRight} data-safe-top={safeArea.baseMarginTop} data-safe-bottom={safeArea.captionBottom}
         style={{
           alignSelf: 'center',
           color: captionColor,
@@ -135,9 +139,10 @@ export const CaptionLayer = ({
           fontWeight: 800,
           letterSpacing: 0.5,
           lineHeight: 1.3,
-          maxWidth: Math.max(520, width - safeArea.captionLeft - safeArea.captionRight - 48),
+          maxWidth: Math.max(1, width - safeArea.captionLeft - safeArea.captionRight - 48 * Math.min(1, dimensionScale)),
           opacity,
           textAlign: 'center',
+          textWrap: 'balance',
           textShadow:
             plainCaption && captionColor === '#FFFFFF'
               ? '0 2px 12px rgba(0,0,0,0.55)'
@@ -154,13 +159,13 @@ export const CaptionLayer = ({
               }
             : {}),
           transform: `translateY(${y}px)`,
-          display: plainCaption ? 'block' : '-webkit-box',
+          display: 'block',
           WebkitBoxOrient: plainCaption ? undefined : 'vertical',
-          WebkitLineClamp: plainCaption ? undefined : 2,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: plainCaption ? 'nowrap' : undefined,
-          wordBreak: plainCaption ? 'keep-all' : 'break-word',
+          WebkitLineClamp: undefined,
+          overflow: 'visible',
+          whiteSpace: 'normal',
+          overflowWrap: 'anywhere',
+          wordBreak: 'normal',
         }}
       >
         <CaptionLines caption={{...caption, text}} accent={style.accent} baseFontSize={fontSize} />

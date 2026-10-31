@@ -14,11 +14,11 @@ Voiceover audio is the master timeline for this skill.
 - For long scripts, synthesize each scene separately and concatenate the segments.
 - Record each segment duration.
 - Use segment durations to retime scene start/end values.
-- Use sentence or phrase weights inside each segment to estimate caption timing when forced alignment is unavailable.
+- VoxCPM2 uses real ASR word boundaries; Edge and Volcengine match actual synthesis-provider word timestamps for captions and scenes. Never use character/phrase weights as a successful timing fallback; uncertainty blocks the default pipeline.
 
 ## Audio Assets
 
-- Store voiceover at `public/audio/voiceover.mp3`.
+- Keep job-local source snapshots under `audio/source/`; default VoxCPM2 outputs and prepared masters are WAV. Store generated inputs/caches with the job, not in shared Remotion public directories.
 - Use paths relative to Remotion `public/` in `video-plan.json`, for example `audio/voiceover.mp3`.
 - Keep generated segment files out of published repositories.
 - Do not store provider credentials in audio metadata or plan files.
@@ -78,3 +78,7 @@ Do not over-process. If the voice becomes metallic, watery, or muffled, reduce
 - Check that the rendered video has audio when `audio.voiceover` is set.
 - If the video ends before audio, fix `durationSeconds`.
 - If captions drift, retime from audio again instead of manually nudging a few captions.
+
+## Default export verification
+
+See `default-voice-pipeline.md`. The runner constructs a lossless PCM timeline, including prepared narration/BGM once and all explicitly audible native clips at their frame-rounded source/scene windows (including 12-frame outgoing transition overlap). It copies the rendered video stream and encodes the final audio once. The source/master/plan/video hashes and decoded waveform offset/drift must pass before the new pipeline delivery can pass QC. Do not apply a hardcoded 43ms compensation; that number was observed in one encoder path, not a universal constant.

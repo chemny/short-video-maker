@@ -10,6 +10,12 @@ export const AudioLayer = ({plan}: {plan: VideoPlan}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 
+  // Prepared audio already contains the requested voice gain, fades and optional BGM.
+  // Never play its source tracks again (which would double the narration/music).
+  if (audio?.mix) {
+    return <Audio src={localAsset(audio.mix)} volume={1} />;
+  }
+
   // BGM 淡入淡出：基于正片时长（= 旁白时长），首 1s 淡入、末 1.5s 淡出，避免硬起硬停。
   const contentFrames = Math.max(1, Math.round((plan.meta?.durationSeconds ?? 0) * fps));
   const base = audio?.bgmVolume ?? 0.35;

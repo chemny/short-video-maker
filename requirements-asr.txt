@@ -1,0 +1,5 @@
+# Optional local ASR runtime. Runtime scripts never auto-install packages/models.
+openai-whisper
+opencc-python-reimplemented==0.1.7
+# Also used by decoded waveform export verification (normally supplied with Whisper).
+numpy

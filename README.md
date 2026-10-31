@@ -1,6 +1,17 @@
 # Short Video Maker
 
+## Default narration and verified audio export
+
+Generated narration automatically chooses **local VoxCPM2 when the complete local environment is available; otherwise Edge TTS**. Users can select VoxCPM2, Edge or Volcengine. All three align captions automatically and use the same lossless PCM mix and verified final export. Run `node scripts/run-job.mjs <job> --render --confirmed-render`; no TTS/alignment flags are needed. Imported narration is protected and remains `--tts=none`. See [configuration, safeguards and overrides](references/default-voice-pipeline.md).
+
+
 [中文](./README.zh.md) | English
+
+## Phase-1 material-route consolidation
+
+The subsequent production upgrade adds explicit official-source snapshots/media requests, claim-to-scene provenance, conservative local Whisper word-boundary matching, selected native video clips, and a responsive report template for 16:9, 9:16 and 3:4. Researched renders generate midpoint/safe-area previews; technical delivery and plan/video-bound editorial review are separate. Product/article/daily briefs and cache/provenance rules are documented in [researched production](references/researched-production.md). The former Auto local archive was deleted at the user's request; historical jobs and the remote repository were retained.
+
+Local media inventory, existing narration import, optional audio cleanup and BGM mixing feed the same canonical plan and Remotion renderer. Use `scan-assets.mjs`, author/select scene assets and caption timings, then `import-media.mjs` and `run-job.mjs`. Imported voiceover is protected from TTS replacement; a prepared mix is played exactly once. Delivery checks include black/volume/silence diagnostics, a full-duration contact sheet and asset-needs files. Legacy still-image jobs can be explicitly converted with `migrate-auto-job.mjs`. See [the material input workflow](references/material-input-workflow.md) and [delivery checks and conversion](references/delivery-checks.md), plus the upgraded route above.
 
 Turn an article, topic, or rough idea into a narrated vertical short-video package for Xiaohongshu, Douyin, TikTok-style explainers, and other social platforms.
 
@@ -143,7 +154,8 @@ Example layout:
 
 The workflow supports:
 
-- `edge`: default provider, Microsoft Edge online TTS, no API key required. The runtime default voice is `zh-CN-XiaoxiaoNeural`.
+- `voxcpm2`: automatic default on machines with a complete local runtime/model and ASR; uses mandatory ASR alignment.
+- `edge`: automatic default when local VoxCPM2/ASR is unavailable, or an explicit choice; Microsoft Edge online TTS, no API key required. The runtime default voice is `zh-CN-XiaoxiaoNeural`.
 - `local`: macOS system TTS, no API key required. Useful for offline smoke tests on macOS. It is not supported on Windows.
 - `volcengine`: Volcengine/ByteDance TTS. Requires user-provided credentials.
 - `http`: generic third-party TTS adapter. Requires user-provided endpoint and credentials when the provider needs them.
@@ -154,12 +166,12 @@ Copy `.env.example` into your local environment only when you need provider over
 Useful defaults:
 
 ```bash
-TTS_PROVIDER=edge
+SHORT_VIDEO_TTS_PROVIDER=auto
 EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural
 EDGE_TTS_RATE=default
 ```
 
-On Windows, use `edge`, `volcengine`, or `http`. Do not use `local`, because it depends on the macOS `say` command.
+On Windows, explicitly select `edge`, `volcengine`, or `http`. Do not use `local`, because it depends on the macOS `say` command.
 
 Volcengine credentials:
 
@@ -265,3 +277,22 @@ Use the short-video-maker skill to create a 60-second Chinese vertical explainer
 ## License
 
 MIT
+
+
+Automatic mode falls back from unavailable VoxCPM2 synthesis to Edge, then to macOS system speech when available. Chinese narration selects an installed Chinese voice; other narration uses the OS default. `--tts=local` selects it directly. No model, Python or voice download is needed. Caption timing comes from actual separately synthesized phrase audio, with no word-level recognition claim. Explicit provider choices and text/alignment failures do not switch voices. See [pipeline details](references/default-voice-pipeline.md).
+
+P0 production now adds bounded official-page discovery and acquisition-gap reports, explicit public-player/HLS VOD clip requests, caption-to-visual bindings, and browser-measured responsive layout gates. New researched projects use `meta.productionVersion="p0-v1"`. See [production and acceptance](references/p0-production.md) for supported acquisition paths, three-aspect checks and editorial limits.
+
+Full-duration low-resolution previews and per-scene local narration/ASR caches: see [iteration workflow](references/iteration-workflow.md). `--preview-video` preserves existing HD delivery; confirmed renders first generate or reuse the preview.
+
+Default caption/pause repair and demonstration protection: [workflow](references/default-acoustic-timing.md).
+
+
+### Render engine / 渲染引擎
+
+Remotion remains the default. Select Hyperframes with `node scripts/run-job.mjs /absolute/job --engine=hyperframes --preview-video`, or save `meta.renderEngine="hyperframes"` in the plan. Both share narration, accepted caption times and verified PCM export. The optional pinned runtime is installed with `npm ci --prefix hyperframes` only when authorized. See [render engine rules](references/render-engines.md) for scope, preview and delivery paths.
+
+
+## Authored director workflow (0.3.2)
+
+`directed-news` is an explicit portrait candidate with parameterized B recipes and actual caption anchors, not a universal automatic director. Templates and declared authored Remotion sources share the normal runner, measured layout, complete preview identity and PCM export. New reviewed-v1 jobs wait for a current, truthful visual/listening review before HD. Missing listening stays pending; no extra user checkpoints are added to already authorized work. See references/director-production.md. Five implemented Editorial styles and27 compatibility fallbacks are now catalogued separately. Legacy jobs remain compatible; no workbench or unverified landscape parity is claimed.

@@ -1,4 +1,6 @@
+import type {VisualComponent,ComponentRender} from './componentTypes';
 export type Caption = {
+  displayStart?: number;
   id: string;
   start: number;
   end: number;
@@ -12,6 +14,10 @@ export type Caption = {
 };
 
 export type Scene = {
+  contentShape?: string;
+  visualComponent?: VisualComponent;
+  componentRender?: ComponentRender;
+  visualReuseReason?: string;
   id: string;
   start: number;
   end: number;
@@ -34,6 +40,12 @@ export type Scene = {
     | 'takeaway';
   voiceover: string;
   caption: string;
+  captionIds?: string[];
+  preservePauses?: boolean;
+  minimumDurationSeconds?: number;
+  pausePreservationReason?: string;
+  evidence?: {claimIds: string[]; sourceIds: string[]; visualReason: string; visualOrigin?: 'official' | 'authored' | 'user'; mediaId?: string};
+  visualBindings?: Array<{captionIds: string[]; kind: 'official-demo' | 'official-image' | 'authored-diagram' | 'authored-card' | 'user-media'; shows: string; reason: string; sourceStart?: number; sourceEnd?: number}>;
   // 卡片正文：一句支撑/延伸（不重复旁白）。缺省时回退到旁白摘要。
   body?: string;
   // 标签：精选关键词，限定为旁白里实际说到的词。
@@ -48,6 +60,11 @@ export type Scene = {
     // 裸图模式（image-overlay 专用）：图片已是成品整图（如自带文字的设计卡片），
     // 只满屏显示 + 轻微缓动，不叠加标题/正文/标签/蒙层。底部跟读字幕仍由全局层渲染。
     bare?: boolean;
+    kind?: 'image' | 'video';
+    sourceStart?: number;
+    sourceVolume?: number;
+    fit?: 'contain' | 'cover';
+    focalPoint?: {x: number; y: number};
   };
   motion?: {
     type:
@@ -68,9 +85,16 @@ export type Scene = {
 };
 
 export type VideoPlan = {
+  directorRender?: {version:number;sourceSha256:string;shots:any[]};
   meta: {
+    directorVersion?: 'director-v1';
+    productionWorkflow?: 'reviewed-v1';
+    seriesLabel?: string;
+    renderSource?: {kind:'authored-remotion';entry:string;composition:string;coverComposition?:string;layoutProtocol:'svm-layout-v1'};
     title: string;
+    renderEngine?: 'remotion' | 'hyperframes';
     subtitle?: string;
+    speaker?: string;
     topic: string;
     platforms: string[];
     language: string;
@@ -78,8 +102,15 @@ export type VideoPlan = {
     height: number;
     fps: number;
     durationSeconds: number;
+    productionMode?: 'researched' | 'authored';
+    productionVersion?: 'p0-v1';
+    editorialWorkflow?: 'sentence-v1';
+    editorialDate?: string;
+    reportType?: 'product' | 'article' | 'daily';
   };
   style: {
+    componentSystem?: 'semantic-v1' | 'off';
+    layoutReadability?: 'phone-v1';
     template: string;
     preset?: 'warm-note' | 'mono-tech' | 'soft-product' | 'dark-cinematic';
     layoutSystem?: 'spoken-card-v1' | 'xhs-card-v1';
@@ -125,8 +156,23 @@ export type VideoPlan = {
       polarCapDeg?: number;
     };
     safeAreaOverlay?: boolean;
+    layoutAudit?: boolean;
   };
   audio?: {
+    intent?: 'silent' | 'narrated';
+    sourceMode?: 'imported' | 'tts';
+    timingSource?: 'provided' | 'asr-matched' | 'provider-matched';
+    exportPipeline?: 'pcm-master-v1';
+    provider?: string;
+    model?: string;
+    voice?: string;
+    sourceVoiceover?: string;
+    sourceBgm?: string;
+    mix?: string;
+    mixIncludesBgm?: boolean;
+    processing?: {cleanup?: 'none' | 'light'; normalize?: boolean};
+    timingRepair?: {enabled?: boolean; preserveWindows?: Array<{start: number; end: number; reason: string}>};
+    acousticTiming?: {version: 'acoustic-v1'; report: string; sourceSha256: string; reportSha256: string};
     voiceover?: string;
     bgm?: string;
     voiceVolume?: number;
@@ -141,6 +187,8 @@ export type VideoPlan = {
     layout: 'bold-title';
     // 视频开头封面停留秒数（标题卡）。默认 2s；设为 0 关闭。
     introSeconds?: number;
+    // Title over the existing content/audio timeline; does not prepend silence.
+    overlaySeconds?: number;
   };
   captions: Caption[];
   scenes: Scene[];

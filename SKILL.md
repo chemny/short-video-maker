@@ -1,8 +1,8 @@
 ---
 name: short-video-maker
-description: Turn an article, idea, topic, or research brief into a Xiaohongshu/Douyin-ready vertical short video using a structured AI-to-Remotion workflow. Use this skill whenever the user asks to create, plan, script, storyboard, synthesize, render, or package a short-form video with narration, captions, cover image, and publish copy, especially for 90-130 second Chinese social videos.
+description: Make researched narrated videos from an article, link, topic, approved script, or local media through one Remotion workflow. Supports primary-source snapshots and selected official media, claim-to-scene evidence, conservative local ASR word-boundary alignment, native clip selections, responsive horizontal/vertical layouts, audio mixing, per-scene previews, technical checks and explicit editorial review. Uncertain speech or unavailable official media remains a visible review gap.
 metadata:
-  version: "0.1.1"
+  version: "0.3.2"
   tags: remotion, short-video, xiaohongshu, douyin, script, storyboard, tts, captions
 ---
 
@@ -25,10 +25,71 @@ Unless the user specifies otherwise, use these defaults:
 - FPS: 30
 - Language: Chinese
 - Style: knowledge explainer or opinion analysis
-- Visual approach: AI images or sourced stills, animated typography, simple data graphics, keyword-highlight captions
+- Visual approach: relevant official/native footage first, then traceable stills and authored diagrams; use parameterized semantic components with a consistent design system.
+- Speech: auto-select local VoxCPM2 when its complete local environment is ready, otherwise Edge TTS. Users can explicitly select VoxCPM2, Edge or Volcengine. All three automatically align captions and use the same verified PCM export.
 - Outputs: `video.mp4`, `cover.png`, `script.md`, `captions.srt`, `publish.md`, `metadata.json`
 
+## Capability audit and routing
+
+Before choosing or replacing a template, run `node scripts/inspect-capabilities.mjs` and read `references/capability-routing.md`. Compare suitable content types with the same script/audio; distinguish registered packages,5implemented editorial styles (27 legacy fallback aliases), legacy render branches and20semantic families. Shotcraft Brief is an opt-in9:16 list/statement candidate, not the full B workflow or an automatic default. Preserve existing templates and rejected experiments outside default routing.
+
 ## Core Workflow
+
+### Selectable render engines
+
+Read `references/render-engines.md` when choosing or using a renderer. `run-job.mjs --engine=remotion|hyperframes` selects the engine; `meta.renderEngine` saves a job choice, then `SHORT_VIDEO_RENDER_ENGINE`, then Remotion is the default. Use one canonical approved plan, narration and caption timeline for both. Hyperframes uses the optional pinned runtime in `hyperframes/`, generates a job-local HTML/GSAP project, runs lint/validation/layout inspection, and verifies final PCM audio with the shared exporter. Missing selected runtime blocks before TTS; never silently change engines or install dependencies/skills. Remotion templates are not automatically interchangeable with Hyperframes; engine choice is not a promise of the same appearance.
+
+### Unified director and preview review
+
+For new authored news production read `references/director-production.md`. Use one `run-job.mjs` entry for templates and declared authored Remotion compositions. `directed-news` is an explicit portrait candidate built from B recipes; never a global automatic style. New briefs require a director plan and use `productionWorkflow="reviewed-v1"`. Preserve confirmed speech. Author expression decisions before selecting recipes; the shared entry resolves actual caption anchors, checks phone-scale geometry and renders the complete low-resolution preview. HD waits for a hash-bound record of actual visual/listening review. An unperformed check stays pending; a preview may still be delivered for review. User-requested preview checkpoints must be respected. No new per-stage user approvals are required for already authorized work.
+
+### Mandatory sentence-directed production
+
+Read `references/sentence-directed-production.md` before storyboarding any new narrated video or rebuilding an existing one. Preserve the specifically selected script/audio baseline in `baseline.json`; filenames or a shared topic do not establish approval. Build the full caption-aligned `sentence-storyboard.json` before selecting components. New plans set `meta.editorialWorkflow="sentence-v1"`. The production audit blocks missing/stale/uncovered mappings, out-of-range media selections and invalid typography tokens. This structural gate cannot establish semantic relevance or listening approval.
+
+Order: locked script and voice -> real narration timing -> sentence-by-sentence source/visual/edit decisions -> aspect-specific layout and font hierarchy -> suitable components or job-local Remotion composition -> actual scene/caption image inspection -> full preview -> user visual review. A group of sentences may share a shot, but each sentence must identify what remains visible, the actual media playback or emphasis change, and the reason. Do not substitute generic action labels or a list of component names for editorial decisions. A custom composition must consume the authored storyboard, run its own actual DOM/layout checks and use the shared PCM exporter; do not claim generic renderer validation covers custom code.
+
+### Components are an authored toolbox
+
+Read `references/semantic-components.md` and `components/registry.json` when using a component. Automatic component defaults are disabled after failed visual acceptance. Keep existing components available through explicit authored selection. Never map old scenes into generic cards as a substitute for sentence directing. Structured facts, matching real footage and explicit caption anchors govern each selection. Enhancements are optional; no quota of effects or components. Existing jobs remain compatible. The layer-editing workbench is not implemented.
+
+### Default voice, alignment and audio export
+
+Read `references/default-voice-pipeline.md`. For generated narration, `run-job.mjs` auto-selects local VoxCPM2 when its runtime/weights and ASR prerequisites exist, otherwise Edge TTS. Users may explicitly choose VoxCPM2, Edge or Volcengine. All three commit only matched captions/scenes, prepare lossless PCM and rebuild/verify the final audio timeline. No `--tts` or `--align` flag is needed for this default. Imported narration remains protected and defaults to `--tts=none`; its final export still uses the PCM timeline. No local setup is required for the default Edge route: use its returned word times and Node/FFmpeg export checks. Local synthesis uses ASR; cloud word timing is explicitly labeled provider-matched. Missing prerequisites for an explicit provider or ambiguous timing block that choice; explicit selections never silently switch on runtime/API failure; automatic mode can use the documented final macOS fallback. Preserve the explicit `sourceVolume` of native video clips when rebuilding final audio.
+
+Honor a user's requested provider, voice and speaking rate. When the user wants to compare/select voices, offer local VoxCPM2, online Edge (no API key), and Volcengine (requires credentials); use `--tts`, `--voice`, `--voice-preset`, `--rate` or `--speed` as appropriate. If no preference is stated, use automatic capability detection without an extra confirmation question. Existing per-job provider choices remain stable unless the user changes them or selects `auto`.
+
+### P0 content and layout gates
+
+For new researched jobs, read `references/p0-production.md`; set `meta.productionVersion="p0-v1"`. Finish bounded official research/coverage, explicit per-caption visual bindings, and browser-measured responsive layout before rendering. Run complete product/article/dated-daily examples across three aspects for regression acceptance. Technical reports must remain separate from actual listening/editorial approval.
+
+### Researched production and upgraded media route
+
+Read `references/researched-production.md` for link/topic/article intake, local ASR, native clips, aspect variants and quality gates. This is the supported replacement for the former Auto workflow; no installation or runtime dependency on Auto remains.
+
+- For a topic, identify official domains with the available web tool, then inspect official announcements/docs/demo/media pages. For a supplied article, read it and trace key factual claims to primary sources. Use `research-sources.mjs` and explicit `download-source-media.mjs` requests to retain snapshots, IDs, hashes and selected media. Record blocked pages, embedded players, unavailable videos and rights uncertainty instead of silently filling with stock imagery.
+- Product, article and daily briefs use `init-report.mjs`; daily dates are explicit in the user's timezone. The agent writes the researched script and the scene/evidence plan. Existing approved text remains locked. Each researched scene declares claim/source IDs, a visual reason and whether the visual is official, authored or user supplied.
+- `align-narration.mjs` matches approved captions to real ASR word boundaries using an existing local Whisper model. It writes a report first; `--apply` is allowed only on an unambiguous match. Missing/repeated/uncertain speech or homophones block automatic application. This is not a promise of acoustic forced alignment or flawless Chinese recognition.
+- `import-clips.mjs` takes explicit source intervals and sound controls. Clips default to muted, are not silently looped/frozen, and use the responsive media renderer. `responsive-report` reflows text/media for 16:9, 9:16 and 3:4; use `adapt-aspect.mjs` to create independent variants. Older decorative templates are preserved, not universally adapted.
+- The runner audits evidence, actual clip lengths and timing before render. Researched renders automatically generate each scene's midpoint still and safe-area sheet. Inspect these, plus the post-render full-duration contact sheet. Technical pass and editorial approval are separate; `--require-content-review` rejects missing/stale plan/video review records. Never synthesize a passing review without actually performing its checks.
+- Reuse unchanged inputs/caches. Audio/script changes invalidate alignment; plan/video changes invalidate editorial review. A final MP4 is always rerendered after visual changes; local scene-level planning edits do not imply partial MP4 rendering.
+
+### Material input route (phase-1 consolidation)
+
+When the user provides local materials or finished narration, read `references/material-input-workflow.md`.
+Use the same `video-plan.json`, Remotion project and `scripts/run-job.mjs` as the content route:
+
+- Inventory with `scripts/scan-assets.mjs`; filenames suggest roles, not semantic matches.
+- Author/obtain the actual timed scene and caption plan. Do not use Auto Video Maker's picture cycling or character-count alignment.
+- Import explicit selections with `scripts/import-media.mjs`. It copies inputs into the job and retains their provenance in `manifest.json`; it never rewrites source media.
+- Imported narration defaults to `--tts=none`. `sync-local-audio.mjs` remains a **macOS TTS** wrapper, not the recording importer.
+- Optional cleanup/normalization and deterministic BGM mixing run through `scripts/prepare-audio.mjs`. Prepared audio is played once; source voice/BGM are not layered over it again.
+- An unmatched or absent timing plan must be resolved before rendering. Use the upgraded local ASR route when appropriate; uncertain results remain blocked. Use the researched/clip/responsive routes above for their corresponding inputs.
+- Treat already approved scripts as locked content; propose substantive rewrites separately.
+- For legacy Auto jobs and the replacement/retirement boundary, read `references/delivery-checks.md`. Conversion retains existing timing and never claims new speech alignment. New jobs run entirely through this skill.
+- Auto Video Maker's separate local entry is retired; its local archive was subsequently deleted at the user's request. Historical jobs and the remote repository remain. Do not reinstall it as a dependency or create a forwarding Auto skill.
+
+### Content input route
 
 Follow this sequence:
 
@@ -72,7 +133,7 @@ Follow this sequence:
    - Treat narration audio as the master timeline.
    - Read `references/audio-sync-rules.md` and `references/media-diagnostics-rules.md` before finalizing imported or generated voiceover audio.
    - Generate TTS audio or instruct the user/agent to generate it using the configured TTS provider.
-   - Default to Edge TTS for public-friendly local runs. Use Volcengine or HTTP TTS only when the user provides their own credentials in environment variables.
+   - Use automatic provider selection: complete local VoxCPM2/ASR environment selects VoxCPM2; otherwise select Edge before any synthesis request. Edge and Volcengine automatically match approved captions to returned word timestamps, or require local ASR if timestamps are unavailable. Users may explicitly select these providers, voice and rate. In automatic mode only, synthesis unavailability tries Edge after VoxCPM2 and finally macOS system speech if `say` exists. Explicit provider failures and text/alignment rejections remain blocking. macOS uses measured caption-phrase audio boundaries, not word-level estimates; see `references/default-voice-pipeline.md`.
    - Use transcription or forced alignment to produce word-level or sentence-level timestamps.
    - Use those timestamps to build captions and scene boundaries.
    - Audio quality gate: if the narration has obvious room echo, reverb tail, hiss, hum, clipping, or broadband noise, run a denoise / dialogue-enhancement pass before render and retime captions from the processed audio if duration changes.
@@ -98,11 +159,12 @@ Follow this sequence:
 
 9. Render and package.
    - Generate a first-frame preview first when the user has not explicitly confirmed full rendering.
-   - Render the video through Remotion.
+   - Render the video through Remotion, then build the full PCM audio master (narration, BGM, selected clip sound), remux with the video stream copied, and verify decoded offset/drift. A failed export verification blocks delivery.
    - Render the cover still.
    - Export the publish package with script, captions, metadata, and platform copy.
 
 10. Quality check.
+   - Read `references/delivery-checks.md`. Inspect the generated `quality-report.json`, full-duration `contact-sheet.jpg`, and `assets-needed.md`; resolve or explain review warnings. A technical pass does not prove speech alignment or image relevance.
    - Run `scripts/validate-plan.mjs` and `scripts/audit-timing.mjs` before render.
    - Verify duration, audio presence, audio quality gate status, caption timing, missing assets, unreadable text, aspect ratio, cover readability, and platform publish rules.
    - If imported or generated narration still has obvious echo or noise after render, do not treat the video as final; create a repaired audio version and re-render or remux it into the final package.
@@ -146,7 +208,7 @@ Required:
 - Node.js
 - Remotion
 - FFmpeg and ffprobe
-- TTS provider or local TTS. Edge TTS is the public default; Volcengine and HTTP adapters require user-provided credentials.
+- Node.js and FFmpeg are sufficient for Edge narration with returned word timestamps and verified export. Local VoxCPM2 additionally needs its existing runtime/weights plus local ASR dependencies. Volcengine requires user credentials and returned word timestamps (or an existing ASR runtime). Runtime scripts never install dependencies or download models automatically.
 - Caption alignment or transcription capability
 
 Recommended:
@@ -204,3 +266,11 @@ The result is acceptable only if:
 - Read `templates/README.md` before selecting or creating a visual template.
 - Read `templates/registry.json` before selecting a template package.
 - Use `examples/input.md` as the first smoke-test input.
+
+## Complete preview and partial narration repair
+
+For a full-duration low-resolution preview and per-scene VoxCPM2 audio/ASR cache rules, read `references/iteration-workflow.md`. Use `--preview-video` to review without replacing an existing HD delivery. Confirmed renders create/reuse a complete preview before HD; preview generation itself never counts as human approval. Scene cache reuse does not bypass strict text alignment, measured layout or final audio verification.
+
+## Default caption and pause repair
+
+Both the normal runner and `tts.mjs generate` automatically run the shared acoustic timing pass after accepted text alignment. Read `references/default-acoustic-timing.md` for protected demonstration holds, conservative pause rules, independent phrase checks and rollback evidence. Do not use case-specific output scripts as the production path.

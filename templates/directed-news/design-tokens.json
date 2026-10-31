@@ -1,0 +1,26 @@
+{
+  "canvas": [
+    1080,
+    1920,
+    30
+  ],
+  "background": "#070b15",
+  "accent": "#34c8df",
+  "title": 68,
+  "body": 54,
+  "caption": 48,
+  "source": 30,
+  "mainSafe": [
+    90,
+    180,
+    990,
+    1490
+  ],
+  "captionSafe": [
+    90,
+    1540,
+    990,
+    1660
+  ],
+  "emphasis": "cumulative-until-shot-exit"
+}

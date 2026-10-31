@@ -3,9 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {commandFromEnv} from './lib/bins.mjs';
 import {envMilliseconds, runCommand} from './lib/process.mjs';
+import {inspectDelivery} from './lib/delivery-diagnostics.mjs';
+import {writeAssetNeeds} from './lib/asset-needs.mjs';
+import {auditProduction, sha256} from './lib/production-audit.mjs';
+import {inspectExportedCaptionOnsets} from './lib/acoustic-timing.mjs';
 
 const planPath = process.argv[2];
-const outputDirArg = process.argv[3] ?? 'output';
+const outputDirArg = process.argv.slice(3).find((v) => !v.startsWith('--')) ?? 'output';
 
 if (!planPath) {
   console.error('Usage: node scripts/quality-check.mjs <path-to-video-plan.json> [output-dir]');
@@ -30,6 +34,7 @@ const outputDir = resolveOutputDir(outputDirArg);
 const plan = JSON.parse(fs.readFileSync(absolutePlanPath, 'utf8'));
 const errors = [];
 const warnings = [];
+const requireRender = process.argv.includes('--require-render');
 
 const existsNonEmpty = (filePath) => fs.existsSync(filePath) && fs.statSync(filePath).size > 0;
 const countChars = (value) => [...String(value ?? '')].length;
@@ -60,7 +65,7 @@ const durationOf = (filePath) => {
 
 const expectedRenderedDuration = () => {
   const introSeconds = Number.isFinite(plan.cover?.introSeconds) ? plan.cover.introSeconds : 0.5;
-  return plan.meta.durationSeconds + Math.max(0, introSeconds);
+  return Math.ceil(plan.meta.durationSeconds * plan.meta.fps) / plan.meta.fps + Math.round(Math.max(0, introSeconds) * plan.meta.fps) / plan.meta.fps;
 };
 
 const supportedFormats = [
@@ -91,6 +96,11 @@ if (!Array.isArray(plan.scenes) || plan.scenes.length < 5) {
 if (!Array.isArray(plan.captions) || plan.captions.length === 0) {
   errors.push('No captions found');
 }
+if (plan.captions?.length) {
+  if (plan.captions[0].start > 1.5) warnings.push('Opening has no sentence captions for more than 1.5s; review title/credit intent');
+  const tail = plan.meta.durationSeconds - plan.captions.at(-1).end;
+  if (tail > 3) warnings.push(`Captions end ${tail.toFixed(2)}s before content ends; review whether the tail is intentional`);
+}
 
 for (const [index, caption] of (plan.captions ?? []).entries()) {
   if (countChars(caption.text) > 34) {
@@ -106,7 +116,7 @@ for (const [index, caption] of (plan.captions ?? []).entries()) {
 }
 
 for (const [index, scene] of (plan.scenes ?? []).entries()) {
-  if (!scene.visual?.prompt && !scene.visual?.asset && scene.layout !== 'text-card') {
+  if (!(plan.style?.componentSystem==='semantic-v1'&&scene.componentRender) && !scene.visual?.prompt && !scene.visual?.asset && scene.layout !== 'text-card' && !(plan.meta.productionVersion === 'p0-v1' && scene.layout === 'flow' && scene.steps?.length)) {
     warnings.push(`scene[${index}] has no visual prompt or asset`);
   }
 
@@ -161,6 +171,50 @@ for (const required of ['script.md', 'publish.md', 'metadata.json']) {
 }
 
 const videoPath = path.join(outputDir, 'video.mp4');
+let diagnostics = null;
+let audioExport = null;
+if (requireRender && plan.audio?.exportPipeline === 'pcm-master-v1') {
+  try {
+    audioExport = JSON.parse(fs.readFileSync(path.join(outputDir, 'audio-export-report.json')));
+    const master = path.resolve(planDir, audioExport.master);
+    if (audioExport.status !== 'passed' || audioExport.verification?.status !== 'passed' ||
+      audioExport.planSha256 !== sha256(JSON.stringify(plan)) ||
+      audioExport.videoSha256 !== sha256(fs.readFileSync(videoPath)) ||
+      !fs.realpathSync(master).startsWith(`${fs.realpathSync(planDir)}${path.sep}`) ||
+      audioExport.masterSha256 !== sha256(fs.readFileSync(master)) ||
+      audioExport.sources.some((source) => sha256(fs.readFileSync(path.resolve(planDir, source.file))) !== source.sha256)) {
+      errors.push('Final audio export evidence is failed or stale for this plan/video/master/sources');
+    }
+  } catch {errors.push('Verified final audio export report/master is missing or unreadable');}
+}
+if (requireRender) {
+  try {
+    if (JSON.stringify(JSON.parse(fs.readFileSync(path.join(outputDir, 'video-plan.json')))) !== JSON.stringify(plan)) errors.push('Packaged plan differs from current plan; rerender before accepting this delivery');
+  } catch { errors.push('Packaged video-plan.json is missing or unreadable'); }
+}
+if (requireRender && !existsNonEmpty(videoPath)) errors.push('Rendered video.mp4 is missing or empty');
+if (requireRender && existsNonEmpty(videoPath)) {
+  try {
+    const info = JSON.parse(runCommand(commandFromEnv('ffprobe'), [
+      '-v', 'error', '-show_streams', '-show_format', '-of', 'json', videoPath,
+    ], {stdio: 'pipe', label: 'probe delivery', timeoutMs: 15000}).toString());
+    const video = info.streams?.find((stream) => stream.codec_type === 'video');
+    if (!video || video.width !== plan.meta.width || video.height !== plan.meta.height) errors.push('Rendered dimensions do not match the plan');
+    const [numerator, denominator] = String(video?.avg_frame_rate ?? '0/1').split('/').map(Number);
+    if (!Number.isFinite(numerator / denominator) || Math.abs(numerator / denominator - plan.meta.fps) > 0.01) errors.push('Rendered FPS does not match the plan');
+    if (plan.audio?.voiceover && !info.streams?.some((stream) => stream.codec_type === 'audio')) errors.push('Rendered video has no audio stream');
+    if (Math.abs(Number(info.format.duration) - expectedRenderedDuration()) > 1.5) errors.push('Rendered duration does not match the plan');
+  } catch { errors.push('Cannot probe rendered video'); }
+}
+if (existsNonEmpty(videoPath)) {
+  try {
+    diagnostics = inspectDelivery(videoPath, outputDir, {expectAudible: plan.audio?.intent !== 'silent'});
+    diagnostics.captionOnsets = inspectExportedCaptionOnsets(videoPath, plan);
+    if (diagnostics.captionOnsets.status === 'needs-review') errors.push(`Encoded captions lead measured speech by at least 200ms: ${diagnostics.captionOnsets.issues.map(i=>i.captionId).join(', ')}`);
+    errors.push(...diagnostics.errors);
+    warnings.push(...diagnostics.warnings);
+  } catch (error) { errors.push(`Delivery diagnostics failed: ${error.message}`); }
+}
 if (existsNonEmpty(videoPath)) {
   const videoDuration = durationOf(videoPath);
   const expectedDuration = expectedRenderedDuration();
@@ -196,6 +250,37 @@ if (publish.douyin) {
     warnings.push('Douyin usually works best with 3-8 tags');
   }
 }
+
+fs.mkdirSync(outputDir, {recursive: true});
+const assetNeeds = writeAssetNeeds(plan, planDir, outputDir);
+if (assetNeeds.needs.length) warnings.push(`${assetNeeds.needs.length} visual asset(s) need review; see assets-needed.md`);
+const production = auditProduction(plan, planDir);
+if(requireRender && plan.meta.productionVersion === 'p0-v1'){
+ try{const layout=JSON.parse(fs.readFileSync(path.join(planDir,'layout-report.json')));
+  if(layout.status!=='passed'||layout.planSha256!==sha256(JSON.stringify(plan))||!layout.samples?.some(s=>s.composition==='CoverStill')||!layout.samples?.some(s=>s.composition==='ShortVideo')||layout.width!==plan.meta.width||layout.height!==plan.meta.height)errors.push('Measured layout report is failed, missing coverage or stale');
+  production.checks.layout={status:layout.status,samples:layout.samples?.length,width:layout.width,height:layout.height};
+ }catch{errors.push('Measured layout report required for P0 production delivery');}
+}
+
+if (existsNonEmpty(videoPath)) {
+  production.checks.editorial.videoSha256 = sha256(fs.readFileSync(videoPath));
+  let review;
+  try {review = JSON.parse(fs.readFileSync(path.join(planDir, 'editorial-review.json')));} catch {}
+  if (review?.videoSha256 !== production.checks.editorial.videoSha256) {
+    production.contentApproved = false;
+    production.checks.editorial.status = 'review-required';
+  }
+}
+errors.push(...production.errors); warnings.push(...production.warnings);
+if (process.argv.includes('--require-content-review') && !production.contentApproved) errors.push('Current plan requires explicit editorial review; technical checks cannot certify content quality');
+fs.writeFileSync(path.join(outputDir, 'quality-report.json'), `${JSON.stringify({
+  schemaVersion: 1, checkedAt: new Date().toISOString(), output: videoPath,
+  status: errors.length ? 'failed' : requireRender ? 'passed-technical-checks' : 'prepared-only',
+  rendered: requireRender && existsNonEmpty(videoPath),
+  ...(diagnostics ?? {checks: null, contactSheet: null}),
+  // Preserve all plan/package and media failures, not only diagnostic-stage messages.
+  errors, warnings, assetNeeds: assetNeeds.needs, production, audioExport,
+}, null, 2)}\n`);
 
 if (errors.length > 0) {
   console.error('Quality check failed:');

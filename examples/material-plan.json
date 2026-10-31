@@ -1,0 +1,9 @@
+{
+  "meta": {"title": "素材组装示例", "topic": "素材组装", "platforms": ["xiaohongshu"], "language": "zh-CN", "width": 1080, "height": 1920, "fps": 30, "durationSeconds": 3},
+  "style": {"template": "image-overlay", "background": "#101014", "textPrimary": "#ffffff", "accent": "#F6C85F", "captionPosition": "bottom", "captionMode": "sentence", "motionIntensity": "low"},
+  "audio": {},
+  "cover": {"title": "素材组装示例", "layout": "bold-title", "introSeconds": 0},
+  "captions": [{"id": "cap-01", "start": 0, "end": 3, "text": "替换为真实旁白和时间。"}],
+  "scenes": [{"id": "scene-01", "start": 0, "end": 3, "type": "explain", "layout": "image-with-caption", "voiceover": "替换为真实旁白和时间。", "caption": "一个镜头解释一件事", "visual": {"alt": "由 scene-map 明确选择实际相关图片", "bare": true}, "transition": "cut"}],
+  "publish": {}
+}

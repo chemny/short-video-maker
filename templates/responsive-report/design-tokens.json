@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "palette": {
+    "background": "#101B2D",
+    "textPrimary": "#F4F7FB",
+    "textSecondary": "#B5C5D8",
+    "accent": "#68E0CF"
+  },
+  "typography": {
+    "family": "PingFang SC, system-ui",
+    "minimumRelativeTo1080": 24,
+    "titleUnitRatio": 0.061,
+    "bodyUnitRatio": 0.029
+  },
+  "layout": {
+    "safeArea": "remotion/src/lib/safeArea.ts",
+    "contentStageWidth": 1000,
+    "portraitStageHeight": 840,
+    "landscapeStageHeight": 420
+  },
+  "motion": {
+    "driver": "caption-anchors",
+    "defaultMode": "whole-group-onset",
+    "sequentialMode": "explicit-owned-caption-IDs",
+    "complexEffects": "authored-opt-in"
+  }
+}

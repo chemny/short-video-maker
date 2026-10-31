@@ -20,6 +20,12 @@ export const RemotionRoot = () => {
         width={meta.width}
         height={meta.height}
         defaultProps={{plan: samplePlan}}
+        calculateMetadata={({props}) => ({
+          durationInFrames: coverIntroFrames(props.plan, props.plan.meta.fps) + Math.ceil(props.plan.meta.durationSeconds * props.plan.meta.fps),
+          fps: props.plan.meta.fps,
+          width: props.plan.meta.width,
+          height: props.plan.meta.height,
+        })}
       />
       <Still
         id="CoverStill"
@@ -27,6 +33,7 @@ export const RemotionRoot = () => {
         width={meta.width}
         height={meta.height}
         defaultProps={{plan: samplePlan}}
+        calculateMetadata={({props}) => ({width: props.plan.meta.width, height: props.plan.meta.height})}
       />
       <Composition
         id="PrimitiveCatalog"

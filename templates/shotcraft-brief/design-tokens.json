@@ -1,0 +1,12 @@
+{
+  "background": "#070b15",
+  "accent": "#34c8df",
+  "title": 76,
+  "body": 58,
+  "caption": 46,
+  "contentX": 90,
+  "listY": 470,
+  "maxItems": 3,
+  "maxItemChars": 14,
+  "aspect": "9:16"
+}

@@ -1,6 +1,27 @@
 # Short Video Maker
 
+## 默认配音与导出同步
+
+生成旁白默认自动选择：**本地环境完整时用 VoxCPM2，否则用 Edge TTS**。用户也可显式选择 VoxCPM2、Edge 或火山引擎；三者都自动对齐字幕，共用无损混音和导出检测。运行 `node scripts/run-job.mjs <job> --render --confirmed-render` 即可，不需要额外指定配音或对齐参数。导入的旁白继续受保护，默认不重生成。详见[配置、检查和覆盖方式](references/default-voice-pipeline.md)。
+
+
 中文 | [English](./README.md)
+
+## 后续升级：研究、语音对齐、原生片段与多画幅
+
+现支持官方 HTML 来源快照与素材候选发现、经明确选择的官方图片/视频下载、论点—分镜—素材来源对应、本地 Whisper 词时间匹配、原生视频区间截取及原声控制。新增 `responsive-report` 统一支持横版、竖版和 3:4 重排，并为研究型任务自动生成逐场景与安全区预览。产品解读、文章解读和日报使用不同 brief 结构。
+
+具体入口与边界见 [研究型制作流程](references/researched-production.md)。ASR 同音字、漏读和不可靠边界会阻止自动应用；静态页面无法提取的动态演示/PDF/嵌入播放器需要合适的现有工具或显式缺口。技术检测通过不代表内容已验收，最终复核记录同时绑定当前计划和成片哈希。旧版 Auto 本地归档已按用户要求删除，历史项目与 GitHub 仓库保留。
+
+## 第一阶段合并：本地素材入口
+
+现已将 Auto Video Maker 的素材清单、已有旁白导入和可选音频处理迁入同一个 Short Video Maker 流程，并补齐黑场/音量/静音检测、全片抽帧预览和缺失素材清单。已有文稿/分镜与素材文件夹都使用统一 `video-plan.json`、Remotion 工程和 `run-job.mjs`。旧版先经归档验证，之后按用户要求删除本地归档，历史工程保留。
+
+基础入口是 `scan-assets.mjs` → Agent 明确分镜/素材对应并提供时间轴 → `import-media.mjs` → `run-job.mjs`。已有旁白会禁止意外 TTS 覆盖；音频预混只播放一次。需要真实语音时间、原生片段或官网来源时，按上方升级流程接入。完整基础用法见 [本地素材流程](references/material-input-workflow.md)。
+
+旧工程可通过 `migrate-auto-job.mjs` 显式转换到新目录；保留字幕时间和署名，记录分镜边界调整，不依赖旧 Skill。检测报告、转换及归档边界见 [交付检查](references/delivery-checks.md)。
+
+Auto Video Maker 的独立本地入口已停用并清理；后续新任务使用 Short Video Maker，历史任务与远程仓库保留。
 
 这个 skill 用来把一篇文章、一个主题或一个粗略想法，转成适合小红书、抖音、TikTok 风格解说视频的竖屏短视频包。
 
@@ -143,8 +164,9 @@ git clone https://github.com/chemny/short-video-maker.git
 
 当前支持：
 
-- `edge`：默认供应商，Microsoft Edge 在线 TTS，不需要 API key。运行时默认音色是 `zh-CN-XiaoxiaoNeural`。
-- `local`：macOS 系统 TTS，不需要 API key，适合 macOS 离线冒烟测试；Windows 不支持。
+- `voxcpm2`：本地环境完整时的默认供应商，调用已有本地模型并完成 ASR 对齐。
+- `edge`：没有完整本地环境时默认使用，也可显式选择；Microsoft Edge 在线 TTS，不需要 API key。运行时默认音色是 `zh-CN-XiaoxiaoNeural`。
+- `local`：macOS 系统 TTS，自动模式的最后离线兜底，按实际短句音频长度对齐；Windows 不支持。
 - `volcengine`：火山引擎/字节 TTS，需要用户自己提供凭证。
 - `http`：通用第三方 TTS 适配器。如果供应商需要鉴权，需要用户自己提供 endpoint 和凭证。
 - `none`：跳过 TTS，用于外部音频流程。
@@ -154,12 +176,12 @@ git clone https://github.com/chemny/short-video-maker.git
 常用默认值：
 
 ```bash
-TTS_PROVIDER=edge
+SHORT_VIDEO_TTS_PROVIDER=auto
 EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural
 EDGE_TTS_RATE=default
 ```
 
-Windows 默认使用 `edge`、`volcengine` 或 `http`。不要使用 `local`，因为它依赖 macOS 的 `say` 命令。
+Windows 需显式选择 `edge`、`volcengine` 或 `http`。不要使用 `local`，因为它依赖 macOS 的 `say` 命令。
 
 火山引擎凭证：
 
@@ -265,3 +287,36 @@ node scripts/quality-check.mjs remotion/public/video-plan.json remotion/public/o
 ## 许可证
 
 MIT
+
+
+自动配音的最终兜底：VoxCPM2 合成不可用时尝试 Edge；Edge 不可用时，在 macOS 上使用 `say` 系统内置音色（中文稿优先选择已安装的中文音色，其他稿件使用系统默认）。也可用 `--tts=local` 主动选择。无需安装模型、Python 或下载系统音色；字幕依据逐条合成的真实音频长度对齐，精度为短句段落，不宣称逐字识别。显式选择供应商时失败仍报错，字幕文本/对齐问题也不会触发换音色。详情见 [默认配音流程](references/default-voice-pipeline.md)。
+
+新增 P0 制作流程：官方网页关联搜集及缺口报告、公开播放器与 HLS 点播片段获取、逐条字幕的画面对应表，以及三画幅的浏览器排版实测。新研究型项目使用 `meta.productionVersion="p0-v1"`；渲染会拦截缺失对应关系、短素材、正文字幕遮挡和失效排版报告。详见 [P0 制作与验收](references/p0-production.md)。
+
+完整低清预览和按镜头配音、识别缓存：见 [迭代工作流](references/iteration-workflow.md)。`--preview-video` 保留已有高清成片，确认渲染时先生成或复用预览。
+
+Default caption/pause repair and demonstration protection: [workflow](references/default-acoustic-timing.md).
+
+
+### Render engine / 渲染引擎
+
+Remotion remains the default. Select Hyperframes with `node scripts/run-job.mjs /absolute/job --engine=hyperframes --preview-video`, or save `meta.renderEngine="hyperframes"` in the plan. Both share narration, accepted caption times and verified PCM export. The optional pinned runtime is installed with `npm ci --prefix hyperframes` only when authorized. See [render engine rules](references/render-engines.md) for scope, preview and delivery paths.
+
+
+### 组件与讲解时序
+
+新增报告可使用 20 类参数化组件，支持横屏、竖屏和 3:4。组件按素材与分镜结构选择；逐项动效绑定真实字幕句子，配音重新对齐后自动重编译。旧项目保留原路径，可用 `--components=auto` 显式启用或 `--components=off` 关闭。
+
+组件契约与默认策略见 [semantic-components.md](references/semantic-components.md)，目录见 [registry.json](components/registry.json)。图鉴只是样例，不是运行依赖；本轮不包含工作台界面。
+
+
+### 逐句编排规则
+
+新制与重做视频先锁定口播及音色，再逐条编排真实字幕对应的画面、素材、强调与切换。新报告采用 `sentence-v1` 规则，必须提供 `baseline.json` 与 `sentence-storyboard.json`，制作审计检查覆盖、时间、素材区间和字号层级。组件自动套用已关闭，组件库仍可按分镜显式选择。横竖屏分别排版，实际手机尺寸画面与完整预览需人工验收；技术检查不等于视觉批准。详见 [逐句制作规范](references/sentence-directed-production.md)。
+
+
+## 本地导演流程升级（0.3.2）
+
+新增显式选择的 `directed-news` 竖屏新闻解读候选，将B已验证的镜头配方参数化。使用现有逐句分镜写明观众理解目标、画面补充和真实字幕锚点；统一入口解析并检查。普通模板与声明的项目Remotion入口都通过同一套检查、完整预览及PCM音轨导出。新 `reviewed-v1` 流程在未取得绑定当前预览的实际视觉/听感复核记录时，只交付评审预览，不继续高清；不伪造听审通过。
+
+风格登记修正为5套真实配置和27条兼容回退别名；新手机字号检查计入父容器缩放。B旧列表候选接入统一布局检查。组件默认仍关闭，新模板不自动成为所有题材默认；工作台和跨画幅B模板仍未实现。详见 references/director-production.md。

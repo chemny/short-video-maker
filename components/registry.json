@@ -1,0 +1,522 @@
+{
+  "schemaVersion": 1,
+  "system": "semantic-v1",
+  "components": [
+    {
+      "id": "camera",
+      "name": "镜头漫游与聚焦",
+      "intents": [
+        "camera"
+      ],
+      "variants": [
+        "default"
+      ],
+      "enhanced": true,
+      "requires": [
+        "asset",
+        "focus"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "device",
+      "name": "设备展示与开屏",
+      "intents": [
+        "device"
+      ],
+      "variants": [
+        "default"
+      ],
+      "enhanced": true,
+      "requires": [
+        "asset"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "kinetic",
+      "name": "关键词变形与替换",
+      "intents": [
+        "correction"
+      ],
+      "variants": [
+        "default"
+      ],
+      "enhanced": true,
+      "requires": [
+        "from",
+        "to"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "cards",
+      "name": "卡片空间展开",
+      "intents": [
+        "list"
+      ],
+      "variants": [
+        "default"
+      ],
+      "enhanced": true,
+      "requires": [
+        "items"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "generation",
+      "name": "AI 生成过程展示",
+      "intents": [
+        "generation"
+      ],
+      "variants": [
+        "default"
+      ],
+      "enhanced": true,
+      "requires": [
+        "prompt",
+        "items"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "globe",
+      "name": "地球与地图连线",
+      "intents": [
+        "geography"
+      ],
+      "variants": [
+        "default"
+      ],
+      "enhanced": true,
+      "requires": [
+        "routes"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "race",
+      "name": "动态排名竞速",
+      "intents": [
+        "ranking"
+      ],
+      "variants": [
+        "default"
+      ],
+      "enhanced": true,
+      "requires": [
+        "series",
+        "labels"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "parallax",
+      "name": "视差与聚光灯",
+      "intents": [
+        "atmosphere"
+      ],
+      "variants": [
+        "default"
+      ],
+      "enhanced": true,
+      "requires": [
+        "asset"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "evidence",
+      "name": "证据放大与标注",
+      "intents": [
+        "evidence"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "media",
+      "name": "视频素材展示",
+      "intents": [
+        "media",
+        "demo"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "asset"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "compare",
+      "name": "前后对比",
+      "intents": [
+        "comparison"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "columns"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "flow",
+      "name": "流程与时间线",
+      "intents": [
+        "process",
+        "timeline"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "items"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "metric",
+      "name": "重点数字",
+      "intents": [
+        "metric"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "metric-or-stats"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "demo",
+      "name": "产品演示辅助",
+      "intents": [
+        "demo"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "asset"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "chapter",
+      "name": "章节与新闻切换",
+      "intents": [
+        "chapter"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "takeaway",
+      "name": "观点与结论卡",
+      "intents": [
+        "opinion",
+        "takeaway"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "identity",
+      "name": "人物与事件介绍",
+      "intents": [
+        "person",
+        "relationship"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "person"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "quote",
+      "name": "引用与原话",
+      "intents": [
+        "quote"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "quote",
+        "attribution"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "chart",
+      "name": "趋势与结构图表",
+      "intents": [
+        "trend",
+        "structure"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "series-or-shares"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    },
+    {
+      "id": "montage",
+      "name": "多素材编排",
+      "intents": [
+        "montage"
+      ],
+      "variants": [
+        "a",
+        "b"
+      ],
+      "enhanced": false,
+      "requires": [
+        "panels"
+      ],
+      "aspects": [
+        "16:9",
+        "9:16",
+        "3:4"
+      ],
+      "editable": [
+        "title",
+        "body",
+        "props",
+        "cues"
+      ]
+    }
+  ]
+}

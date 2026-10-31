@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {validateComponentInput} from './lib/component-planning.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -11,7 +12,7 @@ if (!planPath) {
 
 const absolutePath = path.resolve(planPath);
 const plan = JSON.parse(fs.readFileSync(absolutePath, 'utf8'));
-const errors = [];
+const errors = validateComponentInput(plan);
 const warnings = [];
 
 const supportedLayouts = new Set([
@@ -42,6 +43,7 @@ const supportedMotions = new Set([
 ]);
 
 const supportedTemplates = new Set([
+  'directed-news',
   'clean-explainer',
   'app-workflow',
   'sketch-notes',
@@ -50,6 +52,8 @@ const supportedTemplates = new Set([
   'apple-text-video',
   'data-punch',
   'image-overlay',
+  'responsive-report',
+  'shotcraft-brief',
 ]);
 
 const supportedPresets = new Set(['warm-note', 'mono-tech', 'soft-product', 'dark-cinematic']);
@@ -63,11 +67,29 @@ const requireObject = (value, name) => {
 };
 
 requireObject(plan.meta, 'meta');
+if (plan.meta?.renderEngine !== undefined && !['remotion','hyperframes'].includes(plan.meta.renderEngine)) errors.push('meta.renderEngine must be remotion or hyperframes');
 requireObject(plan.style, 'style');
 requireObject(plan.cover, 'cover');
 requireObject(plan.publish, 'publish');
 
+if (plan.audio?.sourceMode === 'imported') {
+  if (!plan.audio.voiceover || !['provided', 'asr-matched', 'provider-matched'].includes(plan.audio.timingSource)) errors.push('Imported narration requires a local voiceover and provided or matched timing');
+  if (!plan.scenes?.length || !plan.captions?.length) errors.push('Imported narration requires supplied scene and caption timings; alignment is not inferred');
+}
+if (plan.audio?.mix && typeof plan.audio.mixIncludesBgm !== 'boolean') errors.push('Prepared audio must declare mixIncludesBgm');
+if (plan.audio?.intent === 'silent' && plan.audio.voiceover) errors.push('A narrated job cannot declare silent audio intent');
+
 if (plan.style) {
+  if (plan.style.template === 'shotcraft-brief') {
+    if (plan.style.componentSystem === 'semantic-v1') errors.push('shotcraft-brief requires componentSystem=off');
+    if (plan.meta.fps !== 30) errors.push('shotcraft-brief currently requires30fps');
+    if (plan.meta.width !== 1080 || plan.meta.height !== 1920) errors.push('shotcraft-brief currently supports9:16 only');
+    for (const scene of plan.scenes) {
+      if ((scene.steps?.length ?? 0) > 3 || scene.steps?.some(x => [...x].length > 14)) errors.push('shotcraft-brief lists require1–3 items, max14characters each');
+      if ((scene.caption?.length ?? 0)>24 || (scene.body?.length ?? 0)>48) errors.push('shotcraft-brief copy exceeds candidate limits');
+      if (scene.visual?.asset || scene.data) errors.push('shotcraft-brief candidate supports statement/list only; select responsive-report for media/data');
+    }
+  }
   if (plan.style.template && !supportedTemplates.has(plan.style.template)) {
     warnings.push(`style.template "${plan.style.template}" is not in the supported template set`);
   }
@@ -163,6 +185,7 @@ const validateTimedItems = (items, name) => {
 };
 
 validateTimedItems(plan.captions, 'captions');
+for(const c of plan.captions??[])if(c.displayStart!==undefined&&(!Number.isFinite(c.displayStart)||c.displayStart<c.start||c.displayStart>=c.end))errors.push(`Caption ${c.id}: displayStart must stay inside its accepted interval`);
 validateTimedItems(plan.scenes, 'scenes');
 
 if (Array.isArray(plan.scenes)) {
@@ -188,6 +211,9 @@ if (Array.isArray(plan.scenes)) {
     if (scene.tags && !Array.isArray(scene.tags)) {
       errors.push(`scenes[${index}].tags must be an array when provided`);
     }
+    if (scene.preservePauses !== undefined && typeof scene.preservePauses !== 'boolean') errors.push(`scenes[${index}].preservePauses must be boolean`);
+    if (scene.minimumDurationSeconds !== undefined && (!Number.isFinite(scene.minimumDurationSeconds) || scene.minimumDurationSeconds < 0 || scene.minimumDurationSeconds > 60)) errors.push(`scenes[${index}].minimumDurationSeconds must be 0..60`);
+    if (scene.pausePreservationReason !== undefined && typeof scene.pausePreservationReason !== 'string') errors.push(`scenes[${index}].pausePreservationReason must be text`);
 
     if (scene.steps && !Array.isArray(scene.steps)) {
       errors.push(`scenes[${index}].steps must be an array when provided`);
@@ -200,6 +226,10 @@ if (Array.isArray(plan.scenes)) {
 }
 
 if (plan.cover) {
+  for (const field of ['introSeconds', 'overlaySeconds']) {
+    if (plan.cover[field] !== undefined && (!Number.isFinite(plan.cover[field]) || plan.cover[field] < 0)) errors.push(`cover.${field} must be a non-negative number`);
+  }
+  if (plan.cover.overlaySeconds > plan.meta?.durationSeconds) errors.push('cover.overlaySeconds exceeds content duration');
   if (!plan.cover.title) {
     errors.push('cover.title is required');
   }
@@ -216,6 +246,14 @@ if (plan.cover) {
 if (plan.audio?.bgmVolume !== undefined) {
   if (!Number.isFinite(plan.audio.bgmVolume) || plan.audio.bgmVolume < 0 || plan.audio.bgmVolume > 0.3) {
     warnings.push('audio.bgmVolume should usually be between 0 and 0.3');
+  }
+}
+if (plan.audio?.timingRepair) {
+  const repair = plan.audio.timingRepair;
+  if (repair.enabled !== undefined && typeof repair.enabled !== 'boolean') errors.push('audio.timingRepair.enabled must be boolean');
+  if (repair.preserveWindows !== undefined && !Array.isArray(repair.preserveWindows)) errors.push('audio.timingRepair.preserveWindows must be an array');
+  for (const w of Array.isArray(repair.preserveWindows) ? repair.preserveWindows : []) {
+    if (!Number.isFinite(w.start) || !Number.isFinite(w.end) || w.start < 0 || w.end <= w.start || w.end > plan.meta.durationSeconds + .001 || typeof w.reason !== 'string' || !w.reason.trim()) errors.push('Each preserved pause window needs valid start/end and a reason');
   }
 }
 
@@ -262,6 +300,7 @@ if (plan.publish) {
   validatePlatform('douyin', plan.publish.douyin);
 }
 
+if(plan.style.template==='directed-news'&&(plan.meta.directorVersion!=='director-v1'||plan.meta.width!==1080||plan.meta.height!==1920||plan.meta.fps!==30||(plan.cover.introSeconds??.5)!==0))errors.push('directed-news requires director-v1,1080x1920/30fps and no separate intro');
 if (errors.length > 0) {
   console.error(`Invalid video plan: ${absolutePath}`);
   for (const error of errors) {
@@ -278,3 +317,5 @@ if (warnings.length > 0) {
     console.log(`- ${warning}`);
   }
 }
+
+

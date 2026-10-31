@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "title": "OpenAI融资｜机制解释",
+    "subtitle": "AI 正在进入企业流程",
+    "topic": "OpenAI融资评论",
+    "platforms": [
+      "xiaohongshu",
+      "douyin"
+    ],
+    "language": "zh-CN",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationSeconds": 9.04
+  },
+  "style": {
+    "template": "shotcraft-brief",
+    "editorialVariant": "html-liquid-dark",
+    "preset": "mono-tech",
+    "background": "#07111c",
+    "textPrimary": "#f0f5fa",
+    "textSecondary": "#aeb9c9",
+    "accent": "#34c8df",
+    "captionPosition": "bottom",
+    "captionMode": "sentence",
+    "motionIntensity": "medium",
+    "captionBackdrop": true,
+    "componentSystem": "off",
+    "layoutAudit": false
+  },
+  "audio": {
+    "intent": "silent"
+  },
+  "cover": {
+    "title": "AI使用成本",
+    "subtitle": "AI 正在进入企业流程",
+    "label": "AI 企业落地",
+    "layout": "bold-title",
+    "introSeconds": 0
+  },
+  "captions": [
+    {
+      "id": "s2-c1",
+      "text": "资金投入算力和研发，",
+      "start": 0.0,
+      "end": 2.3200000000000003
+    },
+    {
+      "id": "s2-c2",
+      "text": "加上模型效率提升、厂商竞争，",
+      "start": 2.5600000000000005,
+      "end": 5.540000000000001
+    },
+    {
+      "id": "s2-c3",
+      "text": "有机会让同样的AI能力越来越便宜。",
+      "start": 5.679999999999998,
+      "end": 9.039999999999997
+    }
+  ],
+  "scenes": [
+    {
+      "id": "news",
+      "start": 0,
+      "end": 9.04,
+      "type": "explanation",
+      "layout": "flow",
+      "caption": "影响使用成本的三个因素",
+      "body": "条件判断，不承诺未来价格",
+      "steps": [
+        "算力与研发",
+        "模型效率提升",
+        "厂商竞争"
+      ],
+      "tags": [
+        {
+          "text": "算力与研发",
+          "at": 1.12
+        },
+        {
+          "text": "模型效率提升",
+          "at": 2.96
+        },
+        {
+          "text": "厂商竞争",
+          "at": 4.48
+        }
+      ],
+      "voiceover": "资金投入算力和研发，加上模型效率提升、厂商竞争，有机会让同样的AI能力越来越便宜。",
+      "transition": "cut",
+      "captionIds": [
+        "s2-c1",
+        "s2-c2",
+        "s2-c3"
+      ]
+    }
+  ],
+  "publish": {}
+}

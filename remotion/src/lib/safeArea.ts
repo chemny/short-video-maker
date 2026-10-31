@@ -16,7 +16,7 @@ export type SafeAreaProfile = {
   platformRightRail: number;
 };
 
-export const resolveSafeArea = (
+const baseSafeArea = (
   width: number,
   height: number,
   _platforms: VideoPlan['meta']['platforms'] = [],
@@ -32,7 +32,7 @@ export const resolveSafeArea = (
       baseMarginLeft: baseMargin,
       baseMarginRight: baseMargin,
       contentTop: 156,
-      contentBottom: 420,
+      contentBottom: 600,
       contentLeft: baseMargin,
       contentRight: baseMargin,
       captionBottom: 430,
@@ -51,7 +51,7 @@ export const resolveSafeArea = (
       baseMarginLeft: baseMargin,
       baseMarginRight: baseMargin,
       contentTop: 76,
-      contentBottom: 270,
+      contentBottom: 300,
       contentLeft: baseMargin,
       contentRight: baseMargin,
       captionBottom: 136,
@@ -69,7 +69,7 @@ export const resolveSafeArea = (
       baseMarginLeft: 122,
       baseMarginRight: 122,
       contentTop: 72,
-      contentBottom: 150,
+      contentBottom: 230,
       contentLeft: 122,
       contentRight: 122,
       captionBottom: 82,
@@ -94,4 +94,18 @@ export const resolveSafeArea = (
     captionRight: 82,
     platformRightRail: 0,
   };
+};
+
+export const resolveSafeArea = (width: number, height: number, platforms: VideoPlan['meta']['platforms'] = []): SafeAreaProfile => {
+  const base = baseSafeArea(width, height, platforms);
+  const reference = base.name === '16:9' ? [1920, 1080] : base.name === '9:16' ? [1080, 1920] : [1080, 1440];
+  const scale = Math.min(width / reference[0], height / reference[1]);
+  const result = Object.fromEntries(Object.entries(base).map(([key, value]) => [key, typeof value === 'number' ? Math.round(value * scale) : value])) as SafeAreaProfile;
+  // Conservative UI allowance, not a guarantee for every app/version.
+  if (base.name === '9:16' && platforms.some((p) => ['douyin', 'xiaohongshu'].includes(p))) {
+    result.platformRightRail = Math.round(72 * scale);
+    result.contentRight += result.platformRightRail;
+    result.captionRight += result.platformRightRail;
+  }
+  return result;
 };

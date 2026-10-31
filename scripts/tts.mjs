@@ -8,27 +8,34 @@ import * as edgeProvider from './tts/providers/edge.mjs';
 import * as httpProvider from './tts/providers/http.mjs';
 import * as localProvider from './tts/providers/local.mjs';
 import * as volcengineProvider from './tts/providers/volcengine.mjs';
+import * as voxcpm2Provider from './tts/providers/voxcpm2.mjs';
 import {skillRootFrom} from './lib/paths.mjs';
 import {timed} from './lib/timing.mjs';
+import {selectProvider} from './tts/select-provider.mjs';
+import {generateSelected} from './tts/generate-selected.mjs';
+import {repairAcousticTiming} from './lib/acoustic-timing.mjs';
 
 const providers = {
   edge: edgeProvider,
   http: httpProvider,
   local: localProvider,
   volcengine: volcengineProvider,
+  voxcpm2: voxcpm2Provider,
 };
 
 const args = parseArgs(process.argv.slice(2));
 const command = args._[0];
-const providerName = args.provider ?? process.env.TTS_PROVIDER ?? 'edge';
+const selectedPlan = command === 'generate' && args._[1] ? JSON.parse(fs.readFileSync(path.resolve(args._[1]))) : undefined;
+const selection = selectProvider({explicit: args.provider, plan: selectedPlan});
+const providerName = selection.provider;
 const provider = providers[providerName];
 const skillRoot = skillRootFrom(import.meta.url, '..');
 
 const usage = () => {
   console.error(`Usage:
-  node scripts/tts.mjs generate <path-to-video-plan.json> --provider=edge|local|volcengine|http
-  node scripts/tts.mjs preview --provider=edge|local|volcengine|http [--text="..."]
-  node scripts/tts.mjs voices --provider=edge|local|volcengine|http
+  node scripts/tts.mjs generate <path-to-video-plan.json> --provider=auto|voxcpm2|edge|local|volcengine|http
+  node scripts/tts.mjs preview --provider=auto|voxcpm2|edge|local|volcengine|http [--text="..."]
+  node scripts/tts.mjs voices --provider=auto|voxcpm2|edge|local|volcengine|http
 
 Common options:
   --voice=<voice-id>
@@ -58,6 +65,11 @@ const options = {
   rate: args.rate,
   cluster: args.cluster,
   concurrency: args.concurrency,
+  seed: args.seed,
+  steps: args.steps,
+  asrModel: args['asr-model'],
+  transcript: args['asr-transcript'],
+  forceAsr: Boolean(args['force-asr']),
 };
 
 const defaultPreviewText =
@@ -102,6 +114,24 @@ if (command === 'voices') {
   const planPath = path.resolve(planPathArg);
   const planDir = path.dirname(planPath);
   const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
+
+  if (['voxcpm2', 'edge', 'volcengine', 'local'].includes(providerName)) {
+    let holdsChanged = false;
+    for (const scene of plan.scenes) if (scene.preservePauses === true && scene.minimumDurationSeconds === undefined) {
+      scene.minimumDurationSeconds = scene.end - scene.start; holdsChanged = true;
+    }
+    if (holdsChanged) fs.writeFileSync(planPath, `${JSON.stringify(plan, null, 2)}\n`);
+    const result = await generateSelected({planPath, selection, providers, options, skillRoot});
+    const acoustic = await repairAcousticTiming(planPath, {phraseOptions: options});
+    const repaired = JSON.parse(fs.readFileSync(planPath));
+    console.log(JSON.stringify({...result,durationSeconds:repaired.meta.durationSeconds,voiceover:repaired.audio.voiceover,
+      acousticTiming:{state:acoustic.state,changes:acoustic.changes}}));
+    process.exit(0);
+  }
+
+  if (plan.audio?.sourceMode === 'imported') {
+    throw new Error('Imported narration must not be replaced by TTS. Start a separate TTS job to change the voice.');
+  }
 
   if (!Array.isArray(plan.scenes) || plan.scenes.length === 0) {
     throw new Error('video-plan.json must contain at least one scene');

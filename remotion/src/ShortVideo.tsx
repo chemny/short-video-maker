@@ -1,3 +1,7 @@
+import {DirectedNews} from './components/DirectedNews';
+import {SceneShotcraftBrief} from './components/SceneShotcraftBrief';
+import {SceneComponents} from './components/SceneComponents';
+import {LayoutAudit} from './components/LayoutAudit';
 import {TransitionPresentation, TransitionSeries, springTiming} from '@remotion/transitions';
 import {clockWipe} from '@remotion/transitions/clock-wipe';
 import {fade} from '@remotion/transitions/fade';
@@ -16,6 +20,7 @@ import {SceneEditorialBrief} from './components/SceneEditorialBrief';
 import {SceneImageOverlay} from './components/SceneImageOverlay';
 import {SceneRenderer} from './components/SceneRenderer';
 import {SceneSketchNotes} from './components/SceneSketchNotes';
+import {SceneResponsive} from './components/SceneResponsive';
 import {coverIntroFrames} from './lib/cover';
 import {resolveSafeArea} from './lib/safeArea';
 import {secondsToFrames} from './lib/timing';
@@ -49,7 +54,10 @@ const SceneComponent = ({
   totalScenes: number;
   globalFrame: number;
 }) => {
+  if (plan.style.template === 'shotcraft-brief') return <SceneShotcraftBrief plan={plan} scene={scene} />;
+  if (plan.style.componentSystem === 'semantic-v1') return <SceneComponents plan={plan} scene={scene} />;
   const template = plan.style.template;
+  if (template === 'responsive-report' || scene.visual?.kind === 'video') return <SceneResponsive plan={plan} scene={scene} />;
   if (template === 'clean-explainer') {
     return <SceneCleanExplainer plan={plan} scene={scene} sceneIndex={sceneIndex} totalScenes={totalScenes} />;
   }
@@ -122,8 +130,10 @@ export const ShortVideo = ({plan}: {plan: VideoPlan}) => {
   const transitionDuration = 12; // frames
   const introFrames = coverIntroFrames(plan, fps);
 
+  if(plan.style.template==='directed-news')return <AbsoluteFill><AudioLayer plan={plan}/><DirectedNews plan={plan}/>{plan.style.layoutAudit?<LayoutAudit plan={plan}/>:null}</AbsoluteFill>;
   return (
-    <AbsoluteFill style={{background: plan.style.background}}>
+    <AbsoluteFill data-svm-root style={{background: plan.style.background}}>
+      {plan.style.layoutAudit ? <LayoutAudit plan={plan} /> : null}
       {/* 开头封面标题卡：frame 0 即封面，主题先入 */}
       {introFrames > 0 ? (
         <Sequence durationInFrames={introFrames} name="Cover">
@@ -133,7 +143,7 @@ export const ShortVideo = ({plan}: {plan: VideoPlan}) => {
 
       {/* 正片：整体后移到封面之后，音频/场景/字幕内部时间轴不变 */}
       <Sequence from={introFrames} name="Content">
-        <AbsoluteFill style={{background: plan.style.background}}>
+        <AbsoluteFill data-svm-root style={{background: plan.style.background}}>
           <AudioLayer plan={plan} />
           <TransitionSeries>
         {plan.scenes.map((scene, index) => {
@@ -144,7 +154,10 @@ export const ShortVideo = ({plan}: {plan: VideoPlan}) => {
           // 转场会"重叠"相邻两个场景，吃掉 transitionDuration 帧。
           // 给带转场的场景补上这段帧，保证：画面总时长 == 音频总时长，
           // 且每个场景的内容起点仍精确对齐其旁白起点（消除尾部黑屏与漂移）。
-          const baseFrames = secondsToFrames(scene.end - scene.start, fps);
+          // Round absolute boundaries, not each duration independently: per-scene
+          // rounding can accumulate and leave the last delivery frame uncovered.
+          const endFrame = isLast ? Math.ceil(scene.end * fps) : secondsToFrames(scene.end, fps);
+          const baseFrames = Math.max(1, endFrame - secondsToFrames(scene.start, fps));
           const seqFrames = baseFrames + (hasTransitionAfter ? transitionDuration : 0);
           return [
             <TransitionSeries.Sequence key={scene.id} durationInFrames={seqFrames}>
@@ -160,6 +173,14 @@ export const ShortVideo = ({plan}: {plan: VideoPlan}) => {
           ];
         })}
           </TransitionSeries>
+          {(plan.cover.overlaySeconds ?? 0) > 0 ? (
+            <Sequence durationInFrames={secondsToFrames(plan.cover.overlaySeconds!, fps)} name="Content title">
+              <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: width * 0.08, color: '#fff', textAlign: 'center', background: 'rgba(0,0,0,0.22)', fontFamily: '"PingFang SC", system-ui, sans-serif', textShadow: '0 3px 14px #000'}}>
+                <div style={{fontSize: Math.min(width * 0.10, height * 0.12), fontWeight: 800}}>{plan.cover.title}</div>
+                {plan.meta.speaker ? <div style={{fontSize: Math.min(width * 0.035, height * 0.05), marginTop: 24}}>朗诵者：{plan.meta.speaker}</div> : null}
+              </AbsoluteFill>
+            </Sequence>
+          ) : null}
           <CaptionLayer captions={plan.captions} style={plan.style} platforms={plan.meta.platforms} />
           {plan.style.safeAreaOverlay ? <SafeAreaOverlay plan={plan} /> : null}
         </AbsoluteFill>

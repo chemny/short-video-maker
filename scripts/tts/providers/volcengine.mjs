@@ -16,6 +16,19 @@ import {timed} from '../../lib/timing.mjs';
 
 export const name = 'volcengine';
 
+export const timestampWords = (addition) => {
+  let value = addition?.frontend ?? addition?.timestamp;
+  if (typeof value === 'string') {try {value = JSON.parse(value);} catch {return [];}}
+  const words = value?.words;
+  if (!Array.isArray(words)) return [];
+  // Current v1 large-model frontend returns milliseconds (verified against audio).
+  // An explicitly configured seconds-based endpoint can opt in; no unit guessing.
+  const unit = process.env.VOLCENGINE_TTS_TIMESTAMP_UNIT ?? 'ms';
+  if (!['ms', 's'].includes(unit)) throw new Error('VOLCENGINE_TTS_TIMESTAMP_UNIT must be ms or s');
+  const scale = unit === 'ms' ? 1000 : 1;
+  return words.map((w) => ({word: w.word, start: Number(w.start_time) / scale, end: Number(w.end_time) / scale, probability: 1}));
+};
+
 const loadPresets = (skillRoot) => {
   const presetsPath = path.join(skillRoot, 'data', 'voice-presets.json');
   return fs.existsSync(presetsPath) ? JSON.parse(fs.readFileSync(presetsPath, 'utf8')) : [];
@@ -53,6 +66,7 @@ const getConfig = ({skillRoot, options}) => {
         ? Number(options.loudness)
         : envNumber('VOLCENGINE_TTS_LOUDNESS_RATIO', preset?.loudnessRatio ?? 1),
     model: options.model ?? process.env.VOLCENGINE_TTS_MODEL ?? preset?.model ?? 'seed-tts-1.1',
+    timestampUnit: process.env.VOLCENGINE_TTS_TIMESTAMP_UNIT ?? 'ms',
     uid: process.env.VOLCENGINE_TTS_UID ?? 'short-video-maker',
     preset,
   };
@@ -161,28 +175,28 @@ export const generate = async ({plan, planDir, outputMp3, options, skillRoot}) =
       }
 
       const segmentPath = path.join(segmentsDir, `scene-${String(index + 1).padStart(3, '0')}.mp3`);
-      const key = sceneCacheKey({provider: 'volcengine', text, config});
+      const key = sceneCacheKey({provider: 'volcengine', text, config: {...config, timestampVersion: 1}});
       const cached = readCachedScene({audioDir, provider: 'volcengine', key});
       if (cached) {
         fs.copyFileSync(cached.audioPath, segmentPath);
         console.log(`Reused cached scene ${index + 1}: ${cached.duration.toFixed(2)}s`);
-        return {segmentPath, duration: cached.duration};
+        return {segmentPath, duration: cached.duration, words: cached.meta.words ?? [], reused: true};
       }
 
       const result = await timed(`volcengine tts scene ${index + 1}`, () => requestTts({config, text, index}));
       fs.writeFileSync(segmentPath, Buffer.from(result.data, 'base64'));
 
-      const apiDuration = Number(result.addition?.duration) / 1000;
-      const duration = Number.isFinite(apiDuration) && apiDuration > 0 ? apiDuration : detectDuration(segmentPath);
+      const duration = detectDuration(segmentPath);
+      const words = timestampWords(result.addition);
       writeCachedScene({
         audioDir,
         provider: 'volcengine',
         key,
         sourcePath: segmentPath,
-        meta: {duration, provider: 'volcengine', voiceType: config.voiceType, model: config.model},
+        meta: {duration, provider: 'volcengine', voiceType: config.voiceType, model: config.model, words},
       });
       console.log(`Generated scene ${index + 1}: ${duration.toFixed(2)}s`);
-      return {segmentPath, duration};
+      return {segmentPath, duration, words, reused: false};
     },
   });
 
@@ -193,6 +207,7 @@ export const generate = async ({plan, planDir, outputMp3, options, skillRoot}) =
   });
 
   return {
+    segments: results,
     sceneDurations: results.map((result) => result.duration),
     providerMeta: {
       provider: 'volcengine',

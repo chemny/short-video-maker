@@ -1,0 +1,48 @@
+{
+  "repository": "https://github.com/riaz37/remotion-ui",
+  "commit": "0aecaca2b61a167992e1205d10e4da16d8a71331",
+  "files": [
+    {
+      "path": "LICENSE",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/riaz37/remotion-ui/0aecaca2b61a167992e1205d10e4da16d8a71331/LICENSE",
+      "sha256": "97d885d1d43e787f2855b1084625fce1480d9789792bc209e8b2b2c08464ec9a"
+    },
+    {
+      "path": "apps/web/registry/bases/default/primitives/globe-arc.tsx",
+      "file": "globe-arc.tsx",
+      "url": "https://raw.githubusercontent.com/riaz37/remotion-ui/0aecaca2b61a167992e1205d10e4da16d8a71331/apps/web/registry/bases/default/primitives/globe-arc.tsx",
+      "sha256": "15c40d83a7b52b92e942856977f311f545681b1614af3812a8bd639527fe981a"
+    },
+    {
+      "path": "apps/web/registry/bases/default/primitives/bar-chart-race.tsx",
+      "file": "bar-chart-race.tsx",
+      "url": "https://raw.githubusercontent.com/riaz37/remotion-ui/0aecaca2b61a167992e1205d10e4da16d8a71331/apps/web/registry/bases/default/primitives/bar-chart-race.tsx",
+      "sha256": "bfee066a69952ae9908aeaf92935e59bb2711e522dce6cb801a488f560534710"
+    },
+    {
+      "path": "apps/web/registry/bases/default/primitives/strikethrough-replace.tsx",
+      "file": "strikethrough-replace.tsx",
+      "url": "https://raw.githubusercontent.com/riaz37/remotion-ui/0aecaca2b61a167992e1205d10e4da16d8a71331/apps/web/registry/bases/default/primitives/strikethrough-replace.tsx",
+      "sha256": "c164d831fd75ea44555b6af24eced08836ca019ff32da3c22eeb95882392cfad"
+    },
+    {
+      "path": "apps/web/registry/bases/default/scenes/device-mockup-zoom/index.tsx",
+      "file": "device-mockup-zoom.tsx",
+      "url": "https://raw.githubusercontent.com/riaz37/remotion-ui/0aecaca2b61a167992e1205d10e4da16d8a71331/apps/web/registry/bases/default/scenes/device-mockup-zoom/index.tsx",
+      "sha256": "608c4dbbe28839c8a793e0e7ff0e20409b28fe70aca85989669e011d2bae9537"
+    }
+  ],
+  "usage": {
+    "globe-arc.tsx": "adapted and rendered",
+    "bar-chart-race.tsx": "adapted and rendered",
+    "strikethrough-replace.tsx": "adapted and rendered",
+    "device-mockup-zoom.tsx": "reference only; not executed"
+  },
+  "changes": [
+    "local easing and number formatting",
+    "local Chinese typography",
+    "explicit aspect-ratio layouts",
+    "no CLI or font-loading side effects"
+  ]
+}

@@ -1,0 +1,28 @@
+import {useEffect,useState}from'react';import{continueRender,delayRender,useCurrentFrame,useVideoConfig}from'remotion';import{VideoPlan}from'../lib/types';
+export const LayoutAudit=({plan}:{plan:VideoPlan})=>{
+ const frame=useCurrentFrame(),{width,height}=useVideoConfig(),[handle]=useState(()=>delayRender('Measure actual layout'));
+ useEffect(()=>{let cancelled=false;document.fonts.ready.then(()=>requestAnimationFrame(()=>{if(cancelled)return;
+ const errors:string[]=[],measurements:unknown[]=[],root=document.querySelector('[data-svm-root]'),rootBox=root?.getBoundingClientRect(),viewportScale=rootBox&&rootBox.width>0?rootBox.width/width:1;
+ const rect=(e:Element)=>{const b=e.getBoundingClientRect(),x=(b.x-(rootBox?.x??0))/viewportScale,y=(b.y-(rootBox?.y??0))/viewportScale,w=b.width/viewportScale,h=b.height/viewportScale;return{x,y,width:w,height:h,right:x+w,bottom:y+h};};
+ const visible=(e:Element)=>{let a:Element|null=e,opacity=1;while(a){const c=getComputedStyle(a);if(c.visibility==='hidden'||c.display==='none')return false;opacity*=Number(c.opacity);if(a===root)break;a=a.parentElement;}return opacity>.2;};
+ const scaledFont=(e:Element)=>{let size=parseFloat(getComputedStyle(e).fontSize),a:Element|null=e;while(a&&a!==root){const c=getComputedStyle(a);if(c.transform!=='none'){const m=new DOMMatrix(c.transform);size*=Math.min(Math.hypot(m.a,m.b),Math.hypot(m.c,m.d));}if(c.scale&&c.scale!=='none'){const v=c.scale.split(' ').map(Number);size*=Math.min(v[0],v[1]??v[0]);}a=a.parentElement;}return size;};
+ const phone=plan.style.layoutReadability==='phone-v1',items=Array.from(document.querySelectorAll<HTMLElement>('[data-layout-role]'));
+ for(const el of items){if(!visible(el))continue;const role=el.dataset.layoutRole!,r=rect(el),cs=getComputedStyle(el);if(r.width<1||r.height<1){if(role==='media')errors.push('media: no visible panel');continue;}
+ const minimum=phone?({title:18,'cover-title':18,body:15,step:15,stat:15,caption:16,source:10,label:10}as Record<string,number>)[role]:undefined;
+ const fonts:number[]=[];const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n:Node|null;const lines=new Map<number,string>();
+ while((n=walker.nextNode())){const parent=n.parentElement;if(!parent||parent.closest('[data-layout-role]')!==el||!visible(parent)||!n.textContent?.trim())continue;fonts.push(scaledFont(parent));
+ if(['title','cover-title','caption'].includes(role))for(let i=0;i<n.textContent.length;i++){const ch=n.textContent[i];if(!/[\p{L}\p{N}]/u.test(ch))continue;const range=document.createRange();range.setStart(n,i);range.setEnd(n,i+1);const b=range.getBoundingClientRect(),y=Math.round(b.y/viewportScale);lines.set(y,(lines.get(y)??'')+ch);}}
+ const effective=fonts.length?Math.min(...fonts):null;
+ if(minimum&&effective!==null&&effective*390/width<minimum-.15)errors.push(`${role}: actual phone font ${(effective*390/width).toFixed(1)}px below ${minimum}px`);
+ else if(!phone&&['title','body','step','stat','caption'].includes(role)&&parseFloat(cs.fontSize)<Math.min(width,height)/1080*24-1)errors.push(`${role}: below minimum readable font size`);
+ if(['title','cover-title'].includes(role)||(role==='caption'&&el.dataset.explicitLines!=='true')){const rows=[...lines.entries()].sort((a,b)=>a[0]-b[0]).map(x=>x[1]);if(rows.length>1&&/^\p{Script=Han}$/u.test(rows.at(-1)!))errors.push(`${role}: single-character last line`);}
+ const l=Number(el.dataset.safeLeft??0),top=Number(el.dataset.safeTop??0),right=Number(el.dataset.safeRight??0),bottom=Number(el.dataset.safeBottom??0);if(r.x<l-1||r.y<top-1||r.right>width-right+1||r.bottom>height-bottom+1)errors.push(`${role}: outside reserved platform margins`);
+ if(phone&&['body','title','source','caption'].includes(role)&&(r.x<60||r.right>width-60||r.y<150||r.bottom>height-220))errors.push(`${role}: outside phone safe area`);
+ if(!(role==='media'&&el.dataset.mediaCrop==='intentional')&&((el.scrollWidth>el.clientWidth+2&&['hidden','clip','scroll','auto'].includes(cs.overflowX))||(el.scrollHeight>el.clientHeight+2&&['hidden','clip','scroll','auto'].includes(cs.overflowY))))errors.push(`${role}: text/content clipped`);
+ const container=el.closest('[data-layout-role="content"]');if(container&&el!==container){const c=rect(container);if(r.x<c.x-1||r.y<c.y-1||r.right>c.right+1||r.bottom>c.bottom+1)errors.push(`${role}: outside reserved content area`);}
+ measurements.push({role,sceneId:el.closest('[data-scene-id]')?.getAttribute('data-scene-id'),rect:r,fontSize:parseFloat(cs.fontSize),effectiveFontSize:effective,phoneFontSize:effective===null?null:effective*390/width,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,text:el.textContent?.slice(0,100)});
+ }
+ const cap=items.find(e=>e.dataset.layoutRole==='caption'&&visible(e));if(cap){const c=rect(cap);for(const e of items.filter(e=>e!==cap&&visible(e)&&(e.dataset.layoutRole==='content'||phone&&['title','body','source'].includes(e.dataset.layoutRole!)))){const r=rect(e);if(Math.min(r.right,c.right)>Math.max(r.x,c.x)+1&&Math.min(r.bottom,c.bottom)>Math.max(r.y,c.y)+1)errors.push('caption: overlaps designed content');}}
+ if(!items.length)errors.push('No shared measured-layout elements');console.log('SVM_LAYOUT '+JSON.stringify({frame,width,height,errors:[...new Set(errors)],measurements}));continueRender(handle);
+ })).catch(e=>{console.error('SVM_LAYOUT '+JSON.stringify({frame,width,height,errors:['Layout measurement failed: '+e.message],measurements:[]}));continueRender(handle);});return()=>{cancelled=true;};},[frame,handle,width,height,plan]);return null;
+};

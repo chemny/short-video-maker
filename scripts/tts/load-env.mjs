@@ -9,6 +9,7 @@ import {skillRootFrom} from '../lib/paths.mjs';
 const skillRoot = skillRootFrom(import.meta.url, '..', '..');
 
 const candidates = [
+  path.join(os.homedir(), '.cmm', 'short-video-maker-local.env'),
   path.join(os.homedir(), '.cmm', 'remotion-volcengine.env'),
   path.join(skillRoot, '.env'),
 ];

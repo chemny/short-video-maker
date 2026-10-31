@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "title": "新闻解读示例",
+    "subtitle": "AI 正在进入企业流程",
+    "topic": "模板使用示例",
+    "platforms": [
+      "xiaohongshu",
+      "douyin"
+    ],
+    "language": "zh-CN",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationSeconds": 3,
+    "directorVersion": "director-v1",
+    "productionWorkflow": "reviewed-v1"
+  },
+  "style": {
+    "template": "directed-news",
+    "editorialVariant": "html-liquid-dark",
+    "preset": "mono-tech",
+    "background": "#07111c",
+    "textPrimary": "#f0f5fa",
+    "textSecondary": "#aeb9c9",
+    "accent": "#34c8df",
+    "captionPosition": "bottom",
+    "captionMode": "sentence",
+    "motionIntensity": "medium",
+    "captionBackdrop": true,
+    "componentSystem": "off",
+    "layoutAudit": false,
+    "layoutReadability": "phone-v1"
+  },
+  "cover": {
+    "title": "新闻解读示例",
+    "subtitle": "AI 正在进入企业流程",
+    "label": "AI 企业落地",
+    "layout": "bold-title",
+    "introSeconds": 0
+  },
+  "captions": [
+    {
+      "id": "example-c1",
+      "text": "先明确一个判断",
+      "start": 0,
+      "end": 2.8
+    }
+  ],
+  "scenes": [
+    {
+      "id": "example",
+      "start": 0,
+      "end": 3,
+      "type": "body",
+      "layout": "text-card",
+      "caption": "先明确一个判断",
+      "voiceover": "先明确一个判断",
+      "captionIds": [
+        "example-c1"
+      ],
+      "transition": "cut"
+    }
+  ],
+  "publish": {}
+}

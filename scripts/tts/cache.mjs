@@ -53,6 +53,7 @@ export const readCachedScene = ({audioDir, provider, key}) => {
   }
 
   const meta = JSON.parse(fs.readFileSync(paths.metaPath, 'utf8'));
+  if (meta.audioSha256 && meta.audioSha256 !== crypto.createHash('sha256').update(fs.readFileSync(paths.audioPath)).digest('hex')) throw new Error('TTS scene cache hash mismatch');
   if (!Number.isFinite(meta.duration) || meta.duration <= 0) {
     return null;
   }
@@ -60,6 +61,7 @@ export const readCachedScene = ({audioDir, provider, key}) => {
   return {
     audioPath: paths.audioPath,
     duration: meta.duration,
+    meta,
   };
 };
 
@@ -67,7 +69,7 @@ export const writeCachedScene = ({audioDir, provider, key, sourcePath, meta}) =>
   const paths = cachePaths({audioDir, provider, key});
   fs.mkdirSync(paths.cacheDir, {recursive: true});
   fs.copyFileSync(sourcePath, paths.audioPath);
-  fs.writeFileSync(paths.metaPath, `${JSON.stringify(meta, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(paths.metaPath, `${JSON.stringify({...meta, audioSha256: crypto.createHash('sha256').update(fs.readFileSync(sourcePath)).digest('hex')}, null, 2)}\n`, 'utf8');
 };
 
 export const runWithConcurrency = async ({items, concurrency, worker}) => {
