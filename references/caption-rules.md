@@ -1,3 +1,5 @@
+> **Shot films follow `caption-standard.md`** (Netflix Simplified Chinese rules, adapted): one line, 14 units, no commas or periods, no punctuation at the end. The rules below remain for the legacy routes.
+
 # Caption Rules
 
 Captions are a core output for Xiaohongshu and Douyin videos. Treat them as part of the video design, not as an afterthought.

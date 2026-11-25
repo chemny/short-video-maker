@@ -72,6 +72,8 @@ const options = {
   asrModel: args['asr-model'],
   transcript: args['asr-transcript'],
   forceAsr: Boolean(args['force-asr']),
+  oneTake: Boolean(args['one-take']),
+  sceneSeeds: args['scene-seeds'] ? String(args['scene-seeds']).split(',').map(Number) : undefined,
 };
 
 const defaultPreviewText =

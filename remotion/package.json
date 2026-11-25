@@ -5,7 +5,9 @@
   "scripts": {
     "preview": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts ShortVideo out/video.mp4 --codec=h264 --audio-codec=aac",
-    "cover": "remotion still src/index.ts CoverStill out/cover.png --frame=0"
+    "cover": "remotion still src/index.ts CoverStill out/cover.png --frame=0",
+    "gallery": "remotion studio src/templates/frame/gallery.tsx",
+    "gallery:paper": "remotion studio src/templates/paper/gallery.tsx"
   },
   "dependencies": {
     "@remotion/cli": "4.0.481",

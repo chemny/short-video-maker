@@ -7,6 +7,12 @@ Generated narration automatically chooses **local VoxCPM2 when the complete loca
 
 [中文](./README.zh.md) | English
 
+## Main line (read this first)
+
+The default workflow is the **shot film**: research official sources, grade the picture material, write the script beat by beat around real pictures, render with a camera grammar, and show the user a film only after measurements and a recorded frame review pass. See `SKILL.md` for the eight stages and their gates, `references/shot-script.md` for the script format and moves, and `references/quality-bar.md` for the quality layers. The template, director and component routes described further down are **legacy**: they still run and are tested, and are indexed in `references/legacy-routes.md`.
+
+Known gaps: narration, alignment and packaging for shot films are not yet one command, and the shot film is not part of `run-job.mjs`.
+
 ## Phase-1 material-route consolidation
 
 The subsequent production upgrade adds explicit official-source snapshots/media requests, claim-to-scene provenance, conservative local Whisper word-boundary matching, selected native video clips, and a responsive report template for 16:9, 9:16 and 3:4. Researched renders generate midpoint/safe-area previews; technical delivery and plan/video-bound editorial review are separate. Product/article/daily briefs and cache/provenance rules are documented in [researched production](references/researched-production.md). The former Auto local archive was deleted at the user's request; historical jobs and the remote repository were retained.

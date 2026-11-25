@@ -65,11 +65,14 @@ export const synthesize = ({texts, audioDir, options = {}}) => {
   const runtime = resolveRuntime(); const profile = resolveProfile(options); const config = settings(options, profile);
   if (!texts.length || texts.some((text) => !String(text).trim())) throw new Error('Nonempty approved narration required');
   // Each approved scene is immutable and reusable independently of order/other scenes.
-  const chunks = texts;
-  if (chunks.some((text) => text.length > 300)) throw new Error('Split narration scenes longer than 300 characters before local synthesis');
+  // `oneTake` voices the whole narration in a single pass, so one speaker timbre runs through the film; scene boundaries then come from the ASR alignment of the full audio
+  const chunks = options.oneTake ? [texts.map((text) => String(text).trim()).join('')] : texts;
+  if (chunks.some((text) => text.length > (options.oneTake ? 800 : 300))) throw new Error('Split narration scenes longer than 300 characters before local synthesis');
   const dir = path.join(audioDir, '.tts-cache', 'voxcpm2'); fs.mkdirSync(dir, {recursive: true});
-  const segments = chunks.map((text) => {
-    const key = hash(JSON.stringify({schema: 'scene-v1', text, config, runtime})).slice(0, 24);
+  const segments = chunks.map((text, index) => {
+    // `sceneSeeds` lets each scene use the seed chosen for it (scripts/pick-voice-takes.mjs); a scene's cache is keyed by its own seed
+    const sceneConfig = options.sceneSeeds?.[index] !== undefined ? {...config, seed: Number(options.sceneSeeds[index])} : config;
+    const key = hash(JSON.stringify({schema: options.oneTake ? 'one-take-v1' : 'scene-v1', text, config: sceneConfig, runtime})).slice(0, 24);
     const file = path.join(dir, `scene-${key}.wav`), metadata = path.join(dir, `scene-${key}.json`);
     if (fs.existsSync(file) && fs.existsSync(metadata)) {
       const meta = JSON.parse(fs.readFileSync(metadata));
@@ -79,7 +82,7 @@ export const synthesize = ({texts, audioDir, options = {}}) => {
     const stage = fs.mkdtempSync(path.join(dir, '.generating-'));
     try {
       let out = path.join(stage, profile ? 'raw.wav' : 'scene.wav');
-      runCommand(runtime.python, [runtime.script, '--mode', config.mode, ...(profile ? ['--ref-audio', profile.reference] : []), '--text', text, '--seed', String(config.seed), '--steps', String(config.steps), '--max-tokens', String(config.maxTokens), '--output', out],
+      runCommand(runtime.python, [runtime.script, '--mode', config.mode, ...(profile ? ['--ref-audio', profile.reference] : []), '--text', text, '--seed', String(sceneConfig.seed), '--steps', String(config.steps), '--max-tokens', String(config.maxTokens), '--output', out],
         {cwd: runtime.folder, label: 'local VoxCPM2 scene cache miss', timeoutMs: envMilliseconds('SHORT_VIDEO_TTS_TIMEOUT_MS', 900000)});
       const generation = JSON.parse(fs.readFileSync(out.replace(/\.wav$/, '.json')));
       let rawAudioSha256;
@@ -91,7 +94,7 @@ export const synthesize = ({texts, audioDir, options = {}}) => {
         out = path.join(stage, 'scene.wav');
       }
       const duration = inspectAsset(out).duration;
-      const meta = {text, config, engineFingerprint: runtime.fingerprint, duration, audioSha256: hash(fs.readFileSync(out)),
+      const meta = {text, config: sceneConfig, engineFingerprint: runtime.fingerprint, duration, audioSha256: hash(fs.readFileSync(out)),
         ...(profile ? {rawAudioSha256, speedAppliedOnce: profile.speed, voiceProfileSha256: profile.sha256} : {}), generation};
       fs.renameSync(out, file); write(metadata, meta);
       return {key, file, meta, reused: false};
@@ -103,7 +106,7 @@ export const synthesize = ({texts, audioDir, options = {}}) => {
   if (fs.existsSync(output) && fs.existsSync(metadata)) {
     const cached = JSON.parse(fs.readFileSync(metadata));
     if (cached.audioSha256 !== hash(fs.readFileSync(output))) throw new Error('VoxCPM2 cache hash mismatch; preserve the modified file before retrying');
-    inspectAsset(output); return {file: output, meta: {...cached, sceneCache}, segments: segments.map(s => ({file: s.file, audioSha256: s.meta.audioSha256})), reused: true};
+    inspectAsset(output); return {file: output, meta: {...cached, sceneCache}, segments: options.oneTake ? [] : segments.map(s => ({file: s.file, audioSha256: s.meta.audioSha256})), reused: true};
   }
   const stage = fs.mkdtempSync(path.join(dir, '.assembling-'));
   try {
@@ -112,10 +115,10 @@ export const synthesize = ({texts, audioDir, options = {}}) => {
       '-filter_complex', `${segments.map((_, i) => `[${i}:a]`).join('')}concat=n=${segments.length}:v=0:a=1[a]`, '-map', '[a]', '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', joined], {stdio: 'pipe'});
     const meta = {provider: name, providerMeta: profile
       ? {model: runtime.model, voice: profile.name, voiceMode: 'clone', voiceProfilePath: profile.path, voiceProfileSha256: profile.sha256, voiceReferenceSha256: profile.referenceSha256, voiceSpeed: profile.speed, voiceSpeedAppliedOnce: true}
-      : {model: runtime.model, voice: `plain-seed-${config.seed}`}, model: runtime.model, revision: runtime.revision, config, texts, chunks, duration: inspectAsset(joined).duration,
+      : {model: runtime.model, voice: options.sceneSeeds ? `plain-takes-${options.sceneSeeds.join('-')}` : `plain-seed-${config.seed}`}, model: runtime.model, revision: runtime.revision, config, texts, chunks, duration: inspectAsset(joined).duration,
       engineFingerprint: runtime.fingerprint, audioSha256: hash(fs.readFileSync(joined)), sceneCache, generation: segments.map(s => s.meta.generation)};
     fs.renameSync(joined, output); write(metadata, meta);
-    return {file: output, meta, segments: segments.map(s => ({file: s.file, audioSha256: s.meta.audioSha256})), reused: segments.every(s => s.reused)};
+    return {file: output, meta, segments: options.oneTake ? [] : segments.map(s => ({file: s.file, audioSha256: s.meta.audioSha256})), reused: segments.every(s => s.reused)};
   } finally {fs.rmSync(stage, {recursive: true, force: true});}
 };
 

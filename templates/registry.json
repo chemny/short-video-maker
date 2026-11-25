@@ -208,7 +208,9 @@
           "resolvesTo": "html-cobalt-grid",
           "status": "legacy-fallback-not-independent-style"
         }
-      ]
+      ],
+      "status": "legacy",
+      "defaultRouting": false
     },
     {
       "id": "responsive-report",
@@ -260,7 +262,9 @@
         "complete preview",
         "matched audio export",
         "explicit editorial review"
-      ]
+      ],
+      "status": "legacy",
+      "defaultRouting": false
     },
     {
       "id": "shotcraft-brief",
@@ -304,7 +308,9 @@
         "same-input comparison",
         "phone-size still",
         "full preview before promotion"
-      ]
+      ],
+      "status": "legacy",
+      "defaultRouting": false
     },
     {
       "id": "directed-news",
@@ -344,7 +350,10 @@
         "measured phone readability",
         "complete preview",
         "bound visual/listening review before HD"
-      ]
+      ],
+      "status": "legacy",
+      "defaultRouting": false
     }
-  ]
+  ],
+  "status": "The four template packages below are legacy routes. They are not the default; the default is the shot-film main line in SKILL.md. See references/legacy-routes.md."
 }

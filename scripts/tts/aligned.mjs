@@ -64,7 +64,7 @@ export const alignGenerated = ({planPath, options = {}, provider, generated}) =>
           write(path.join(alignment, 'alignment-scene-pass.json'), first);
           const fullArgs = args.filter(arg => !arg.startsWith('--segments=') && !arg.startsWith('--scene-cache='));
           try {align(fullArgs); recovered = true;}
-          catch {first = fs.existsSync(reportFile) ? JSON.parse(fs.readFileSync(reportFile)) : first;}
+          catch {first = fs.existsSync(reportFile) ? JSON.parse(fs.readFileSync(reportFile)) : first; if (first) write(path.join(alignment, 'alignment-full-pass.json'), first);}
         }
         if (!recovered) {
           const base = path.join(os.homedir(), '.cache/whisper/base.pt');
@@ -91,6 +91,8 @@ export const alignGenerated = ({planPath, options = {}, provider, generated}) =>
       for (const entry of fs.readdirSync(alignment).filter((v) => v.startsWith('transcript-') && v.endsWith('.json'))) {
         fs.copyFileSync(path.join(alignment, entry), path.join(reportDir, entry));
       }
+      if (fs.existsSync(path.join(alignment, 'alignment-full-pass.json'))) fs.copyFileSync(
+        path.join(alignment, 'alignment-full-pass.json'), path.join(reportDir, `${provider}-full-pass-rejected-${Date.now()}.json`));
       if (fs.existsSync(path.join(alignment, 'alignment-scene-pass.json'))) fs.copyFileSync(
         path.join(alignment, 'alignment-scene-pass.json'), path.join(reportDir, `${provider}-scene-pass-rejected-${Date.now()}.json`));
       throw new Error(`${provider} alignment blocked; original plan and delivery retained. ${error.message}`);

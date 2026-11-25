@@ -6,12 +6,13 @@ import {fileURLToPath} from 'node:url';
 import {resolveRemotionBin} from './bins.mjs';
 import {runCommand} from './process.mjs';
 import {finalizeAudio} from './audio-export.mjs';
+import {reachableSources} from './import-graph.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const hash = value => createHash('sha256').update(value).digest('hex');
 const previewScale = plan => (plan.meta.productionWorkflow==='reviewed-v1'?[.5,1]:[.25,.5,1]).find(scale => [plan.meta.width, plan.meta.height].every(n => Number.isInteger(n * scale) && (n * scale) % 2 === 0)) ?? 1;
 const files = dir => fs.readdirSync(dir, {withFileTypes: true}).flatMap(e => e.isDirectory() ? files(path.join(dir, e.name)) : [path.join(dir, e.name)]);
-export const previewIdentity = (plan, job) => {
+export const previewIdentity = (plan, job, {root: skillRoot = root} = {}) => {
   const media = new Map();
   const visit = value => {
     if (typeof value === 'string' && !path.isAbsolute(value) && !value.includes('://')) {
@@ -23,8 +24,14 @@ export const previewIdentity = (plan, job) => {
   visit(plan);
   for(const name of ['sentence-storyboard.json','baseline.json','script.md','approved-script.md','narrative-brief.json']){const f=path.join(job,name);if(fs.existsSync(f))media.set(name,hash(fs.readFileSync(f)));}
   const source=renderSource(plan,job);
-  const renderer = [...files(path.join(root, 'remotion/src')), ...(source.kind==='authored-remotion'?files(path.dirname(source.entry)):[]), path.join(root, 'remotion/package-lock.json'), fileURLToPath(import.meta.url), path.join(root, 'scripts/lib/audio-export.mjs'),path.join(root,'scripts/lib/render-source.mjs'),path.join(root,'scripts/lib/director.mjs'),path.join(root,'components/emphasis.mjs')]
-    .filter(f => fs.existsSync(f)).sort().map(f => [path.relative(root, f), hash(fs.readFileSync(f))]);
+  // An authored composition is identified by the files it can actually import. Shared sources it never
+  // loads cannot change its frames; if the import graph is unresolvable, hash the whole shared tree.
+  const sharedTree = files(path.join(skillRoot, 'remotion/src'));
+  const reached = source.kind==='authored-remotion' ? reachableSources(source.entry) : null;
+  const sources = reached ? reached.filter(f => [path.resolve(skillRoot), path.resolve(job)].some(base => f.startsWith(base + path.sep))) : [...sharedTree, ...(source.kind==='authored-remotion'?files(path.dirname(source.entry)):[])];
+  // director.mjs is deliberately absent: its output is the compiled plan.directorRender, which is hashed with the plan.
+  const renderer = [...sources, path.join(skillRoot, 'remotion/package-lock.json'), fileURLToPath(import.meta.url), path.join(skillRoot, 'scripts/lib/audio-export.mjs'),path.join(skillRoot,'scripts/lib/render-source.mjs'),path.join(skillRoot,'components/emphasis.mjs')]
+    .filter(f => fs.existsSync(f)).sort().map(f => [path.relative(skillRoot, f), hash(fs.readFileSync(f))]);
   return hash(JSON.stringify({schema: 2, scale: previewScale(plan), plan, media: [...media].sort(), renderer}));
 };
 

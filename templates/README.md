@@ -1,3 +1,5 @@
+> **Legacy.** These template packages are legacy routes, no longer the default (see `../SKILL.md` and `../references/legacy-routes.md`). They are kept in place because the runner, doctor, validators and tests address them by path.
+
 # Template Packages
 
 Short Video Maker templates follow the HTML Anything pattern: a template is a
